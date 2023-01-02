@@ -9,9 +9,10 @@ class LoadSpectraWidget(OWWidget):
     description = "Load spectra data into an Orange data table"
     icon = "icons/spectra.svg"
     priority = 10
-    want_main_area = False
-    resizing_enabled = False
-    
+    #want_main_area = False
+    #resizing_enabled = False
+    proportion = Setting(50)
+    commitOnChange = Setting(0) 
     label = Setting("")
     
     class Inputs:
@@ -20,7 +21,7 @@ class LoadSpectraWidget(OWWidget):
 
     class Outputs:
         # if there are two or more outputs, default=True marks the default output
-        data = Output("Spectra Data", Table, default=True)
+        data = Output("Data", Table, default=True)
     
     # same class can be initiated for Error and Information messages
     class Warning(OWWidget.Warning):
@@ -37,6 +38,29 @@ class LoadSpectraWidget(OWWidget):
         #self.file_selection = gui.fileOpen(self, "file_selection", "Select spectra file",
         #                           filter="All files (*.*)")        
         #self.load_button = gui.button(self, self, "Load Data", callback=self.load_data)
+        box = gui.widgetBox(self.controlArea, "Info")
+        self.infoa = gui.widgetLabel(
+            box, "No data on input yet, waiting to get something."
+        )
+        self.infob = gui.widgetLabel(box, "")
+
+        gui.separator(self.controlArea)
+        self.optionsBox = gui.widgetBox(self.controlArea, "Options")
+        gui.spin(
+            self.optionsBox,
+            self,
+            "proportion",
+            minv=10,
+            maxv=90,
+            step=10,
+            label="Sample Size [%]:",
+            callback=[self.selection, self.checkCommit],
+        )
+        gui.checkBox(
+            self.optionsBox, self, "commitOnChange", "Commit data on selection change"
+        )
+        gui.button(self.optionsBox, self, "Commit", callback=self.commit)
+        self.optionsBox.setDisabled(True)        
 
     @Inputs.data
     def set_data(self, data):
