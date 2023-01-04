@@ -36,6 +36,7 @@ class ProcessSpectraWidget(OWWidget):
         # if there are two or more outputs, default=True marks the default output
         data = Output("Processed Data", Table, default=True)
         peaks = Output("Peaks", Table, default=False)
+        model = Output("Model", Table, default=False)
     
     # same class can be initiated for Error and Information messages
     class Warning(OWWidget.Warning):
@@ -69,9 +70,10 @@ class ProcessSpectraWidget(OWWidget):
             self.data = None
             
     def commit(self):
-        processed_data,peaks = self.process_data()
+        processed_data,peaks,peaks_data = self.process_data()
         self.Outputs.data.send(processed_data)
         self.Outputs.peaks.send(peaks)
+        self.Outputs.model.send(peaks_data)
     
     def send_report(self):
         # self.report_plot() includes visualizations in the report
@@ -79,12 +81,12 @@ class ProcessSpectraWidget(OWWidget):
         pass
     
 
-    def find_peaks(self,spe,index,peaks=[]):
+    def find_peaks(self,spe,index,moving_minimum_window=None):
         bgm = spe.bayesian_gaussian_mixture(
             n_samples=20000,
             n_components=20,
             max_iter=1000,
-            moving_minimum_window=50,
+            moving_minimum_window=moving_minimum_window,
             random_state=42,
             #trim_range=trim_range
             )
@@ -94,47 +96,69 @@ class ProcessSpectraWidget(OWWidget):
         bgm_peaks = sorted(bgm_peaks, key=lambda x: x[2], reverse=True)
         n_peaks = (np.round(bgm.weights_, 2) > 0).sum()
         bgm_peaks = bgm_peaks[:n_peaks]     
-        peaks.extend(bgm_peaks)
-        return peaks    
+        return bgm,bgm_peaks    
 
     def peaks2table(self,peaks):
         attrs = [ContinuousVariable("mean"),ContinuousVariable("sigma"),ContinuousVariable("weight"),ContinuousVariable("index")]
         log.info(peaks)
         return Table.from_numpy(Domain(attrs),peaks)
 
+    def bgm2spe(self,x,bgm_peaks,threshold=300):
+        import scipy.stats as stats
+        spey = None
+        for peak in bgm_peaks:
+            if peak[1]<threshold:
+                continue
+            gm = stats.norm(peak[0], peak[1])
+            tmp = peak[2]*gm.pdf(x)
+            if spey is None:
+                spey = tmp
+            else:
+                spey = spey + tmp
+        return spey
+
     def process_data(self):
         x = np.array([float(a.name) for a in self.data.domain.attributes])
         domain = None
         table_processed =self.data
+        table_peaks = None
         peaks = []
         try:
             n_rows = self.data.X.shape[0]
             for i in np.arange(0,n_rows):
                 spe = Spectrum(x=x, y=self.data[i].x)
                 spe1 = spe.trim_axes(method='x-axis',boundaries=(140,np.max(x)))
+                log.info(len(spe1.x))
                 if domain is None:
                     attrs = [ContinuousVariable.make("%f" % f,number_of_decimals=1) for f in spe1.x]
                     domain = Domain(attrs, class_vars = self.data.domain.class_vars,metas = self.data.domain.metas)
-                    #,metas=self.data.metas)
                     table_processed = Table.from_table(domain, self.data) 
-                self.find_peaks(spe1,i,peaks)
+                    attrs1 = [ContinuousVariable.make("%f" % f,number_of_decimals=1) for f in spe1.x]
+                    domain1 = Domain(attrs1)
+                    table_peaks = Table.from_domain(domain1, n_rows=n_rows) 
+                bgm,bgm_peaks = self.find_peaks(spe1,i,moving_minimum_window=50)
+                peaks.extend(bgm_peaks)
+                y_bgm = self.bgm2spe(spe1.x,bgm_peaks,threshold=0)
+                
                 #log.debug(max(spe1.y))
                 #spe1 = spe1.subtract_moving_minimum(50)
-                #spe1 = spe1.hht_sharpening(movmin=16) 
+                spe1 = spe1.hht_sharpening(movmin=50) 
                 spe1 = spe1.normalize('unity_area')                
                 #print(cand)
                 inst = table_processed[i]
-                inst.x[:]=spe1.y[:]
-                #cand = spe1.find_peaks_bayesian_gaussian(n_samples=1000, moving_minimum_window=50, n_components=20, max_iter=1000)
-                #self.peaks2table(cand)
-                
-                #peaks2table
-            return table_processed, self.peaks2table(peaks)
-        except Exception as err:
+                log.info("{} {} {} {}".format(len(spe1.x),len(spe1.y),len(y_bgm),len(inst.x)))
+                inst.x[:] = spe1.y
+                inst1 = table_peaks[i]
+                inst1.x[:] = y_bgm
+                #-y_bgm
+                #inst.x[:]=spe1.y[:]
+  
+            return table_processed, self.peaks2table(peaks),table_peaks
+        except Exception as err:    
             log.exception(err)
             #self.Error(str(err))
             #raise Exception
-        return None,None
+        return None,None,None
 
 
 
