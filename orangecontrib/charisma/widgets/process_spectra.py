@@ -6,6 +6,8 @@ import ramanchada2 as rc2
 from ramanchada2.spectrum import Spectrum
 import numpy as np
 import logging
+from itertools import cycle
+
 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
@@ -75,12 +77,36 @@ class ProcessSpectraWidget(OWWidget):
         # self.report_plot() includes visualizations in the report
         #self.report_caption(self.label)
         pass
+    
+
+    def find_peaks(self,spe,index,peaks=[]):
+        bgm = spe.bayesian_gaussian_mixture(
+            n_samples=20000,
+            n_components=20,
+            max_iter=1000,
+            moving_minimum_window=50,
+            random_state=42,
+            #trim_range=trim_range
+            )
+        bgm_peaks = [[mean[0], np.sqrt(cov[0][0]), weight, i]
+                     for mean, cov, weight,i in
+                     zip(bgm.means_, bgm.covariances_, bgm.weights_,cycle([index]))]
+        bgm_peaks = sorted(bgm_peaks, key=lambda x: x[2], reverse=True)
+        n_peaks = (np.round(bgm.weights_, 2) > 0).sum()
+        bgm_peaks = bgm_peaks[:n_peaks]     
+        peaks.extend(bgm_peaks)
+        return peaks    
+
+    def peaks2table(self,peaks):
+        attrs = [ContinuousVariable("mean"),ContinuousVariable("sigma"),ContinuousVariable("weight"),ContinuousVariable("index")]
+        log.info(peaks)
+        return Table.from_numpy(Domain(attrs),peaks)
 
     def process_data(self):
         x = np.array([float(a.name) for a in self.data.domain.attributes])
         domain = None
         table_processed =self.data
-        peaks = None
+        peaks = []
         try:
             n_rows = self.data.X.shape[0]
             for i in np.arange(0,n_rows):
@@ -91,18 +117,24 @@ class ProcessSpectraWidget(OWWidget):
                     domain = Domain(attrs, class_vars = self.data.domain.class_vars,metas = self.data.domain.metas)
                     #,metas=self.data.metas)
                     table_processed = Table.from_table(domain, self.data) 
-                #spe1 = spe.subtract_moving_minimum(16)
-                spe1 = spe1.hht_sharpening(movmin=16) 
-                #spe1 = spe.normalize('unity_area')
+                self.find_peaks(spe1,i,peaks)
                 #log.debug(max(spe1.y))
+                #spe1 = spe1.subtract_moving_minimum(50)
+                #spe1 = spe1.hht_sharpening(movmin=16) 
+                spe1 = spe1.normalize('unity_area')                
+                #print(cand)
                 inst = table_processed[i]
                 inst.x[:]=spe1.y[:]
-            return table_processed, peaks
+                #cand = spe1.find_peaks_bayesian_gaussian(n_samples=1000, moving_minimum_window=50, n_components=20, max_iter=1000)
+                #self.peaks2table(cand)
+                
+                #peaks2table
+            return table_processed, self.peaks2table(peaks)
         except Exception as err:
             log.exception(err)
             #self.Error(str(err))
             #raise Exception
-        return None
+        return None,None
 
 
 
@@ -123,7 +155,7 @@ if __name__ == "__main__":
         data = Table("../datasets/collagen.csv")
         
         # Send the data table to the output
-        WidgetPreview(ProcessSpectraWidget).run(set_data=data)    
+        WidgetPreview(ProcessSpectraWidget).run(set_data=Table.from_table_rows(data,[0,1]))    
     except Exception as err:
         print(err)
         WidgetPreview(ProcessSpectraWidget).run()    
