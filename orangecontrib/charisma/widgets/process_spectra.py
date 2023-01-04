@@ -32,7 +32,8 @@ class ProcessSpectraWidget(OWWidget):
 
     class Outputs:
         # if there are two or more outputs, default=True marks the default output
-        data = Output("Data", Table, default=True)
+        data = Output("Processed Data", Table, default=True)
+        peaks = Output("Peaks", Table, default=False)
     
     # same class can be initiated for Error and Information messages
     class Warning(OWWidget.Warning):
@@ -66,7 +67,9 @@ class ProcessSpectraWidget(OWWidget):
             self.data = None
             
     def commit(self):
-        self.Outputs.data.send(self.process_data())
+        processed_data,peaks = self.process_data()
+        self.Outputs.data.send(processed_data)
+        self.Outputs.peaks.send(peaks)
     
     def send_report(self):
         # self.report_plot() includes visualizations in the report
@@ -77,19 +80,24 @@ class ProcessSpectraWidget(OWWidget):
         x = np.array([float(a.name) for a in self.data.domain.attributes])
         domain = None
         table_processed =self.data
+        peaks = None
         try:
             n_rows = self.data.X.shape[0]
             for i in np.arange(0,n_rows):
                 spe = Spectrum(x=x, y=self.data[i].x)
+                spe1 = spe.trim_axes(method='x-axis',boundaries=(140,np.max(x)))
                 if domain is None:
-                    attrs = [ContinuousVariable.make("%f" % f,number_of_decimals=1) for f in spe.x]
+                    attrs = [ContinuousVariable.make("%f" % f,number_of_decimals=1) for f in spe1.x]
                     domain = Domain(attrs, class_vars = self.data.domain.class_vars,metas = self.data.domain.metas)
                     #,metas=self.data.metas)
                     table_processed = Table.from_table(domain, self.data) 
-                spe1 = spe.subtract_moving_minimum(16)
+                #spe1 = spe.subtract_moving_minimum(16)
+                spe1 = spe1.hht_sharpening(movmin=16) 
+                #spe1 = spe.normalize('unity_area')
+                #log.debug(max(spe1.y))
                 inst = table_processed[i]
                 inst.x[:]=spe1.y[:]
-            return table_processed 
+            return table_processed, peaks
         except Exception as err:
             log.exception(err)
             #self.Error(str(err))
