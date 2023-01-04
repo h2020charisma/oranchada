@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="" description="">
+	<nodes>
+		<node id="0" name="Process Spectra" qualified_name="orangecontrib.charisma.widgets.process_spectra.ProcessSpectraWidget" project_name="charisma" version="" title="Process Spectra" position="(32.0, 145.0)" />
+		<node id="1" name="File" qualified_name="Orange.widgets.data.owfile.OWFile" project_name="Orange3" version="" title="File" position="(-238.0, 126.0)" />
+		<node id="2" name="Spectra" qualified_name="orangecontrib.spectroscopy.widgets.owspectra.OWSpectra" project_name="Orange-Spectroscopy" version="" title="Spectra" position="(297.0, 114.0)" />
+		<node id="3" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWDataTable" project_name="Orange3" version="" title="Data Table" position="(-84.0, 77.0)" />
+		<node id="4" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWDataTable" project_name="Orange3" version="" title="Processed Spectra" position="(178.0, 227.0)" />
+		<node id="5" name="Multifile" qualified_name="orangecontrib.spectroscopy.widgets.owmultifile.OWMultifile" project_name="Orange-Spectroscopy" version="" title="Multifile" position="(-235.0, -3.0)" />
+		<node id="6" name="Spectra" qualified_name="orangecontrib.spectroscopy.widgets.owspectra.OWSpectra" project_name="Orange-Spectroscopy" version="" title="Spectra (1)" position="(-5.0, -44.0)" />
+		<node id="7" name="Data Table" qualified_name="Orange.widgets.data.owtable.OWDataTable" project_name="Orange3" version="" title="peaks" position="(57.0, 347.0)" />
+		<node id="8" name="Spectra" qualified_name="orangecontrib.spectroscopy.widgets.owspectra.OWSpectra" project_name="Orange-Spectroscopy" version="" title="Spectra (2)" position="(172.0, 8.0)" />
+	</nodes>
+	<links>
+		<link id="0" source_node_id="0" sink_node_id="4" source_channel="Processed Data" sink_channel="Data" enabled="true" />
+		<link id="1" source_node_id="4" sink_node_id="2" source_channel="Data" sink_channel="Data" enabled="true" />
+		<link id="2" source_node_id="4" sink_node_id="2" source_channel="Selected Data" sink_channel="Data subset" enabled="true" />
+		<link id="3" source_node_id="3" sink_node_id="0" source_channel="Selected Data" sink_channel="Data" enabled="true" />
+		<link id="4" source_node_id="3" sink_node_id="6" source_channel="Data" sink_channel="Data" enabled="true" />
+		<link id="5" source_node_id="0" sink_node_id="7" source_channel="Peaks" sink_channel="Data" enabled="true" />
+		<link id="6" source_node_id="0" sink_node_id="8" source_channel="Model" sink_channel="Data" enabled="true" />
+		<link id="7" source_node_id="5" sink_node_id="3" source_channel="Data" sink_channel="Data" enabled="true" />
+	</links>
+	<annotations />
+	<thumbnail />
+	<node_properties>
+
+	</node_properties>
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>
