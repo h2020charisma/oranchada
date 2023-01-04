@@ -108,7 +108,7 @@ if __name__ == '__main__':
             #'lmfit>=1.0.2',
             #'bottleneck',
             #'pebble',
-            '-e  ramanchada2-master'
+            'ramanchada2'
         ],
         extras_require={
             'test': ['coverage']
