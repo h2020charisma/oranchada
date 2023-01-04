@@ -1,10 +1,10 @@
 import unittest
-from widgets import LoadSpectraWidget
+from widgets import ProcessSpectraWidget
 
 class TestLoadSpectraWidget(unittest.TestCase):
     def test_functionality(self):
         # Create an instance of the widget
-        widget = LoadSpectraWidget()
+        widget = ProcessSpectraWidget()
 
         # Set the input data and parameters
         widget.inputs["Input Data"] = "some_data"
