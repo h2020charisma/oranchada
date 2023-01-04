@@ -5,6 +5,14 @@ from Orange.widgets.widget import OWWidget, Input, Output, Msg
 import ramanchada2 as rc2
 from ramanchada2.spectrum import Spectrum
 import numpy as np
+import logging
+
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
+logging.basicConfig(handlers=[logging.FileHandler("charisma.log", mode='w')], level=logging.NOTSET)
+logging.root.setLevel(logging.NOTSET)
+log = logging.getLogger("charisma")
+log.info("log hijack for debugging")
 
 class ProcessSpectraWidget(OWWidget):
     # Define the widget's name, category, and outputs
@@ -43,6 +51,10 @@ class ProcessSpectraWidget(OWWidget):
         )
         gui.button(self.optionsBox, self, "Commit", callback=self.commit)
         self.optionsBox.setDisabled(False)
+
+        #logging.warning('warning')
+        #logging.error('error')
+        #logging.exception('exp')
             
 
     @Inputs.data
@@ -66,20 +78,23 @@ class ProcessSpectraWidget(OWWidget):
         domain = None
         table_processed =self.data
         try:
-            for i in np.arange(0,self.data.n_rows):
+            n_rows = self.data.X.shape[0]
+            for i in np.arange(0,n_rows):
                 spe = Spectrum(x=x, y=self.data[i].x)
                 if domain is None:
                     attrs = [ContinuousVariable.make("%f" % f,number_of_decimals=1) for f in spe.x]
-                    domain = Domain(attrs, self.data.domain.class_var,metas=self.data.metas)
+                    domain = Domain(attrs, class_vars = self.data.domain.class_vars,metas = self.data.domain.metas)
+                    #,metas=self.data.metas)
                     table_processed = Table.from_table(domain, self.data) 
-
                 spe1 = spe.subtract_moving_minimum(16)
                 inst = table_processed[i]
-                inst.x[:]=spe1.y[:] 
+                inst.x[:]=spe1.y[:]
+            return table_processed 
         except Exception as err:
-            print(err)
-            #self.Error.read_error(str(err))
-        return table_processed
+            log.exception(err)
+            #self.Error(str(err))
+            #raise Exception
+        return None
 
 
 
@@ -88,16 +103,19 @@ if __name__ == "__main__":
     from Orange.data import Table
     import os
     try:
-        print(os.getcwdb())
+        log.info(os.getcwdb())
         path = r'../datasets/PST_WiICV532_Z005OP02_005_300msx10.txt'
         #with open(path, "r") as f:
         #    data = f.read()
         
+        log.warning('start')
+
         # no reader!
         #table = Table.from_file(path)
-        table = Table("../datasets/collagen.csv")
+        data = Table("../datasets/collagen.csv")
+        
         # Send the data table to the output
-        WidgetPreview(ProcessSpectraWidget).run(set_data=table)    
+        WidgetPreview(ProcessSpectraWidget).run(set_data=data)    
     except Exception as err:
         print(err)
         WidgetPreview(ProcessSpectraWidget).run()    
