@@ -1,7 +1,10 @@
-from Orange.data import Table
+from Orange.data import Table, Domain, ContinuousVariable
 from Orange.widgets import gui, utils
 from Orange.widgets.settings import Setting
 from Orange.widgets.widget import OWWidget, Input, Output, Msg
+import ramanchada2 as rc2
+from ramanchada2.spectrum import Spectrum
+import numpy as np
 
 class ProcessSpectraWidget(OWWidget):
     # Define the widget's name, category, and outputs
@@ -55,23 +58,33 @@ class ProcessSpectraWidget(OWWidget):
         pass
 
     def process_data(self):
-        return self.data
+        x = np.array([float(a.name) for a in self.data.domain.attributes])
+        spe = Spectrum(x=x, y=self.data.X[0])
+        spe1 = spe.subtract_moving_minimum(16)
+        attrs = [ContinuousVariable.make("%f" % f,number_of_decimals=1) for f in spe1.x]
+        domain = Domain(attrs, None, #table.domain.class_var,
+                                            metas=self.data.metas
+                                            )        
+        table_processed = Table.from_numpy(domain, X=spe1.y.reshape(1,-1))
+        return table_processed
 
 
 
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview  
     from Orange.data import Table
+    import os
     try:
-        path = r'datasets/PST_WiICV532_Z005OP02_005_300msx10.txt'
+        print(os.getcwdb())
+        path = r'../datasets/PST_WiICV532_Z005OP02_005_300msx10.txt'
         #with open(path, "r") as f:
         #    data = f.read()
         
-        # Parse the data and create an Orange data table
+        # no reader!
         #table = Table.from_file(path)
-        
+        table = Table("../datasets/collagen.csv")
         # Send the data table to the output
-        WidgetPreview(ProcessSpectraWidget).run()    
+        WidgetPreview(ProcessSpectraWidget).run(set_data=table)    
     except Exception as err:
         print(err)
         WidgetPreview(ProcessSpectraWidget).run()    
