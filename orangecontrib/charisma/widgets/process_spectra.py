@@ -30,6 +30,9 @@ class ProcessSpectraWidget(OWWidget):
     class Warning(OWWidget.Warning):
         warning = Msg("My warning!")
 
+    class Error(OWWidget.Error):
+        processing_error = Msg("Processing error(s).")        
+
     def __init__(self):
         # Initialize the widget
         super().__init__()
@@ -44,6 +47,7 @@ class ProcessSpectraWidget(OWWidget):
 
     @Inputs.data
     def set_data(self, data):
+        self.Error.processing_error.clear()
         if data:
             self.data = data
         else:
@@ -59,13 +63,22 @@ class ProcessSpectraWidget(OWWidget):
 
     def process_data(self):
         x = np.array([float(a.name) for a in self.data.domain.attributes])
-        spe = Spectrum(x=x, y=self.data.X[0])
-        spe1 = spe.subtract_moving_minimum(16)
-        attrs = [ContinuousVariable.make("%f" % f,number_of_decimals=1) for f in spe1.x]
-        domain = Domain(attrs, None, #table.domain.class_var,
-                                            metas=self.data.metas
-                                            )        
-        table_processed = Table.from_numpy(domain, X=spe1.y.reshape(1,-1))
+        domain = None
+        table_processed =self.data
+        try:
+            for i in np.arange(0,self.data.n_rows):
+                spe = Spectrum(x=x, y=self.data[i].x)
+                if domain is None:
+                    attrs = [ContinuousVariable.make("%f" % f,number_of_decimals=1) for f in spe.x]
+                    domain = Domain(attrs, self.data.domain.class_var,metas=self.data.metas)
+                    table_processed = Table.from_table(domain, self.data) 
+
+                spe1 = spe.subtract_moving_minimum(16)
+                inst = table_processed[i]
+                inst.x[:]=spe1.y[:] 
+        except Exception as err:
+            print(err)
+            #self.Error.read_error(str(err))
         return table_processed
 
 
