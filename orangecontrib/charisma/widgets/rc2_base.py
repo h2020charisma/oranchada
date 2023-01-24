@@ -1,6 +1,8 @@
-from Orange.data import Table, Domain, ContinuousVariable
+from Orange.data import Table
 from Orange.widgets import gui
 from Orange.widgets.widget import OWBaseWidget, Input, Output
+from Orange.data.pandas_compat import table_from_frame
+import pandas as pd
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
@@ -20,17 +22,21 @@ class RC2_Base(OWBaseWidget, openclass=True):
 
     def __init__(self):
         super().__init__()
-        self.in_spe = None
+        self.in_spe = RC2Spectra()
         self.select_inputs_idx = None
         self.should_auto_plot = False
         self.should_auto_proc = True
+        self.should_pass_datatable = False
         self.figure = None
         self.controlArea.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         self.optionsBox = gui.widgetBox(self.controlArea, "Main Options")
         self.optionsBox.setDisabled(False)
         self.should_auto_plot_checkbox = gui.checkBox(self.optionsBox, self, "should_auto_plot", "Auto update plot",
                                                       stateWhenDisabled=False, callback=self.force_plot)
-        gui.checkBox(self.optionsBox, self, "should_auto_proc", "Auto process", disables=self.should_auto_plot_checkbox)
+        pass_datatable = gui.checkBox(self.optionsBox, self, "should_pass_datatable", "Pass datatable",
+                                      stateWhenDisabled=False, callback=self.force_process)
+        gui.checkBox(self.optionsBox, self, "should_auto_proc", "Auto process",
+                     disables=[self.should_auto_plot_checkbox, pass_datatable])
         gui.button(self.optionsBox, self, "Process", callback=self.force_process)
         gui.button(self.optionsBox, self, "Plot", callback=self.force_plot)
 
@@ -54,12 +60,19 @@ class RC2_Base(OWBaseWidget, openclass=True):
         ax = self.figure.add_subplot(111)
         for spe in self.out_spe:
             spe.plot(ax=ax, label=f'id(spe)={id(spe)}')
+        self.custom_plot(ax)
         self.canvas.draw()
+
+    def custom_plot(self, ax):
+        pass
 
     def send_outputs(self):
         self.Outputs.out_spe.send(self.out_spe)
-        out_data = Table.from_numpy(Domain([ContinuousVariable.make(f'{i}') for i in self.out_spe.x]), [self.out_spe.y])
-        self.Outputs.data.send(out_data)
+        if self.should_pass_datatable:
+            df = pd.DataFrame([pd.Series(index=spe.x, data=spe.y) for spe in self.out_spe])
+            df = df.sort_index(axis='columns')
+            df.columns = [f'{i}' for i in df.columns]
+            self.Outputs.data.send(table_from_frame(df))
 
     def process(self, spe):
         pass
@@ -84,6 +97,7 @@ class RC2_Base(OWBaseWidget, openclass=True):
 class RC2_Creator(RC2_Base, openclass=True):
     def __init__(self):
         super().__init__()
+        self.in_spe = RC2Spectra()
 
     def force_process(self):
         self.out_spe = self.multi_process()
