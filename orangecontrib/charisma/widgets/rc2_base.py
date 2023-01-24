@@ -13,7 +13,10 @@ from collections import UserList
 
 
 class RC2Spectra(UserList):
-    pass
+    auto_summary = False
+
+    def summarize(self):
+        pass
 
 
 class RC2_Base(OWBaseWidget, openclass=True):
@@ -23,7 +26,6 @@ class RC2_Base(OWBaseWidget, openclass=True):
     def __init__(self):
         super().__init__()
         self.in_spe = RC2Spectra()
-        self.select_inputs_idx = None
         self.should_auto_plot = False
         self.should_auto_proc = True
         self.should_pass_datatable = False
@@ -34,10 +36,10 @@ class RC2_Base(OWBaseWidget, openclass=True):
         self.should_auto_plot_checkbox = gui.checkBox(self.optionsBox, self, "should_auto_plot", "Auto update plot",
                                                       stateWhenDisabled=False, callback=self.force_plot)
         pass_datatable = gui.checkBox(self.optionsBox, self, "should_pass_datatable", "Pass datatable",
-                                      stateWhenDisabled=False, callback=self.force_process)
+                                      stateWhenDisabled=False, callback=self.process)
         gui.checkBox(self.optionsBox, self, "should_auto_proc", "Auto process",
                      disables=[self.should_auto_plot_checkbox, pass_datatable])
-        gui.button(self.optionsBox, self, "Process", callback=self.force_process)
+        gui.button(self.optionsBox, self, "Process", callback=self.process)
         gui.button(self.optionsBox, self, "Plot", callback=self.force_plot)
 
     class Outputs:
@@ -45,7 +47,7 @@ class RC2_Base(OWBaseWidget, openclass=True):
         data = Output("Data", Table, default=False)
 
     def force_plot(self):
-        self.force_process()
+        self.process()
         self.plot_spe()
 
     def plot_spe(self):
@@ -74,22 +76,12 @@ class RC2_Base(OWBaseWidget, openclass=True):
             df.columns = [f'{i}' for i in df.columns]
             self.Outputs.data.send(table_from_frame(df))
 
-    def process(self, spe):
+    def process(self):
         pass
-
-    def force_process(self):
-        self.out_spe = RC2Spectra()
-        if self.select_inputs_idx is not None:
-            for i in self.select_inputs_idx:
-                self.out_spe.append(self.process(self.in_spe[i]))
-        else:
-            for spe in self.in_spe:
-                self.out_spe.append(self.process(spe))
-        self.send_outputs()
 
     def auto_process(self):
         if self.should_auto_proc:
-            self.force_process()
+            self.process()
             if self.should_auto_plot:
                 self.plot_spe()
 
@@ -98,10 +90,6 @@ class RC2_Creator(RC2_Base, openclass=True):
     def __init__(self):
         super().__init__()
         self.in_spe = RC2Spectra()
-
-    def force_process(self):
-        self.out_spe = self.multi_process()
-        self.send_outputs()
 
 
 class RC2_Filter(RC2_Base, openclass=True):

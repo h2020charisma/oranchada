@@ -37,8 +37,9 @@ class LoadFile(RC2_Creator):
             self.filenames = filenames
             self.auto_process()
 
-    def multi_process(self):
-        return [
+    def process(self):
+        self.out_spe = [
             rc2.spectrum.from_local_file(fname, filetype=self.fileformat, backend=self.backend)
             for fname in self.filenames
             ]
+        self.send_outputs()

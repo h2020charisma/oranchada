@@ -36,9 +36,10 @@ class GenSpe(RC2_Creator):
             self.deltas_edit.setReadOnly(True)
         self.auto_process()
 
-    def multi_process(self):
+    def process(self):
         deltas_dict = dict([[float(j) for j in i.split(':')] for i in self.deltas.replace(' ', '').split(',')])
         spe1 = rc2.spectrum.Spectrum(x=np.array(list(deltas_dict.keys())), y=np.array(list(deltas_dict.values())))
-        return [
+        self.out_spe = [
             spe1.resample_NUDFT_filter(x_range=(self.spe_xmin, self.spe_xmax), xnew_bins=self.spe_nbins)
             ] * self.n_spectra
+        self.send_outputs()

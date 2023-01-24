@@ -1,5 +1,5 @@
 from Orange.widgets.widget import Input
-from .rc2_base import RC2_Arithmetics
+from .rc2_base import RC2_Arithmetics, RC2Spectra
 import ramanchada2 as rc2
 
 
@@ -18,8 +18,8 @@ class Add(RC2_Arithmetics):
             self.addend1 = spe
         else:
             self.addend1 = None
-        if self.commitOnChange and self.addend1 and self.addend2:
-            self.commit()
+        if self.addend1 and self.addend2:
+            self.auto_process()
 
     @Inputs.addend2
     def set_addend2(self, spe):
@@ -27,13 +27,15 @@ class Add(RC2_Arithmetics):
             self.addend2 = spe
         else:
             self.addend2 = None
-        if self.commitOnChange and self.addend1 and self.addend2:
-            self.commit()
+        if self.addend1 and self.addend2:
+            self.auto_process()
 
     def __init__(self):
         super().__init__()
         self.addend1 = None
         self.addend2 = None
 
-    def process(self, spe):
-        self.out_spe = self.addend1 + self.addend2
+    def process(self):
+        self.out_spe = RC2Spectra()
+        self.out_spe.append(self.addend1 + self.addend2)
+        self.send_outputs()

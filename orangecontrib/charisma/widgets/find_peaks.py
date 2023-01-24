@@ -1,5 +1,5 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter
+from .rc2_base import RC2_Filter, RC2Spectra
 from ramanchada2.misc.types.peak_candidates import ListPeakCandidateMultiModel
 
 
@@ -32,15 +32,20 @@ class FindPeaks(RC2_Filter):
         gui.spin(box, self, 'wlen', 1, 5000, callback=self.auto_process, label='Window length')
         gui.spin(box, self, 'min_peak_width', 1, 5000, callback=self.auto_process, label='Min peak width')
 
-    def process(self, spe):
+    def process(self):
         hht_chain = [int(i) for i in self.hht_chain_str.split()]
         self.hht_chain_str = ' '.join([str(i) for i in hht_chain])
-        return spe.find_peak_multipeak_filter(
-            wlen=self.wlen,
-            width=self.min_peak_width,
-            hht_chain=hht_chain,
-            sharpening=('hht' if self.is_sharpening_enabled else None),
-            prominence=(self.prominence_val if self.manual_prominence else None))
+        self.out_spe = RC2Spectra()
+        for spe in self.in_spe:
+            self.out_spe.append(
+                spe.find_peak_multipeak_filter(
+                    wlen=self.wlen,
+                    width=self.min_peak_width,
+                    hht_chain=hht_chain,
+                    sharpening=('hht' if self.is_sharpening_enabled else None),
+                    prominence=(self.prominence_val if self.manual_prominence else None))
+                )
+        self.send_outputs()
 
     def custom_plot(self, ax):
         for spe in self.out_spe:

@@ -1,5 +1,5 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter
+from .rc2_base import RC2_Filter, RC2Spectra
 from scipy import signal
 
 
@@ -33,5 +33,10 @@ class Resample_NUDFT(RC2_Filter):
                             ], callback=self.auto_process)
 
     def process(self, spe):
-        return spe.resample_NUDFT_filter(x_range=(self.xmin, self.xmax), xnew_bins=self.nbins,
-                                         window=getattr(signal.windows, self.window_function))
+        self.out_spe = RC2Spectra()
+        for spe in self.in_spe:
+            self.out_spe.append(
+                spe.resample_NUDFT_filter(x_range=(self.xmin, self.xmax), xnew_bins=self.nbins,
+                                          window=getattr(signal.windows, self.window_function))
+                )
+        self.send_outputs()

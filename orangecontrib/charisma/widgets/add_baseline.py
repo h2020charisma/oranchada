@@ -1,5 +1,5 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter
+from .rc2_base import RC2_Filter, RC2Spectra
 
 
 class AddBaseline(RC2_Filter):
@@ -26,9 +26,14 @@ class AddBaseline(RC2_Filter):
         gui.doubleSpin(box, self, 'quadratic', -100, 100, decimals=7, step=.000001, label='quadratic',
                        callback=self.auto_process)
 
-    def process(self, spe):
-        return spe.add_baseline(n_freq=self.n_freq,
-                                amplitude=self.amplitude,
-                                pedestal=0,
-                                func=lambda x: self.intercept + x*self.slope + x**2*self.quadratic
-                                )
+    def process(self):
+        self.out_spe = RC2Spectra()
+        for spe in self.in_spe:
+            self.out_spe.append(
+                spe.add_baseline(n_freq=self.n_freq,
+                                 amplitude=self.amplitude,
+                                 pedestal=0,
+                                 func=lambda x: self.intercept + x*self.slope + x**2*self.quadratic
+                                 )
+                )
+        self.send_outputs()

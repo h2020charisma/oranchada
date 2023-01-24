@@ -1,5 +1,5 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter
+from .rc2_base import RC2_Filter, RC2Spectra
 
 
 class Normalize(RC2_Filter):
@@ -15,5 +15,10 @@ class Normalize(RC2_Filter):
                      items=['unity', 'min_unity', 'unity_density', 'minmax'],
                      label='Normalization method', callback=self.auto_process)
 
-    def process(self, spe):
-        return spe.normalize(self.method)
+    def process(self):
+        self.out_spe = RC2Spectra()
+        for spe in self.in_spe:
+            self.out_spe.append(
+                spe.normalize(self.method)
+                )
+        self.send_outputs()

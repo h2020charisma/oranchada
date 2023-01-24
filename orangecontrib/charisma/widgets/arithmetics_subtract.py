@@ -1,6 +1,6 @@
 from Orange.widgets.widget import Input
 import ramanchada2 as rc2
-from .rc2_base import RC2_Arithmetics
+from .rc2_base import RC2_Arithmetics, RC2Spectra
 
 
 class Subtract(RC2_Arithmetics):
@@ -35,5 +35,7 @@ class Subtract(RC2_Arithmetics):
         self.minuend = None
         self.subtrahend = None
 
-    def process(self, spe):
-        self.out_spe = self.minuend - self.subtrahend
+    def process(self):
+        self.out_spe = RC2Spectra()
+        self.out_spe.append(self.minuend - self.subtrahend)
+        self.send_outputs()

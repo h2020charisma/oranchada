@@ -1,7 +1,7 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter
+from .rc2_base import RC2_Filter, RC2Spectra
 from ramanchada2.misc.types.peak_candidates import ListPeakCandidateMultiModel
-from ramanchada2.spectrum.peaks.fit_peaks import available_model_type
+from ramanchada2.spectrum.peaks.fit_peaks import available_models
 
 
 class Fit(RC2_Filter):
@@ -15,11 +15,11 @@ class Fit(RC2_Filter):
         box = gui.widgetBox(self.controlArea, self.name)
         self.should_fit = True
         self.vary_baseline = False
-        self.peak_profile = available_model_type[0]
+        self.peak_profile = available_models[0]
 
         gui.checkBox(box, self, "should_fit", "Perform fit", callback=self.auto_process)
         gui.checkBox(box, self, "vary_baseline", "Vary baseline", callback=self.auto_process)
-        gui.comboBox(box, self, 'peak_profile', sendSelectedValue=True, items=available_model_type,
+        gui.comboBox(box, self, 'peak_profile', sendSelectedValue=True, items=available_models,
                      callback=self.auto_process)
 
     def process(self):

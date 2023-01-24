@@ -34,7 +34,7 @@ class Merger(RC2_Base):
         if self.in_spe_dict:
             self.auto_process()
 
-    def force_process(self):
+    def process(self):
         self.out_spe = RC2Spectra()
         for id_, spes in self.in_spe_dict.items():
             self.out_spe.extend(spes)
