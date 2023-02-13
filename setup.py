@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 
-import os
-from os import walk, path
-import subprocess
-import sys
-
-from setuptools import setup, find_packages, Command
+from os import path, walk
+from setuptools import find_packages, setup
 
 NAME = 'oranchada'
 
@@ -47,26 +43,26 @@ INSTALL_REQUIRES = [
     'pip>=9.0',  # same as for Orange 3.28
     'ramanchada2 @ git+https://github.com/h2020charisma/ramanchada2.git',
     'setuptools>=36.3',  # same as for Orange 3.28
-    #'AnyQt>=0.0.6',
-    #'bottleneck',
-    #'colorcet',
-    #'extranormal3 >=0.0.3',
-    #'h5py',
-    #'lmfit>=1.0.2',
-    #'pebble',
-    #'pillow',
-    #'pyqtgraph>=0.11.1,!=0.12.4',  # https://github.com/pyqtgraph/pyqtgraph/issues/2237
-    #'renishawWiRE>=0.1.8',
-    #'scikit-learn>0.23.0',
-    #'scipy>=1.4.0',
-    #'serverfiles>=0.2',
-    #'spectral>=0.18,!=0.23',
+    # 'AnyQt>=0.0.6',
+    # 'bottleneck',
+    # 'colorcet',
+    # 'extranormal3 >=0.0.3',
+    # 'h5py',
+    # 'lmfit>=1.0.2',
+    # 'pebble',
+    # 'pillow',
+    # 'pyqtgraph>=0.11.1,!=0.12.4',  # https://github.com/pyqtgraph/pyqtgraph/issues/2237
+    # 'renishawWiRE>=0.1.8',
+    # 'scikit-learn>0.23.0',
+    # 'scipy>=1.4.0',
+    # 'serverfiles>=0.2',
+    # 'spectral>=0.18,!=0.23',
 ]
 
 EXTRAS_REQUIRE = {
     'test': ['coverage'],
-    #'test': ['pytest', 'coverage'],
-    #'doc': ['sphinx', 'recommonmark', 'sphinx_rtd_theme'],
+    # 'test': ['pytest', 'coverage'],
+    # 'doc': ['sphinx', 'recommonmark', 'sphinx_rtd_theme'],
 }
 
 ENTRY_POINTS = {
@@ -132,11 +128,11 @@ def include_documentation(local_dir, install_dir):
 if __name__ == '__main__':
 
     cmdclass = {
-        #'coverage': CoverageCommand,
-        #'lint': LintCommand,
+        # 'coverage': CoverageCommand,
+        # 'lint': LintCommand,
     }
 
-    #include_documentation('doc/build/htmlhelp', 'help/orange-spectroscopy')
+    # include_documentation('doc/build/htmlhelp', 'help/orange-spectroscopy')
 
     setup(
         author=AUTHOR,
