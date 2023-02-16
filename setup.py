@@ -11,7 +11,7 @@ DESCRIPTION = 'Orange add-on for Raman spectroscopy'
 README_FILE = path.join(path.dirname(__file__), 'README.pypi')
 LONG_DESCRIPTION = open(README_FILE, 'r', encoding='utf-8').read()
 LONG_DESCRIPTION_CONTENT_TYPE = 'text/markdown'
-URL = 'https://github.com/h2020charisma/ramanchada-orange'
+URL = 'https://github.com/h2020charisma/oranchada'
 AUTHOR = 'IDEAconsult Ltd.'
 AUTHOR_EMAIL = 'dev-charisma@ideaconsult.net'
 LICENSE = 'MIT'
