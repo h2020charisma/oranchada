@@ -18,3 +18,6 @@ directory (do not copy it to Python's site-packages directory), run
     pip install -e .
 
 Further details can be found in [CONTRIBUTING.md](CONTRIBUTING.md)
+
+---
+🇪🇺 This project has received funding from the European Union’s Horizon 2020 research and innovation program under [grant agreement No. 952921](https://cordis.europa.eu/project/id/952921).
