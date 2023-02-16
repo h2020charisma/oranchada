@@ -1,4 +1,4 @@
-# ramanchada-orange
+# oranchada
 Orange workflow add-on with ramanchada2 functionality
 
 
