@@ -25,5 +25,5 @@ class Select(RC2_Filter):
     def process(self):
         self.out_spe = RC2Spectra()
         for i in self.select_inputs_idx:
-            self.out_spe.append(self.process(self.in_spe[i]))
+            self.out_spe.append(self.in_spe[i])
         self.send_outputs()

@@ -1,0 +1,119 @@
+#!/usr/bin/env python
+
+from Orange.widgets import gui
+from .rc2_base import RC2_Filter, RC2Spectra
+import ramanchada2.misc.constants as rc2const
+import ramanchada2.misc.utils as rc2utils
+import numpy as np
+
+
+class XAxisFineCalibration(RC2_Filter):
+    name = "Xaxis fine calibration"
+    description = "X-axis fine calibration"
+    icon = "icons/spectra.svg"
+
+    def __init__(self):
+        super().__init__()
+        self.should_auto_proc = False
+        box = gui.widgetBox(self.controlArea, self.name)
+        self.predefined_deltas = 'Ne WL D3.3'
+        self.deltas = ''
+        self.poly_order = 'poly3'
+
+        gui.comboBox(box, self, 'poly_order', sendSelectedValue=True,
+                                  items=['poly0', 'poly1', 'poly2', 'poly3', 'poly4'])
+
+        self.combo = gui.comboBox(box, self, 'predefined_deltas', sendSelectedValue=True,
+                                  items=[
+                                      'Ne RS 532nm', 'Ne RS 633nm', 'Ne RS 785nm',
+                                      'Ne WL 532nm', 'Ne WL 633nm', 'Ne WL 785nm',
+                                      'Ne WL D3.3', 'PST', 'User defined'], label='Deltas',
+                                  callback=self.deltas_combo_callback)
+        self.deltas_edit = gui.lineEdit(box, self, 'deltas', callback=self.auto_process)
+
+        self.n_iters = 1
+        gui.spin(box, self, 'n_iters', 1, 20, label='N iters', callback=self.auto_process)
+
+        self.deltas_combo_callback()
+
+    def deltas_combo_callback(self):
+        self.deltas_edit.setReadOnly(True)
+        if self.predefined_deltas == 'Ne RS 532nm':
+            self.deltas = ', '.join([f'{k}: {v}' for k, v in rc2const.neon_rs_532_nist_dict.items()])
+        elif self.predefined_deltas == 'Ne RS 633nm':
+            self.deltas = ', '.join([f'{k}: {v}' for k, v in rc2const.neon_rs_532_nist_dict.items()])
+        elif self.predefined_deltas == 'Ne RS 785nm':
+            self.deltas = ', '.join([f'{k}: {v}' for k, v in rc2const.neon_rs_785_nist_dict.items()])
+        elif self.predefined_deltas == 'Ne WL 532nm':
+            self.deltas = ', '.join([f'{k}: {v}' for k, v in rc2const.neon_wl_532_nist_dict.items()])
+        elif self.predefined_deltas == 'Ne WL 633nm':
+            self.deltas = ', '.join([f'{k}: {v}' for k, v in rc2const.neon_wl_532_nist_dict.items()])
+        elif self.predefined_deltas == 'Ne WL 785nm':
+            self.deltas = ', '.join([f'{k}: {v}' for k, v in rc2const.neon_wl_785_nist_dict.items()])
+        elif self.predefined_deltas == 'Ne WL D3.3':
+            self.deltas = ', '.join([f'{k}: {v}' for k, v in rc2const.neon_wl_D3_3_dict.items()])
+        elif self.predefined_deltas == 'User defined':
+            self.deltas_edit.setReadOnly(False)
+
+    def process(self):
+        self.deltas_dict = dict([[float(j) for j in i.split(':')] for i in self.deltas.replace(' ', '').split(',')])
+        if self.poly_order == 'poly0':
+            poly_order_num = 0
+        elif self.poly_order == 'poly1':
+            poly_order_num = 1
+        elif self.poly_order == 'poly2':
+            poly_order_num = 2
+        elif self.poly_order == 'poly3':
+            poly_order_num = 3
+        elif self.poly_order == 'poly4':
+            poly_order_num = 4
+
+        self.out_spe = RC2Spectra()
+        if len(self.in_spe) > 1:
+            raise ValueError(f'Expects a single spectrum input. {len(self.in_spe)} found')
+        for spe in self.in_spe:
+            for iter in range(self.n_iters):
+                spe = spe.xcal_fine(ref=self.deltas_dict, poly_order=poly_order_num)
+            self.out_spe.append(spe)
+        self.send_outputs()
+
+    def custom_plot(self, ax):
+        self.in_spe[0].plot(ax=self.axes[0])
+        self.axes[0].twinx().stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()), basefmt='', linefmt='r:', label='reference')
+        self.axes[1].twinx().stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()), basefmt='', linefmt='r:', label='reference')
+        self.axes[2].errorbar(*diff(self.out_spe[0], self.deltas_dict), fmt='.:', label='difference')
+        for a in self.axes:
+            a.grid()
+            a.legend()
+        self.axes[2].set_ylim(-.6, .6)
+        self.axes[0].set_title('Before calibration')
+        self.axes[1].set_title('After calibration')
+        self.axes[2].set_title('Difference')
+
+
+
+
+
+    def plot_create_axes(self):
+        self.axes = self.figure.subplots(nrows=3, sharex=True)
+        return self.axes[1]
+
+
+
+def diff(spe, ref_pos):
+    if isinstance(ref_pos, dict):
+        ref_pos = list(ref_pos.keys())
+    if isinstance(ref_pos, list):
+        ref_pos = np.array(ref_pos)
+    ss = spe.subtract_moving_minimum(40)
+    kw = dict(sharpening=None, hht_chain=[100])
+    cand = ss.find_peak_multipeak(**kw)
+    kw = dict(profile='Gaussian')
+    fit_res = spe.fit_peak_multimodel(candidates=cand, **kw)
+
+    spe_pos, spe_pos_err = fit_res.centers_err.T
+
+    spe_pos_match_idx, ref_pos_match_idx = rc2utils.find_closest_pairs_idx(spe_pos, ref_pos)
+    spe_pos_match = spe_pos[spe_pos_match_idx]
+    ref_pos_match = ref_pos[ref_pos_match_idx]
+    return ref_pos_match, (spe_pos_match-ref_pos_match), spe_pos_err[spe_pos_match_idx]

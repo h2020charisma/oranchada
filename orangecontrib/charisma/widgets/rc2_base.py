@@ -30,6 +30,7 @@ class RC2_Base(OWBaseWidget, openclass=True):
         self.should_auto_proc = True
         self.should_pass_datatable = False
         self.figure = None
+        self.is_processed = False
         self.controlArea.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
         self.optionsBox = gui.widgetBox(self.controlArea, "Main Options")
         self.optionsBox.setDisabled(False)
@@ -47,8 +48,13 @@ class RC2_Base(OWBaseWidget, openclass=True):
         data = Output("Data", Table, default=False)
 
     def force_plot(self):
-        self.process()
+        if not self.is_processed:
+            self.process()
+            self.is_processed = True
         self.plot_spe()
+
+    def plot_create_axes(self):
+        return self.figure.add_subplot(111)
 
     def plot_spe(self):
         if self.figure is None:
@@ -59,7 +65,7 @@ class RC2_Base(OWBaseWidget, openclass=True):
             self.mainArea.layout().addWidget(self.canvas)
         for ax in self.figure.axes:
             self.figure.delaxes(ax)
-        ax = self.figure.add_subplot(111)
+        ax = self.plot_create_axes()
         for spe in self.out_spe:
             spe.plot(ax=ax, label=f'id(spe)={id(spe)}')
         self.custom_plot(ax)
@@ -77,11 +83,13 @@ class RC2_Base(OWBaseWidget, openclass=True):
             self.Outputs.data.send(table_from_frame(df))
 
     def process(self):
-        pass
+        self.is_processed = True
 
     def auto_process(self):
+        self.is_processed = False
         if self.should_auto_proc:
             self.process()
+            self.is_processed = True
             if self.should_auto_plot:
                 self.plot_spe()
 
@@ -97,7 +105,7 @@ class RC2_Filter(RC2_Base, openclass=True):
         pass
 
     class Inputs:
-        in_spe = Input("RC2Spectra", RC2Spectra)
+        in_spe = Input("RC2Spectra", RC2Spectra, default=True)
 
     @Inputs.in_spe
     def set_in_spe(self, spe):

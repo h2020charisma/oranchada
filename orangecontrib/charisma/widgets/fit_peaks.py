@@ -1,3 +1,5 @@
+from Orange.data import Table
+from Orange.widgets.widget import Output
 from Orange.widgets import gui
 from .rc2_base import RC2_Filter, RC2Spectra
 from ramanchada2.misc.types.peak_candidates import ListPeakCandidateMultiModel
@@ -8,6 +10,9 @@ class Fit(RC2_Filter):
     name = "Fit Peaks"
     description = "Fit Peaks"
     icon = "icons/spectra.svg"
+
+    class Outputs(RC2_Filter.Outputs):
+        peaks_out = Output("Peaks", Table, default=False)
 
     def __init__(self):
         super().__init__()
@@ -31,6 +36,7 @@ class Fit(RC2_Filter):
                                         vary_baseline=self.vary_baseline)
             )
         self.send_outputs()
+        self.Outputs.peaks_out.send(table_from_frame(df))
 
     def custom_plot(self, ax):
         for spe in self.out_spe:
