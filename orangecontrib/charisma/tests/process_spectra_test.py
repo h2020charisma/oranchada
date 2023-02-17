@@ -1,6 +1,7 @@
 import unittest
 from widgets import ProcessSpectraWidget
 
+
 class TestLoadSpectraWidget(unittest.TestCase):
     def test_functionality(self):
         # Create an instance of the widget
