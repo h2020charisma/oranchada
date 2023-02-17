@@ -1,21 +1,12 @@
-from Orange.data import Table, Domain, ContinuousVariable
-from Orange.widgets import gui, utils
-from Orange.widgets.settings import Setting
-from Orange.widgets.widget import OWWidget, OWBaseWidget, Input, Output, Msg
+from Orange.widgets.widget import Input
 import ramanchada2 as rc2
-from ramanchada2.spectrum import Spectrum
-import numpy as np
-import logging
-from itertools import cycle
 from .rc2_base import RC2_Arithmetics
-import matplotlib.pyplot as plt
 
 
 class Subtract(RC2_Arithmetics):
     name = "Subtract"
     description = "subtract spectra"
     icon = "icons/spectra.svg"
-
 
     class Inputs:
         minuend = Input("Minuend (rc2.Spectrum)", rc2.spectrum.Spectrum)
