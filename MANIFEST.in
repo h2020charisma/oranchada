@@ -1,1 +1,2 @@
 include README.pypi
+recursive-include orangecontrib *.svg
