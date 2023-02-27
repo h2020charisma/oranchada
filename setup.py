@@ -41,7 +41,7 @@ INSTALL_REQUIRES = [
     'orange-canvas-core>=0.1.24',
     'orange-widget-base>=4.16.1',
     'pip>=9.0',  # same as for Orange 3.28
-    'ramanchada2>=0.0.1,<0.1',
+    'ramanchada2~=0.0.2',
     'setuptools>=36.3',  # same as for Orange 3.28
     # 'AnyQt>=0.0.6',
     # 'bottleneck',

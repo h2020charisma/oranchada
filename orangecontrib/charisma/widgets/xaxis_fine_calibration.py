@@ -19,9 +19,20 @@ class XAxisFineCalibration(RC2_Filter):
         self.predefined_deltas = 'Ne WL D3.3'
         self.deltas = ''
         self.poly_order = 'poly3'
+        self.should_fit = False
+        self.prominence = 0
+        self.wlen = 100
+
+        gui.doubleSpin(box, self, 'prominence', 0, 50000, decimals=5, step=1, callback=self.auto_process,
+                       label='Prominence')
+        gui.spin(box, self, 'wlen', 0, 50000, step=1, callback=self.auto_process, label='wlen')
+
+        gui.checkBox(self.optionsBox, self, "should_fit", "Should fit", callback=self.auto_process)
 
         gui.comboBox(box, self, 'poly_order', sendSelectedValue=True,
-                                  items=['poly0', 'poly1', 'poly2', 'poly3', 'poly4'])
+                     items=['poly0', 'poly1', 'poly2', 'poly3', 'poly4'],
+                     callback=self.auto_process
+                     )
 
         self.combo = gui.comboBox(box, self, 'predefined_deltas', sendSelectedValue=True,
                                   items=[
@@ -32,7 +43,7 @@ class XAxisFineCalibration(RC2_Filter):
         self.deltas_edit = gui.lineEdit(box, self, 'deltas', callback=self.auto_process)
 
         self.n_iters = 1
-        gui.spin(box, self, 'n_iters', 1, 20, label='N iters', callback=self.auto_process)
+        gui.spin(box, self, 'n_iters', 0, 20, label='N iters', callback=self.auto_process)
 
         self.deltas_combo_callback()
 
@@ -52,8 +63,11 @@ class XAxisFineCalibration(RC2_Filter):
             self.deltas = ', '.join([f'{k}: {v}' for k, v in rc2const.neon_wl_785_nist_dict.items()])
         elif self.predefined_deltas == 'Ne WL D3.3':
             self.deltas = ', '.join([f'{k}: {v}' for k, v in rc2const.neon_wl_D3_3_dict.items()])
+        elif self.predefined_deltas == 'PST':
+            self.deltas = ', '.join([f'{k}: {v}' for k, v in rc2const.PST_RS_dict.items()])
         elif self.predefined_deltas == 'User defined':
             self.deltas_edit.setReadOnly(False)
+        self.auto_process()
 
     def process(self):
         self.deltas_dict = dict([[float(j) for j in i.split(':')] for i in self.deltas.replace(' ', '').split(',')])
@@ -73,47 +87,53 @@ class XAxisFineCalibration(RC2_Filter):
             raise ValueError(f'Expects a single spectrum input. {len(self.in_spe)} found')
         for spe in self.in_spe:
             for iter in range(self.n_iters):
-                spe = spe.xcal_fine(ref=self.deltas_dict, poly_order=poly_order_num)
+                spe = spe.xcal_fine(ref=self.deltas_dict, poly_order=poly_order_num, should_fit=self.should_fit,
+                                    find_peaks_kw=dict(prominence=self.prominence, wlen=self.wlen))
             self.out_spe.append(spe)
         self.send_outputs()
 
     def custom_plot(self, ax):
+        if not self.in_spe:
+            return
         self.in_spe[0].plot(ax=self.axes[0])
         self.axes[0].twinx().stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()), basefmt='', linefmt='r:', label='reference')
         self.axes[1].twinx().stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()), basefmt='', linefmt='r:', label='reference')
-        self.axes[2].errorbar(*diff(self.out_spe[0], self.deltas_dict), fmt='.:', label='difference')
+        x, y, yerr = self.diff(self.out_spe[0], self.deltas_dict)
+        self.axes[2].errorbar(x, y, yerr, fmt='.:', label='difference')
         for a in self.axes:
             a.grid()
             a.legend()
-        self.axes[2].set_ylim(-.6, .6)
+        y_ub = y + yerr
+        y_lb = y - yerr
+        y_ub = np.mean(y_ub) + np.std(y_ub)*3
+        y_lb = np.mean(y_lb) - np.std(y_lb)*3
+        self.axes[2].set_ylim(y_lb, y_ub)
         self.axes[0].set_title('Before calibration')
         self.axes[1].set_title('After calibration')
         self.axes[2].set_title('Difference')
-
-
-
-
 
     def plot_create_axes(self):
         self.axes = self.figure.subplots(nrows=3, sharex=True)
         return self.axes[1]
 
+    def diff(self, spe, ref_pos):
+        if isinstance(ref_pos, dict):
+            ref_pos = list(ref_pos.keys())
+        if isinstance(ref_pos, list):
+            ref_pos = np.array(ref_pos)
+        ss = spe.subtract_moving_minimum(100)
+        kw = dict(sharpening=None, hht_chain=[100])
+        cand = ss.find_peak_multipeak(**kw)
 
+        if self.should_fit:
+            kw = dict(profile='Gaussian')
+            fit_res = spe.fit_peak_multimodel(candidates=cand, **kw)
+            spe_pos, spe_pos_err = fit_res.centers_err.T
+        else:
+            spe_pos = np.array(list(cand.get_pos_ampl_dict().keys()))
+            spe_pos_err = np.zeros_like(spe_pos)
 
-def diff(spe, ref_pos):
-    if isinstance(ref_pos, dict):
-        ref_pos = list(ref_pos.keys())
-    if isinstance(ref_pos, list):
-        ref_pos = np.array(ref_pos)
-    ss = spe.subtract_moving_minimum(40)
-    kw = dict(sharpening=None, hht_chain=[100])
-    cand = ss.find_peak_multipeak(**kw)
-    kw = dict(profile='Gaussian')
-    fit_res = spe.fit_peak_multimodel(candidates=cand, **kw)
-
-    spe_pos, spe_pos_err = fit_res.centers_err.T
-
-    spe_pos_match_idx, ref_pos_match_idx = rc2utils.find_closest_pairs_idx(spe_pos, ref_pos)
-    spe_pos_match = spe_pos[spe_pos_match_idx]
-    ref_pos_match = ref_pos[ref_pos_match_idx]
-    return ref_pos_match, (spe_pos_match-ref_pos_match), spe_pos_err[spe_pos_match_idx]
+        spe_pos_match_idx, ref_pos_match_idx = rc2utils.find_closest_pairs_idx(spe_pos, ref_pos)
+        spe_pos_match = spe_pos[spe_pos_match_idx]
+        ref_pos_match = ref_pos[ref_pos_match_idx]
+        return ref_pos_match, (spe_pos_match-ref_pos_match), spe_pos_err[spe_pos_match_idx]
