@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="" description="">
+	<nodes>
+		<node id="0" name="Load Test Spectra" qualified_name="orangecontrib.charisma.widgets.load_test_spectra.TestSpectra" project_name="charisma" version="" title="Load Neon" position="(214.0, 107.0)" />
+		<node id="1" name="RS to WL" qualified_name="orangecontrib.charisma.widgets.raman_shift_to_wavelength.RS2WL" project_name="charisma" version="" title="RS to WL" position="(364.0, 107.0)" />
+		<node id="2" name="Xaxis fine calibration" qualified_name="orangecontrib.charisma.widgets.xaxis_fine_calibration.XAxisFineCalibration" project_name="charisma" version="" title="Xaxis fine calibration" position="(514.0, 107.0)" />
+		<node id="3" name="WL to RS" qualified_name="orangecontrib.charisma.widgets.wavelength_to_raman_shift.WL2RS" project_name="charisma" version="" title="WL to RS" position="(664.0, 107.0)" />
+		<node id="4" name="Load Test Spectra" qualified_name="orangecontrib.charisma.widgets.load_test_spectra.TestSpectra" project_name="charisma" version="" title="Load S0B" position="(364.0, 267.0)" />
+		<node id="5" name="Set X-axis" qualified_name="orangecontrib.charisma.widgets.set_xaxis.SetXaxis" project_name="charisma" version="" title="Set X-axis" position="(514.0, 257.0)" />
+		<node id="6" name="Xaxis fine calibration" qualified_name="orangecontrib.charisma.widgets.xaxis_fine_calibration.XAxisFineCalibration" project_name="charisma" version="" title="Xaxis fine calibration (1)" position="(664.0, 257.0)" />
+		<node id="7" name="Load Test Spectra" qualified_name="orangecontrib.charisma.widgets.load_test_spectra.TestSpectra" project_name="charisma" version="" title="Load PST" position="(370.0, 481.0)" />
+		<node id="8" name="Xaxis fine calibration" qualified_name="orangecontrib.charisma.widgets.xaxis_fine_calibration.XAxisFineCalibration" project_name="charisma" version="" title="Xaxis fine calibration (2)" position="(665.0, 473.0)" />
+		<node id="9" name="Set X-axis" qualified_name="orangecontrib.charisma.widgets.set_xaxis.SetXaxis" project_name="charisma" version="" title="Set X-axis (1)" position="(515.0, 473.0)" />
+		<node id="10" name="Xaxis fine calibration" qualified_name="orangecontrib.charisma.widgets.xaxis_fine_calibration.XAxisFineCalibration" project_name="charisma" version="" title="Xaxis fine calibration (3)" position="(526.0, 599.0)" />
+	</nodes>
+	<links>
+		<link id="0" source_node_id="0" sink_node_id="1" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" />
+		<link id="1" source_node_id="1" sink_node_id="2" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" />
+		<link id="2" source_node_id="2" sink_node_id="3" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" />
+		<link id="3" source_node_id="4" sink_node_id="5" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" />
+		<link id="4" source_node_id="3" sink_node_id="5" source_channel="RC2Spectra" sink_channel="RC2Spectra calib" enabled="true" />
+		<link id="5" source_node_id="5" sink_node_id="6" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" />
+		<link id="6" source_node_id="7" sink_node_id="9" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" />
+		<link id="7" source_node_id="9" sink_node_id="8" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" />
+		<link id="8" source_node_id="6" sink_node_id="9" source_channel="RC2Spectra" sink_channel="RC2Spectra calib" enabled="true" />
+		<link id="9" source_node_id="7" sink_node_id="10" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" />
+	</links>
+	<annotations />
+	<thumbnail />
+	<node_properties>
+		<properties node_id="0" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7', '__version__': 1}</properties>
+		<properties node_id="1" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7', '__version__': 1}</properties>
+		<properties node_id="2" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7', '__version__': 1}</properties>
+		<properties node_id="3" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7', '__version__': 1}</properties>
+		<properties node_id="4" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7', '__version__': 1}</properties>
+		<properties node_id="5" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7', '__version__': 1}</properties>
+		<properties node_id="6" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7', '__version__': 1}</properties>
+		<properties node_id="7" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7', '__version__': 1}</properties>
+		<properties node_id="8" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7', '__version__': 1}</properties>
+		<properties node_id="9" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b"\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x03\x00\x00\x00,\x00\x00\x06)\x00\x00\x05\x9c\x00\x00\x00\x05\x00\x00\x00,\x00\x00\x06'\x00\x00\x05\x9a\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x05\x00\x00\x00,\x00\x00\x06'\x00\x00\x05\x9a", '__version__': 1}</properties>
+		<properties node_id="10" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7\x00\x00\x00\x00\x00\x00\x00\x00\ro\x00\x00\x00\x00\x00\x00\x00\xdc\x00\x00\x03\xff\x00\x00\x03\xc7', '__version__': 1}</properties>
+	</node_properties>
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>
