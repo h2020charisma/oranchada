@@ -1,7 +1,5 @@
 from Orange.widgets import gui
 from .rc2_base import RC2_Filter, RC2Spectra
-from ramanchada2.misc.types.peak_candidates import ListPeakCandidateMultiModel
-from ramanchada2.spectrum.peaks.fit_peaks import available_models
 
 
 class RS2WL(RC2_Filter):
