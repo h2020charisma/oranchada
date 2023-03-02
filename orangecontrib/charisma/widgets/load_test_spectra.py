@@ -1,6 +1,5 @@
 from Orange.widgets import gui
 import ramanchada2 as rc2
-import numpy as np
 from .rc2_base import RC2_Creator
 from ramanchada2.aux.spectra import datasets2 as data
 from AnyQt.QtWidgets import QAbstractItemView

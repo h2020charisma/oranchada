@@ -1,39 +1,123 @@
 from Orange.widgets import gui
 from .rc2_base import RC2_Filter, RC2Spectra
+from AnyQt.QtWidgets import QGroupBox
+import ramanchada2 as rc2
+
+import pydantic
+from typing import Union
 
 
-class AddBaseline(RC2_Filter):
+class AddBaseline:
+    @pydantic.validate_arguments(config=dict(arbitrary_types_allowed=True))
+    def __init__(self, parent, *,
+                 n_freq: tuple[str, Union[None, QGroupBox]],
+                 amplitude: tuple[str, Union[None, QGroupBox]],
+                 intercept: tuple[str, Union[None, QGroupBox]],
+                 slope: tuple[str, Union[None, QGroupBox]],
+                 quadratic: tuple[str, Union[None, QGroupBox]],
+                 ):
+        self._parent = parent
+
+        self._n_freq = n_freq[0]
+        if n_freq[1]:
+            self.n_freq = 15
+            gui.spin(n_freq[1], self._parent, 'n_freq', 3, 5000,
+                     callback=self.auto_process, label='num freq')
+
+        self._amplitude = amplitude[0]
+        if amplitude[1]:
+            self.amplitude = 2
+            gui.doubleSpin(amplitude[1], self._parent, self._amplitude, 0, 5000, decimals=5, step=.01,
+                           label='amplitude', callback=self.auto_process)
+
+        self._intercept = intercept[0]
+        if intercept[1]:
+            self.intercept = 10
+            gui.doubleSpin(intercept[1], self._parent, self._intercept, -20000, 20000, decimals=5, step=1,
+                           label='intercept', callback=self.auto_process)
+
+        self._slope = slope[0]
+        if slope[1]:
+            self.slope = .01
+            gui.doubleSpin(slope[1], self._parent, self._slope, -1000, 1000, decimals=5, step=.001,
+                           label='slope', callback=self.auto_process)
+
+        self._quadratic = quadratic[0]
+        if quadratic[1]:
+            self.quadratic = -.000005
+            gui.doubleSpin(quadratic[1], self._parent, self._quadratic, -100, 100, decimals=7, step=.000001,
+                           label='quadratic', callback=self.auto_process)
+
+    @pydantic.validate_arguments(config=dict(arbitrary_types_allowed=True))
+    def __call__(self, spe: rc2.spectrum.Spectrum) -> rc2.spectrum.Spectrum:
+        return spe.add_baseline(n_freq=self.n_freq,
+                                amplitude=self.amplitude,
+                                pedestal=0,
+                                func=lambda x: self.intercept + x*self.slope + x**2*self.quadratic
+                                )
+
+    def auto_process(self):
+        self._parent.auto_process()
+
+    @property
+    def n_freq(self):
+        return getattr(self._parent, self._n_freq)
+
+    @n_freq.setter
+    def n_freq(self, val):
+        setattr(self._parent, self._n_freq, val)
+
+    @property
+    def amplitude(self):
+        return getattr(self._parent, self._amplitude)
+
+    @amplitude.setter
+    def amplitude(self, val):
+        setattr(self._parent, self._amplitude, val)
+
+    @property
+    def intercept(self):
+        return getattr(self._parent, self._intercept)
+
+    @intercept.setter
+    def intercept(self, val):
+        setattr(self._parent, self._intercept, val)
+
+    @property
+    def slope(self):
+        return getattr(self._parent, self._slope)
+
+    @slope.setter
+    def slope(self, val):
+        setattr(self._parent, self._slope, val)
+
+    @property
+    def quadratic(self):
+        return getattr(self._parent, self._quadratic)
+
+    @quadratic.setter
+    def quadratic(self, val):
+        setattr(self._parent, self._quadratic, val)
+
+
+class AddBaselineOW(RC2_Filter):
     name = "Add Baseline"
     description = "add baseline"
     icon = "icons/spectra.svg"
 
     def __init__(self):
         super().__init__()
-        self.n_freq = 15
-        self.amplitude = 2
-        self.intercept = 10
-        self.slope = .01
-        self.quadratic = -.000005
         box = gui.widgetBox(self.controlArea, self.name)
-        gui.spin(box, self, 'n_freq', 3, 5000,
-                 callback=self.auto_process, label='num freq')
-        gui.doubleSpin(box, self, 'amplitude', 0, 5000, decimals=5, step=.01, label='amplitude',
-                       callback=self.auto_process)
-        gui.doubleSpin(box, self, 'intercept', -20000, 20000, decimals=5, step=1, label='intercept',
-                       callback=self.auto_process)
-        gui.doubleSpin(box, self, 'slope', -1000, 1000, decimals=5, step=.001, label='slope',
-                       callback=self.auto_process)
-        gui.doubleSpin(box, self, 'quadratic', -100, 100, decimals=7, step=.000001, label='quadratic',
-                       callback=self.auto_process)
+        self.add_baseline = AddBaseline(self,
+                                        n_freq=('n_freq', box),
+                                        amplitude=('amplitude', box),
+                                        intercept=('intercept', box),
+                                        slope=('slope', box),
+                                        quadratic=('quadratic', box),
+                                        )
 
     def process(self):
         self.out_spe = RC2Spectra()
         for spe in self.in_spe:
-            self.out_spe.append(
-                spe.add_baseline(n_freq=self.n_freq,
-                                 amplitude=self.amplitude,
-                                 pedestal=0,
-                                 func=lambda x: self.intercept + x*self.slope + x**2*self.quadratic
-                                 )
-                )
+            self.out_spe.append(self.add_baseline(spe))
         self.send_outputs()
