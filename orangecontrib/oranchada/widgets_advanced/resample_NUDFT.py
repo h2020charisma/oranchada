@@ -1,9 +1,9 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter, RC2Spectra
+from ..base_widget import FilterWidget
 from scipy import signal
 
 
-class Resample_NUDFT(RC2_Filter):
+class Resample_NUDFT(FilterWidget):
     name = "Resample NUDFT"
     description = "Resample Non-Uniform Discrete Fourier Transform"
     icon = "icons/spectra.svg"
@@ -33,7 +33,7 @@ class Resample_NUDFT(RC2_Filter):
                             ], callback=self.auto_process)
 
     def process(self, spe):
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         for spe in self.in_spe:
             self.out_spe.append(
                 spe.resample_NUDFT_filter(x_range=(self.xmin, self.xmax), xnew_bins=self.nbins,

@@ -1,8 +1,8 @@
 from Orange.widgets.widget import Input
-from .rc2_base import RC2_Filter, RC2Spectra
+from ..base_widget import FilterWidget, RC2Spectra
 
 
-class SetXaxis(RC2_Filter):
+class SetXaxis(FilterWidget):
     name = "Set X-axis"
     description = "Set x-axis of the spectra equal to the calibrated spectrum"
     icon = "icons/spectra.svg"
@@ -11,9 +11,9 @@ class SetXaxis(RC2_Filter):
         super().__init__()
         self.in_spe_calib = None
 
-    class Inputs(RC2_Filter.Inputs):
+    class Inputs(FilterWidget.Inputs):
         in_spe_calib = Input("RC2Spectra calib", RC2Spectra)
-    
+
     @Inputs.in_spe_calib
     def set_in_spe_calib(self, spe):
         self.should_auto_plot = False
@@ -29,7 +29,7 @@ class SetXaxis(RC2_Filter):
     def process(self):
         if not self.in_spe_calib or not self.in_spe:
             return
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         for spe in self.in_spe:
             self.out_spe.append(
                 spe.set_new_xaxis(self.in_spe_calib.x)

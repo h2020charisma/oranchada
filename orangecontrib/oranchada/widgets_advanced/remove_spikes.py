@@ -1,8 +1,8 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter, RC2Spectra
+from ..base_widget import FilterWidget
 
 
-class RecoverSpikes(RC2_Filter):
+class RecoverSpikes(FilterWidget):
     name = "Recover Spikes"
     description = "Recover single-bin spikes using linear interpolation"
     icon = "icons/spectra.svg"
@@ -14,7 +14,7 @@ class RecoverSpikes(RC2_Filter):
         gui.spin(box, self, 'sigma', 1, 100, callback=self.auto_process)
 
     def process(self):
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         for spe in self.in_spe:
             self.out_spe.append(
                 spe.recover_spikes(self.sigma)

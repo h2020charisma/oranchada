@@ -1,8 +1,8 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter, RC2Spectra
+from ..base_widget import FilterWidget
 
 
-class Normalize(RC2_Filter):
+class Normalize(FilterWidget):
     name = "Normalize"
     description = "Normalize"
     icon = "icons/spectra.svg"
@@ -16,7 +16,7 @@ class Normalize(RC2_Filter):
                      label='Normalization method', callback=self.auto_process)
 
     def process(self):
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         for spe in self.in_spe:
             self.out_spe.append(
                 spe.normalize(self.method)

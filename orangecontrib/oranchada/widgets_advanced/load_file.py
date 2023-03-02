@@ -1,10 +1,10 @@
 from Orange.widgets import gui
 import ramanchada2 as rc2
-from .rc2_base import RC2_Creator
+from ..base_widget import CreatorWidget
 from AnyQt.QtWidgets import QFileDialog
 
 
-class LoadFile(RC2_Creator):
+class LoadFile(CreatorWidget):
     name = "Load File"
     description = "Load spectrum from file"
     icon = "icons/spectra.svg"
