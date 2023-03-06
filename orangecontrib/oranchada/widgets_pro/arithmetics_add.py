@@ -1,9 +1,9 @@
 from Orange.widgets.widget import Input
-from .rc2_base import RC2_Arithmetics, RC2Spectra
+from ..base_widget import ArithmeticWidget
 import ramanchada2 as rc2
 
 
-class Add(RC2_Arithmetics):
+class Add(ArithmeticWidget):
     name = "Add"
     description = "add spectra"
     icon = "icons/spectra.svg"
@@ -36,6 +36,6 @@ class Add(RC2_Arithmetics):
         self.addend2 = None
 
     def process(self):
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         self.out_spe.append(self.addend1 + self.addend2)
         self.send_outputs()

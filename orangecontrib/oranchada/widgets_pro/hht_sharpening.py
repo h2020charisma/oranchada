@@ -1,23 +1,22 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter, RC2Spectra
+from ..base_widget import FilterWidget
 
 
-class MovingMinimum(RC2_Filter):
-    name = "Moving minimum"
-    description = "moving minimum"
+class HHT_Sharpening(FilterWidget):
+    name = "HHT Sharpening"
+    description = "hht sharpening"
     icon = "icons/spectra.svg"
 
     def __init__(self):
-        # Initialize the widget
         super().__init__()
-        self.window_size = 10
+        self.window_size = 100
         box = gui.widgetBox(self.controlArea, self.name)
         gui.spin(box, self, 'window_size', 0, 5000, callback=self.auto_process)
 
     def process(self):
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         for spe in self.in_spe:
             self.out_spe.append(
-                spe.moving_minimum(self.window_size)
+                spe.hht_sharpening(movmin=self.window_size)
                 )
         self.send_outputs()

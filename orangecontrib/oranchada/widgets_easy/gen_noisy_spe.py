@@ -1,12 +1,12 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Creator
+from ..base_widget import CreatorWidget
 
-from .gen_spe import GenSpe
-from .add_baseline import AddBaseline
-from .add_noise import AddNoise
+from ..processings.gen_spe import GenSpe
+from ..processings.add_baseline import AddBaseline
+from ..processings.add_noise import AddNoise
 
 
-class GenNoisySpeOW(RC2_Creator):
+class GenNoisySpe(CreatorWidget):
     name = "Gen Noisy Spectra"
     description = "Generate spectra with baseline and noise"
     icon = "icons/spectra.svg"

@@ -1,17 +1,18 @@
 from Orange.data import Table
 from Orange.widgets.widget import Output
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter, RC2Spectra
+from ..base_widget import FilterWidget
 from ramanchada2.misc.types.peak_candidates import ListPeakCandidateMultiModel
 from ramanchada2.spectrum.peaks.fit_peaks import available_models
+# from Orange.data.pandas_compat import table_from_frame
 
 
-class Fit(RC2_Filter):
+class Fit(FilterWidget):
     name = "Fit Peaks"
     description = "Fit Peaks"
     icon = "icons/spectra.svg"
 
-    class Outputs(RC2_Filter.Outputs):
+    class Outputs(FilterWidget.Outputs):
         peaks_out = Output("Peaks", Table, default=False)
 
     def __init__(self):
@@ -28,7 +29,7 @@ class Fit(RC2_Filter):
                      callback=self.auto_process)
 
     def process(self):
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         for spe in self.in_spe:
             cand = ListPeakCandidateMultiModel.validate(spe.result)
             self.out_spe.append(
@@ -36,7 +37,8 @@ class Fit(RC2_Filter):
                                         vary_baseline=self.vary_baseline)
             )
         self.send_outputs()
-        self.Outputs.peaks_out.send(table_from_frame(df))
+        # TODO: fix the dataframe with peak information
+        # self.Outputs.peaks_out.send(table_from_frame(df))
 
     def custom_plot(self, ax):
         for spe in self.out_spe:

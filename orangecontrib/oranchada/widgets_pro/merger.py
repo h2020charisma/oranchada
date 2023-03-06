@@ -1,8 +1,8 @@
 from Orange.widgets.widget import Input
-from .rc2_base import RC2_Base, RC2Spectra
+from ..base_widget import BaseWidget, RC2Spectra
 
 
-class Merger(RC2_Base):
+class Merger(BaseWidget):
     name = "Merger"
     description = "merge spectra"
     icon = "icons/spectra.svg"
@@ -35,7 +35,7 @@ class Merger(RC2_Base):
             self.auto_process()
 
     def process(self):
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         for id_, spes in self.in_spe_dict.items():
             self.out_spe.extend(spes)
         self.send_outputs()

@@ -1,25 +1,18 @@
 from Orange.data import Table
 from Orange.widgets import gui
-from Orange.widgets.widget import OWBaseWidget, Input, Output
+from Orange.widgets.widget import OWBaseWidget, Output
 from Orange.data.pandas_compat import table_from_frame
-import pandas as pd
 
+from AnyQt.QtWidgets import QSizePolicy
 import matplotlib.pyplot as plt
+import pandas as pd
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-from AnyQt.QtWidgets import QSizePolicy
 
-from collections import UserList
-
-
-class RC2Spectra(UserList):
-    auto_summary = False
-
-    def summarize(self):
-        pass
+from .types import RC2Spectra
 
 
-class RC2_Base(OWBaseWidget, openclass=True):
+class BaseWidget(OWBaseWidget, openclass=True):
     resizing_enabled = True
     priority = 10
 
@@ -92,31 +85,3 @@ class RC2_Base(OWBaseWidget, openclass=True):
             self.is_processed = True
             if self.should_auto_plot:
                 self.plot_spe()
-
-
-class RC2_Creator(RC2_Base, openclass=True):
-    def __init__(self):
-        super().__init__()
-        self.in_spe = RC2Spectra()
-
-
-class RC2_Filter(RC2_Base, openclass=True):
-    def input_hook(self):
-        pass
-
-    class Inputs:
-        in_spe = Input("RC2Spectra", RC2Spectra, default=True)
-
-    @Inputs.in_spe
-    def set_in_spe(self, spe):
-        self.should_auto_plot = False
-        if spe:
-            self.in_spe = spe
-            self.auto_process()
-        else:
-            self.in_spe = RC2Spectra()
-        self.input_hook()
-
-
-class RC2_Arithmetics(RC2_Base, openclass=True):
-    pass

@@ -1,10 +1,10 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter, RC2Spectra
+from ..base_widget import FilterWidget
 
 from AnyQt.QtWidgets import QAbstractItemView
 
 
-class Select(RC2_Filter):
+class Select(FilterWidget):
     name = "Select"
     description = "select spectra"
     icon = "icons/spectra.svg"
@@ -23,7 +23,7 @@ class Select(RC2_Filter):
             self.select_box.addItem(f'{spe_i}: {spe!r}')
 
     def process(self):
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         for i in self.select_inputs_idx:
             self.out_spe.append(self.in_spe[i])
         self.send_outputs()
