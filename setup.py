@@ -84,8 +84,8 @@ ENTRY_POINTS = {
         # Syntax: category name = path.to.package.containing.widgets
         # Widget category specification can be seen in
         #    orangecontrib/example/widgets/__init__.py
-        'Oranchada Simplified = orangecontrib.oranchada.widgets_simplified',
-        'Oranchada Advanced = orangecontrib.oranchada.widgets_advanced',
+        'Oranchada Easy = orangecontrib.oranchada.widgets_easy',
+        'Oranchada Pro = orangecontrib.oranchada.widgets_pro',
     ),
 
     # Register widget help
