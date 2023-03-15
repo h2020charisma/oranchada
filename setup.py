@@ -41,7 +41,7 @@ INSTALL_REQUIRES = [
     'orange-canvas-core>=0.1.24',
     'orange-widget-base>=4.16.1',
     'pip>=9.0',  # same as for Orange 3.28
-    'ramanchada2~=0.0.2',
+    'ramanchada2~=0.0.3',
     'setuptools>=36.3',  # same as for Orange 3.28
     # 'AnyQt>=0.0.6',
     # 'bottleneck',
@@ -69,14 +69,14 @@ ENTRY_POINTS = {
     # Entry points that marks this package as an orange add-on. If set, addon will
     # be shown in the add-ons manager even if not published on PyPi.
     'orange3.addon': (
-        'charisma = orangecontrib.charisma',
+        'oranchada = orangecontrib.oranchada',
     ),
 
     # Entry point used to specify packages containing tutorials accessible
     # from welcome screen. Tutorials are saved Orange Workflows (.ows files).
     'orange.widgets.tutorials': (
         # Syntax: any_text = path.to.package.containing.tutorials
-        'infraredtutorials = orangecontrib.charisma.tutorials',
+        'infraredtutorials = orangecontrib.oranchada.tutorials',
     ),
 
     # Entry point used to specify packages containing widgets.
@@ -84,12 +84,13 @@ ENTRY_POINTS = {
         # Syntax: category name = path.to.package.containing.widgets
         # Widget category specification can be seen in
         #    orangecontrib/example/widgets/__init__.py
-        'charisma = orangecontrib.charisma.widgets',
+        'Oranchada Easy = orangecontrib.oranchada.widgets_easy',
+        'Oranchada Pro = orangecontrib.oranchada.widgets_pro',
     ),
 
     # Register widget help
     "orange.canvas.help": (
-        'html-index = orangecontrib.charisma.widgets:WIDGET_HELP_PATH',)
+        'html-index = orangecontrib.oranchada.widgets:WIDGET_HELP_PATH',)
 
 }
 
@@ -112,7 +113,7 @@ CLASSIFIERS = [
     'Topic :: Software Development :: Libraries',
 ]
 
-TEST_SUITE = "orangecontrib.charisma.tests.suite"
+TEST_SUITE = "orangecontrib.oranchada.tests.suite"
 
 
 def include_documentation(local_dir, install_dir):

@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter, RC2Spectra
+from ..base_widget import FilterWidget
 import ramanchada2.misc.constants as rc2const
 import ramanchada2.misc.utils as rc2utils
 import numpy as np
 
 
-class XAxisFineCalibration(RC2_Filter):
+class XAxisFineCalibration(FilterWidget):
     name = "Xaxis fine calibration"
     description = "X-axis fine calibration"
     icon = "icons/spectra.svg"
@@ -82,7 +82,7 @@ class XAxisFineCalibration(RC2_Filter):
         elif self.poly_order == 'poly4':
             poly_order_num = 4
 
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         if len(self.in_spe) > 1:
             raise ValueError(f'Expects a single spectrum input. {len(self.in_spe)} found')
         for spe in self.in_spe:
@@ -96,8 +96,10 @@ class XAxisFineCalibration(RC2_Filter):
         if not self.in_spe:
             return
         self.in_spe[0].plot(ax=self.axes[0])
-        self.axes[0].twinx().stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()), basefmt='', linefmt='r:', label='reference')
-        self.axes[1].twinx().stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()), basefmt='', linefmt='r:', label='reference')
+        self.axes[0].twinx().stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()),
+                                  basefmt='', linefmt='r:', label='reference')
+        self.axes[1].twinx().stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()),
+                                  basefmt='', linefmt='r:', label='reference')
         x, y, yerr = self.diff(self.out_spe[0], self.deltas_dict)
         self.axes[2].errorbar(x, y, yerr, fmt='.:', label='difference')
         for a in self.axes:

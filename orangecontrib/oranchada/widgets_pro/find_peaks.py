@@ -1,9 +1,9 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter, RC2Spectra
+from ..base_widget import FilterWidget
 from ramanchada2.misc.types.peak_candidates import ListPeakCandidateMultiModel
 
 
-class FindPeaks(RC2_Filter):
+class FindPeaks(FilterWidget):
     name = "Find Peaks"
     description = "Find Peaks"
     icon = "icons/spectra.svg"
@@ -35,7 +35,7 @@ class FindPeaks(RC2_Filter):
     def process(self):
         hht_chain = [int(i) for i in self.hht_chain_str.split()]
         self.hht_chain_str = ' '.join([str(i) for i in hht_chain])
-        self.out_spe = RC2Spectra()
+        self.out_spe = list()
         for spe in self.in_spe:
             self.out_spe.append(
                 spe.find_peak_multipeak_filter(

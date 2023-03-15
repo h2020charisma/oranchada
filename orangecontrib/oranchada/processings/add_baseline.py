@@ -1,10 +1,8 @@
-from Orange.widgets import gui
-from .rc2_base import RC2_Filter, RC2Spectra
-from AnyQt.QtWidgets import QGroupBox
 import ramanchada2 as rc2
-
 import pydantic
 from typing import Union
+from AnyQt.QtWidgets import QGroupBox
+from Orange.widgets import gui
 
 
 class AddBaseline:
@@ -98,26 +96,3 @@ class AddBaseline:
     @quadratic.setter
     def quadratic(self, val):
         setattr(self._parent, self._quadratic, val)
-
-
-class AddBaselineOW(RC2_Filter):
-    name = "Add Baseline"
-    description = "add baseline"
-    icon = "icons/spectra.svg"
-
-    def __init__(self):
-        super().__init__()
-        box = gui.widgetBox(self.controlArea, self.name)
-        self.add_baseline = AddBaseline(self,
-                                        n_freq=('n_freq', box),
-                                        amplitude=('amplitude', box),
-                                        intercept=('intercept', box),
-                                        slope=('slope', box),
-                                        quadratic=('quadratic', box),
-                                        )
-
-    def process(self):
-        self.out_spe = RC2Spectra()
-        for spe in self.in_spe:
-            self.out_spe.append(self.add_baseline(spe))
-        self.send_outputs()

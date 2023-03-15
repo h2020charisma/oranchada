@@ -1,10 +1,10 @@
 from Orange.widgets import gui
 import ramanchada2 as rc2
-from .rc2_base import RC2_Creator
+from ..base_widget import CreatorWidget
 from AnyQt.QtWidgets import QFileDialog
 
 
-class LoadFile(RC2_Creator):
+class LoadFile(CreatorWidget):
     name = "Load File"
     description = "Load spectrum from file"
     icon = "icons/spectra.svg"
@@ -14,12 +14,12 @@ class LoadFile(RC2_Creator):
         self.filenames = list()
         box = gui.widgetBox(self.controlArea, self.name)
         gui.button(box, self, "Load File", callback=self.load_file)
-        self.fileformat = 'txt'
-        self.backend = 'native'
+        self.fileformat = 'Auto'
         gui.comboBox(box, self, 'fileformat', sendSelectedValue=True,
-                     items=['txt', 'csv'], label='File format')
-        gui.comboBox(box, self, 'backend', sendSelectedValue=True,
-                     items=['native', 'ramanchada_parser'], label='Backend')
+                     items=['Auto', 'spc', 'sp', 'spa', '0', '1', '2',
+                            'wdf', 'ngs', 'jdx', 'dx',
+                            'txt', 'txtr', 'csv', 'prn', 'rruf'],
+                     label='File format')
 
     def load_file(self):
         filters = ['TXT (*.txt)',
@@ -39,7 +39,9 @@ class LoadFile(RC2_Creator):
 
     def process(self):
         self.out_spe = [
-            rc2.spectrum.from_local_file(fname, filetype=self.fileformat, backend=self.backend)
+            rc2.spectrum.from_local_file(fname,
+                                         filetype=(self.fileformat if self.fileformat != 'Auto' else None),
+                                         )
             for fname in self.filenames
             ]
         self.send_outputs()

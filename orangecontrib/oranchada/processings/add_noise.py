@@ -1,5 +1,4 @@
 from Orange.widgets import gui
-from .rc2_base import RC2_Filter, RC2Spectra
 from AnyQt.QtWidgets import QGroupBox
 import ramanchada2 as rc2
 
@@ -34,23 +33,3 @@ class AddNoise:
     @noise_scale.setter
     def noise_scale(self, val):
         setattr(self._parent, self._noise_scale, val)
-
-
-class AddNoiseOW(RC2_Filter):
-    name = "Add Noise"
-    description = "add noise"
-    icon = "icons/spectra.svg"
-
-    def __init__(self):
-        super().__init__()
-        box = gui.widgetBox(self.controlArea, self.name)
-        self.add_noise = AddNoise(self,
-                                  noise_scale=('noise_scale', box))
-
-    def process(self):
-        self.out_spe = RC2Spectra()
-        for spe in self.in_spe:
-            self.out_spe.append(
-                self.add_noise(spe)
-                )
-        self.send_outputs()
