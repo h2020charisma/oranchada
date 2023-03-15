@@ -1,7 +1,7 @@
 from Orange.widgets import gui
 import ramanchada2 as rc2
 from ..base_widget import CreatorWidget
-from ramanchada2.aux.spectra import datasets2 as data
+from ramanchada2.auxiliary.spectra import datasets2 as data
 from AnyQt.QtWidgets import QAbstractItemView
 
 

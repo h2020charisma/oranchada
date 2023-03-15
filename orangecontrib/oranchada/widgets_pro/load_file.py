@@ -14,12 +14,12 @@ class LoadFile(CreatorWidget):
         self.filenames = list()
         box = gui.widgetBox(self.controlArea, self.name)
         gui.button(box, self, "Load File", callback=self.load_file)
-        self.fileformat = 'txt'
-        self.backend = 'native'
+        self.fileformat = 'Auto'
         gui.comboBox(box, self, 'fileformat', sendSelectedValue=True,
-                     items=['txt', 'csv'], label='File format')
-        gui.comboBox(box, self, 'backend', sendSelectedValue=True,
-                     items=['native', 'ramanchada_parser'], label='Backend')
+                     items=['Auto', 'spc', 'sp', 'spa', '0', '1', '2',
+                            'wdf', 'ngs', 'jdx', 'dx',
+                            'txt', 'txtr', 'csv', 'prn', 'rruf'],
+                     label='File format')
 
     def load_file(self):
         filters = ['TXT (*.txt)',
@@ -39,7 +39,9 @@ class LoadFile(CreatorWidget):
 
     def process(self):
         self.out_spe = [
-            rc2.spectrum.from_local_file(fname, filetype=self.fileformat, backend=self.backend)
+            rc2.spectrum.from_local_file(fname,
+                                         filetype=(self.fileformat if self.fileformat != 'Auto' else None),
+                                         )
             for fname in self.filenames
             ]
         self.send_outputs()
