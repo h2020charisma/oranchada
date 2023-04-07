@@ -1,4 +1,6 @@
 from Orange.widgets import gui
+from Orange.widgets.settings import Setting
+
 from ..base_widget import FilterWidget
 
 
@@ -7,10 +9,11 @@ class WL2RS(FilterWidget):
     description = "Wavelength to Raman shift"
     icon = "icons/spectra.svg"
 
+    laser_wl = Setting(785)
+
     def __init__(self):
         super().__init__()
         box = gui.widgetBox(self.controlArea, self.name)
-        self.laser_wl = 785
         gui.doubleSpin(box, self, 'laser_wl', 0, 5000, decimals=5, step=1, callback=self.auto_process,
                        label='Laser Wavelength [nm]')
 

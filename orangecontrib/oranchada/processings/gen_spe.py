@@ -17,27 +17,22 @@ class GenSpe:
         self._parent = parent
 
         self._spe_xmin = spe_xmin[0]
-        self.spe_xmin = 0
         if spe_xmin[1]:
             gui.spin(spe_xmin[1], self._parent, self._spe_xmin, -1000, 10000, label='xmin', callback=self.auto_process)
 
         self._spe_xmax = spe_xmax[0]
-        self.spe_xmax = 2000
         if spe_xmax[1]:
             gui.spin(spe_xmax[1], self._parent, self._spe_xmax, -1000, 10000, label='xmax', callback=self.auto_process)
 
         self._spe_nbins = spe_nbins[0]
-        self.spe_nbins = 1500
         if spe_nbins[1]:
             gui.spin(spe_nbins[1], self._parent, self._spe_nbins, 1, 200000, label='n_bins', callback=self.auto_process)
 
         self._deltas = deltas[0]
         self._deltas_combo = deltas[0] + '_combo'
-        self.deltas = '1: 1'
         if deltas[1]:
             self.deltas_edit = gui.lineEdit(deltas[1], self._parent, self._deltas, label='Deltas',
                                             callback=self.auto_process)
-            self.deltas_combo = 'PST'
             gui.comboBox(deltas[1], self._parent, self._deltas_combo, sendSelectedValue=True,
                          items=['PST', 'User defined'], callback=self.set_deltas)
             self.set_deltas()

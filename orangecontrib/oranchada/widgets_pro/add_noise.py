@@ -1,4 +1,6 @@
 from Orange.widgets import gui
+from Orange.widgets.settings import Setting
+
 from ..base_widget import FilterWidget
 from ..processings.add_noise import AddNoise
 
@@ -7,6 +9,8 @@ class AddNoiseOW(FilterWidget):
     name = "Add Noise"
     description = "add noise"
     icon = "icons/spectra.svg"
+
+    noise_scale = Setting(.01)
 
     def __init__(self):
         super().__init__()

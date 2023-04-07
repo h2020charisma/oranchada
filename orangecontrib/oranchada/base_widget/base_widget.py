@@ -1,13 +1,15 @@
-from Orange.data import Table
-from Orange.widgets import gui
-from Orange.widgets.widget import OWBaseWidget, Output
-from Orange.data.pandas_compat import table_from_frame
-
-from AnyQt.QtWidgets import QSizePolicy
 import matplotlib.pyplot as plt
 import pandas as pd
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+from AnyQt.QtWidgets import QSizePolicy
+from matplotlib.backends.backend_qt5agg import \
+    FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import \
+    NavigationToolbar2QT as NavigationToolbar
+from Orange.data import Table
+from Orange.data.pandas_compat import table_from_frame
+from Orange.widgets import gui
+from Orange.widgets.settings import Setting
+from Orange.widgets.widget import Output, OWBaseWidget
 
 from .types import RC2Spectra
 
@@ -16,13 +18,14 @@ class BaseWidget(OWBaseWidget, openclass=True):
     resizing_enabled = True
     priority = 10
 
+    should_auto_plot = Setting(False)
+    should_auto_proc = Setting(True)
+    should_pass_datatable = Setting(False)
+    should_plot_legend = Setting(True)
+
     def __init__(self):
         super().__init__()
         self.in_spe = RC2Spectra()
-        self.should_auto_plot = False
-        self.should_auto_proc = True
-        self.should_pass_datatable = False
-        self.should_plot_legend = True
         self.figure = None
         self.is_processed = False
         self.controlArea.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)

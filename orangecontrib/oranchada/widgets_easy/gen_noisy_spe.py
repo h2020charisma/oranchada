@@ -1,15 +1,33 @@
 from Orange.widgets import gui
-from ..base_widget import CreatorWidget
+from Orange.widgets.settings import Setting
 
-from ..processings.gen_spe import GenSpe
+from ..base_widget import CreatorWidget
 from ..processings.add_baseline import AddBaseline
 from ..processings.add_noise import AddNoise
+from ..processings.gen_spe import GenSpe
 
 
 class GenNoisySpe(CreatorWidget):
     name = "Gen Noisy Spectra"
     description = "Generate spectra with baseline and noise"
     icon = "icons/spectra.svg"
+
+    # Generate Spectrum
+    spe_xmin = Setting(0)
+    spe_xmax = Setting(2000)
+    spe_nbins = Setting(1500)
+    deltas_combo = Setting('PST')
+    deltas = Setting('1: 1')
+
+    # Add baseline
+    n_freq = Setting(15)
+    amplitude = Setting(2)
+    intercept = Setting(10)
+    slope = Setting(.01)
+    quadratic = Setting(-.000005)
+
+    # Add noise
+    noise_scale = Setting(.01)
 
     def __init__(self):
         super().__init__()

@@ -1,7 +1,8 @@
-from Orange.widgets import gui
-from ..base_widget import FilterWidget
-
 from AnyQt.QtWidgets import QAbstractItemView
+from Orange.widgets import gui
+from Orange.widgets.settings import Setting
+
+from ..base_widget import FilterWidget
 
 
 class Select(FilterWidget):
@@ -9,9 +10,10 @@ class Select(FilterWidget):
     description = "select spectra"
     icon = "icons/spectra.svg"
 
+    select_inputs_idx = Setting([])
+
     def __init__(self):
         super().__init__()
-        self.select_inputs_idx = []
         box = gui.widgetBox(self.controlArea, self.name)
         self.select_box = gui.listBox(box, self, 'select_inputs_idx',
                                       selectionMode=QAbstractItemView.MultiSelection, callback=self.auto_process)

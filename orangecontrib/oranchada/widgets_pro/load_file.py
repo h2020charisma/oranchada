@@ -1,7 +1,9 @@
-from Orange.widgets import gui
 import ramanchada2 as rc2
-from ..base_widget import CreatorWidget
 from AnyQt.QtWidgets import QFileDialog
+from Orange.widgets import gui
+from Orange.widgets.settings import Setting
+
+from ..base_widget import CreatorWidget
 
 
 class LoadFile(CreatorWidget):
@@ -9,9 +11,10 @@ class LoadFile(CreatorWidget):
     description = "Load spectrum from file"
     icon = "icons/spectra.svg"
 
+    filenames = Setting([])
+
     def __init__(self):
         super().__init__()
-        self.filenames = list()
         box = gui.widgetBox(self.controlArea, self.name)
         gui.button(box, self, "Load File", callback=self.load_file)
         self.fileformat = 'Auto'
@@ -29,7 +32,7 @@ class LoadFile(CreatorWidget):
                    ]
         filenames, filt = QFileDialog.getOpenFileNames(
             caption='Open spectra',
-            directory='/data/RamanSpe/FNMT-Madrid/Horiba_785nm/PST/PST10_iR785_OP02_8000msx8_01.txt',
+            directory='',
             filter=';;'.join(filters),
             initialFilter=filters[-2],
             )

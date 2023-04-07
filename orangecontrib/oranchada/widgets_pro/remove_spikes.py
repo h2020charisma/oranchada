@@ -1,4 +1,6 @@
 from Orange.widgets import gui
+from Orange.widgets.settings import Setting
+
 from ..base_widget import FilterWidget
 
 
@@ -7,9 +9,10 @@ class RecoverSpikes(FilterWidget):
     description = "Recover single-bin spikes using linear interpolation"
     icon = "icons/spectra.svg"
 
+    sigma = Setting(10)
+
     def __init__(self):
         super().__init__()
-        self.sigma = 10
         box = gui.widgetBox(self.controlArea, self.name)
         gui.spin(box, self, 'sigma', 1, 100, callback=self.auto_process)
 

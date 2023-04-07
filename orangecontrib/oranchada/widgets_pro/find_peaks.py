@@ -1,6 +1,8 @@
 from Orange.widgets import gui
-from ..base_widget import FilterWidget
+from Orange.widgets.settings import Setting
 from ramanchada2.misc.types.peak_candidates import ListPeakCandidateMultiModel
+
+from ..base_widget import FilterWidget
 
 
 class FindPeaks(FilterWidget):
@@ -8,19 +10,20 @@ class FindPeaks(FilterWidget):
     description = "Find Peaks"
     icon = "icons/spectra.svg"
 
+    prominence_val = Setting(5)
+    hht_chain_str = Setting('80 20')
+    is_sharpening_enabled = Setting(True)
+    wlen = Setting(200)
+    min_peak_width = Setting(2)
+
     def __init__(self):
         super().__init__()
         box = gui.widgetBox(self.controlArea, self.name)
-        self.prominence_val = 5
-        self.hht_chain_str = '80 20'
-        self.is_sharpening_enabled = True
         self.hht_chain_edit = gui.lineEdit(box, self, 'hht_chain_str', label='HHT Chain', callback=self.auto_process)
         gui.checkBox(box, self, "is_sharpening_enabled", "Enable shaprening", callback=self.auto_process,
                      stateWhenDisabled=False, disables=self.hht_chain_edit)
         self.is_sharpening_enabled = False
 
-        self.wlen = 200
-        self.min_peak_width = 2
         self.prominence_val_spin = gui.doubleSpin(box, self, 'prominence_val', 0, 1000, decimals=2,
                                                   label='Prominence [×σ]', step=.5, callback=self.auto_process)
         gui.spin(box, self, 'wlen', 1, 5000, step=20, callback=self.auto_process, label='Window length')

@@ -1,4 +1,5 @@
 from Orange.widgets.widget import Input
+
 from ..base_widget import FilterWidget, RC2Spectra
 
 
