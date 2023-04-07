@@ -1,8 +1,10 @@
-from Orange.widgets import gui
 import ramanchada2 as rc2
-from ..base_widget import CreatorWidget
-from ramanchada2.auxiliary.spectra import datasets2 as data
 from AnyQt.QtWidgets import QAbstractItemView
+from Orange.widgets import gui
+from Orange.widgets.settings import Setting
+from ramanchada2.auxiliary.spectra import datasets2 as data
+
+from ..base_widget import CreatorWidget
 
 
 class TestSpectra(CreatorWidget):
@@ -10,13 +12,15 @@ class TestSpectra(CreatorWidget):
     description = "load test spectra from ramanchada2"
     icon = "icons/spectra.svg"
 
+    filters = Setting({})
+    selected_filenames = Setting([])
+
     def __init__(self):
         super().__init__()
-        self.list_boxes = dict()
-
+        self.list_boxes = {}
         box = gui.widgetBox(self.controlArea, self.name)
         for k, v in data.get_filters().items():
-            var = k + '_select_list_box_idx'
+            var = 'listbox_' + k + '_select_idx'
             setattr(self, var, list())
             gui.label(box, self, k)
             self.list_boxes[k] = gui.listBox(
@@ -27,25 +31,32 @@ class TestSpectra(CreatorWidget):
 
         gui.label(box, self, 'filenames')
 
-        self.filename_select_list_box_idx = list()
+        self.listbox_filename_select_idx = []
         self.list_box_filename = gui.listBox(
-            box, self, 'filename_select_list_box_idx', selectionMode=QAbstractItemView.MultiSelection,
-            callback=self.auto_process)
-        self.update_filters()
+            box, self, 'listbox_filename_select_idx', selectionMode=QAbstractItemView.MultiSelection,
+            callback=self.select_filename)
+
+        filenames = sorted(data.get_filenames(**self.filters))
+        for item in filenames:
+            self.list_box_filename.addItem(item)
+        self.auto_process()
 
     def update_filters(self):
-        filters = dict()
+        self.filters = {}
         for k, lb in self.list_boxes.items():
-            filters[k] = [item.text() for item in self.list_boxes[k].selectedItems()]
-        filenames = data.get_filenames(**filters)
+            self.filters[k] = [item.text() for item in self.list_boxes[k].selectedItems()]
+        filenames = sorted(data.get_filenames(**self.filters))
         self.list_box_filename.clear()
-        for item in sorted(filenames):
+        for item in filenames:
             self.list_box_filename.addItem(item)
+
+    def select_filename(self):
+        self.selected_filenames = [fn_item.text() for fn_item in self.list_box_filename.selectedItems()]
+        self.auto_process()
 
     def process(self):
         self.out_spe = list()
-        for fn_item in self.list_box_filename.selectedItems():
-            fn = fn_item.text()
+        for fn in self.selected_filenames:
             spe = rc2.spectrum.from_local_file(fn)
             self.out_spe.append(spe)
         self.send_outputs()

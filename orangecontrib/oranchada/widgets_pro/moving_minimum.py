@@ -1,4 +1,6 @@
 from Orange.widgets import gui
+from Orange.widgets.settings import Setting
+
 from ..base_widget import FilterWidget
 
 
@@ -7,10 +9,11 @@ class MovingMinimum(FilterWidget):
     description = "moving minimum"
     icon = "icons/spectra.svg"
 
+    window_size = Setting(10)
+
     def __init__(self):
         # Initialize the widget
         super().__init__()
-        self.window_size = 10
         box = gui.widgetBox(self.controlArea, self.name)
         gui.spin(box, self, 'window_size', 0, 5000, callback=self.auto_process)
 

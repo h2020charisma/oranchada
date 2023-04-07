@@ -1,9 +1,11 @@
 from Orange.widgets.widget import Input
+
 from .base_widget import BaseWidget
 from .types import RC2Spectra
 
 
 class FilterWidget(BaseWidget, openclass=True):
+
     def input_hook(self):
         pass
 

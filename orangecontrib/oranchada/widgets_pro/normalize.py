@@ -1,4 +1,6 @@
 from Orange.widgets import gui
+from Orange.widgets.settings import Setting
+
 from ..base_widget import FilterWidget
 
 
@@ -7,9 +9,10 @@ class Normalize(FilterWidget):
     description = "Normalize"
     icon = "icons/spectra.svg"
 
+    method = Setting('minmax')
+
     def __init__(self):
         super().__init__()
-        self.method = 'minmax'
         box = gui.widgetBox(self.controlArea, self.name)
         gui.comboBox(box, self, 'method', sendSelectedValue=True,
                      items=['unity', 'min_unity', 'unity_density', 'minmax'],

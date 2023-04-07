@@ -1,9 +1,9 @@
-from Orange.widgets import gui
-from AnyQt.QtWidgets import QGroupBox
-import ramanchada2 as rc2
+from typing import Union
 
 import pydantic
-from typing import Union
+import ramanchada2 as rc2
+from AnyQt.QtWidgets import QGroupBox
+from Orange.widgets import gui
 
 
 class AddNoise:
@@ -15,7 +15,6 @@ class AddNoise:
 
         self._noise_scale = noise_scale[0]
         if noise_scale[1]:
-            self.noise_scale = .01
             gui.doubleSpin(noise_scale[1], self._parent, self._noise_scale, 0, 100, decimals=5, step=.001,
                            callback=self.auto_process)
 

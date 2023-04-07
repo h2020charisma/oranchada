@@ -1,6 +1,8 @@
 from Orange.widgets import gui
-from ..base_widget import FilterWidget
+from Orange.widgets.settings import Setting
 from scipy import signal
+
+from ..base_widget import FilterWidget
 
 
 class Resample_NUDFT(FilterWidget):
@@ -8,12 +10,13 @@ class Resample_NUDFT(FilterWidget):
     description = "Resample Non-Uniform Discrete Fourier Transform"
     icon = "icons/spectra.svg"
 
+    xmin = Setting(0)
+    xmax = Setting(4000)
+    nbins = Setting(100)
+    window_function = Setting('blackmanharris')
+
     def __init__(self):
         super().__init__()
-        self.xmin = 0
-        self.xmax = 4000
-        self.nbins = 100
-        self.window_function = 'blackmanharris'
         box = gui.widgetBox(self.controlArea, self.name)
         gui.spin(box, self, 'xmin', -1000, 10000, callback=self.auto_process, label='x-min')
         gui.spin(box, self, 'xmax', -1000, 10000, callback=self.auto_process, label='x-max')

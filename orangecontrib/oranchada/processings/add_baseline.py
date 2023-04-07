@@ -1,6 +1,7 @@
-import ramanchada2 as rc2
-import pydantic
 from typing import Union
+
+import pydantic
+import ramanchada2 as rc2
 from AnyQt.QtWidgets import QGroupBox
 from Orange.widgets import gui
 
@@ -24,25 +25,21 @@ class AddBaseline:
 
         self._amplitude = amplitude[0]
         if amplitude[1]:
-            self.amplitude = 2
             gui.doubleSpin(amplitude[1], self._parent, self._amplitude, 0, 5000, decimals=5, step=.01,
                            label='amplitude', callback=self.auto_process)
 
         self._intercept = intercept[0]
         if intercept[1]:
-            self.intercept = 10
             gui.doubleSpin(intercept[1], self._parent, self._intercept, -20000, 20000, decimals=5, step=1,
                            label='intercept', callback=self.auto_process)
 
         self._slope = slope[0]
         if slope[1]:
-            self.slope = .01
             gui.doubleSpin(slope[1], self._parent, self._slope, -1000, 1000, decimals=5, step=.001,
                            label='slope', callback=self.auto_process)
 
         self._quadratic = quadratic[0]
         if quadratic[1]:
-            self.quadratic = -.000005
             gui.doubleSpin(quadratic[1], self._parent, self._quadratic, -100, 100, decimals=7, step=.000001,
                            label='quadratic', callback=self.auto_process)
 

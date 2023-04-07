@@ -1,10 +1,10 @@
-#!/usr/bin/env python
-
-from Orange.widgets import gui
-from ..base_widget import FilterWidget
+import numpy as np
 import ramanchada2.misc.constants as rc2const
 import ramanchada2.misc.utils as rc2utils
-import numpy as np
+from Orange.widgets import gui
+from Orange.widgets.settings import Setting
+
+from ..base_widget import FilterWidget
 
 
 class XAxisFineCalibration(FilterWidget):
@@ -12,22 +12,24 @@ class XAxisFineCalibration(FilterWidget):
     description = "X-axis fine calibration"
     icon = "icons/spectra.svg"
 
+    predefined_deltas = Setting('Ne WL D3.3')
+    deltas = Setting('')
+    poly_order = Setting('poly3')
+    should_fit = Setting(False)
+    prominence = Setting(3.)
+    wlen = Setting(200)
+    should_auto_proc = Setting(False)
+    n_iters = Setting(1)
+
     def __init__(self):
         super().__init__()
-        self.should_auto_proc = False
         box = gui.widgetBox(self.controlArea, self.name)
-        self.predefined_deltas = 'Ne WL D3.3'
-        self.deltas = ''
-        self.poly_order = 'poly3'
-        self.should_fit = False
-        self.prominence = 0
-        self.wlen = 100
 
-        gui.doubleSpin(box, self, 'prominence', 0, 50000, decimals=5, step=1, callback=self.auto_process,
-                       label='Prominence')
+        gui.doubleSpin(box, self, 'prominence', 0, 50000, decimals=2, step=1, callback=self.auto_process,
+                       label='Prominence [×σ]')
         gui.spin(box, self, 'wlen', 0, 50000, step=1, callback=self.auto_process, label='wlen')
 
-        gui.checkBox(self.optionsBox, self, "should_fit", "Should fit", callback=self.auto_process)
+        gui.checkBox(box, self, "should_fit", "Should fit", callback=self.auto_process)
 
         gui.comboBox(box, self, 'poly_order', sendSelectedValue=True,
                      items=['poly0', 'poly1', 'poly2', 'poly3', 'poly4'],
@@ -42,7 +44,6 @@ class XAxisFineCalibration(FilterWidget):
                                   callback=self.deltas_combo_callback)
         self.deltas_edit = gui.lineEdit(box, self, 'deltas', callback=self.auto_process)
 
-        self.n_iters = 1
         gui.spin(box, self, 'n_iters', 0, 20, label='N iters', callback=self.auto_process)
 
         self.deltas_combo_callback()
@@ -88,7 +89,7 @@ class XAxisFineCalibration(FilterWidget):
         for spe in self.in_spe:
             for iter in range(self.n_iters):
                 spe = spe.xcal_fine(ref=self.deltas_dict, poly_order=poly_order_num, should_fit=self.should_fit,
-                                    find_peaks_kw=dict(prominence=self.prominence, wlen=self.wlen))
+                                    find_peaks_kw=dict(prominence=spe.y_noise*self.prominence, wlen=self.wlen))
             self.out_spe.append(spe)
         self.send_outputs()
 
