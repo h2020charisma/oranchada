@@ -11,25 +11,19 @@ class FindPeaks(FilterWidget):
     def __init__(self):
         super().__init__()
         box = gui.widgetBox(self.controlArea, self.name)
-        self.prominence_val = .02
+        self.prominence_val = 5
         self.hht_chain_str = '80 20'
-        self.manual_prominence = True
         self.is_sharpening_enabled = True
-        self.prominence_val_spin = gui.doubleSpin(box, self, 'prominence_val', 0, 100, decimals=5,
-                                                  label='Prominence', step=.001, callback=self.auto_process)
-
-        gui.checkBox(box, self, "manual_prominence", "Manual Prominence", callback=self.auto_process,
-                     stateWhenDisabled=False, disables=self.prominence_val_spin)
-
         self.hht_chain_edit = gui.lineEdit(box, self, 'hht_chain_str', label='HHT Chain', callback=self.auto_process)
         gui.checkBox(box, self, "is_sharpening_enabled", "Enable shaprening", callback=self.auto_process,
                      stateWhenDisabled=False, disables=self.hht_chain_edit)
         self.is_sharpening_enabled = False
-        self.manual_prominence = False
 
-        self.wlen = 50
-        self.min_peak_width = 1
-        gui.spin(box, self, 'wlen', 1, 5000, callback=self.auto_process, label='Window length')
+        self.wlen = 200
+        self.min_peak_width = 2
+        self.prominence_val_spin = gui.doubleSpin(box, self, 'prominence_val', 0, 1000, decimals=2,
+                                                  label='Prominence [×σ]', step=.5, callback=self.auto_process)
+        gui.spin(box, self, 'wlen', 1, 5000, step=20, callback=self.auto_process, label='Window length')
         gui.spin(box, self, 'min_peak_width', 1, 5000, callback=self.auto_process, label='Min peak width')
 
     def process(self):
@@ -37,13 +31,14 @@ class FindPeaks(FilterWidget):
         self.hht_chain_str = ' '.join([str(i) for i in hht_chain])
         self.out_spe = list()
         for spe in self.in_spe:
+            prominence = spe.y_noise * self.prominence_val
             self.out_spe.append(
                 spe.find_peak_multipeak_filter(
                     wlen=self.wlen,
                     width=self.min_peak_width,
                     hht_chain=hht_chain,
                     sharpening=('hht' if self.is_sharpening_enabled else None),
-                    prominence=(self.prominence_val if self.manual_prominence else None))
+                    prominence=prominence)
                 )
         self.send_outputs()
 

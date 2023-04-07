@@ -22,6 +22,7 @@ class BaseWidget(OWBaseWidget, openclass=True):
         self.should_auto_plot = False
         self.should_auto_proc = True
         self.should_pass_datatable = False
+        self.should_plot_legend = True
         self.figure = None
         self.is_processed = False
         self.controlArea.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
@@ -35,6 +36,7 @@ class BaseWidget(OWBaseWidget, openclass=True):
                      disables=[self.should_auto_plot_checkbox, pass_datatable])
         gui.button(self.optionsBox, self, "Process", callback=self.process)
         gui.button(self.optionsBox, self, "Plot", callback=self.force_plot)
+        gui.checkBox(self.optionsBox, self, "should_plot_legend", "Plot legend", callback=self.auto_process)
 
     class Outputs:
         out_spe = Output("RC2Spectra", RC2Spectra, default=True)
@@ -62,18 +64,25 @@ class BaseWidget(OWBaseWidget, openclass=True):
         for spe in self.out_spe:
             spe.plot(ax=ax, label=f'id(spe)={id(spe)}')
         self.custom_plot(ax)
+        if self.should_plot_legend:
+            ax.legend(fontsize='x-small', ncols=2)
+        else:
+            ax.legend([])
         self.canvas.draw()
 
     def custom_plot(self, ax):
         pass
 
-    def send_outputs(self):
-        self.Outputs.out_spe.send(self.out_spe)
+    def send_output_table(self):
         if self.should_pass_datatable:
             df = pd.DataFrame([pd.Series(index=spe.x, data=spe.y) for spe in self.out_spe])
             df = df.sort_index(axis='columns')
             df.columns = [f'{i}' for i in df.columns]
             self.Outputs.data.send(table_from_frame(df))
+
+    def send_outputs(self):
+        self.Outputs.out_spe.send(self.out_spe)
+        self.send_output_table()
 
     def process(self):
         self.is_processed = True
