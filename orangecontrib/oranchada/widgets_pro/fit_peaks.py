@@ -42,7 +42,13 @@ class Fit(FilterWidget):
                                      vary_baseline=self.vary_baseline)
             )
         self.send_outputs()
-        dfs = [FitPeaksResult.loads(spe.result).to_dataframe_peaks() for spe in self.out_spe]
+        dfs = []
+        for spe in self.out_spe:
+            df = FitPeaksResult.loads(spe.result).to_dataframe_peaks()
+            fn = pd.Series([spe.meta['Original file']]*len(df))
+            fn.index = df.index
+            df['filename'] = fn
+            dfs.append(df)
         self.Outputs.peaks_out.send(table_from_frame(pd.concat(dfs)))
 
     def custom_plot(self, ax):
