@@ -99,9 +99,11 @@ class XAxisFineCalibration(FilterWidget):
         self.in_spe[0].plot(ax=self.axes[0])
         self.axes[0].twinx().stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()),
                                   basefmt='', linefmt='r:', label='reference')
-        self.axes[1].twinx().stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()),
-                                  basefmt='', linefmt='r:', label='reference')
-        x, y, yerr = self.diff(self.out_spe[0], self.deltas_dict)
+        ax1_twin = self.axes[1].twinx()
+        ax1_twin.stem(list(self.deltas_dict.keys()), list(self.deltas_dict.values()),
+                      basefmt='', linefmt='r:', label='reference')
+        x, x_exp, y, yerr = self.diff(self.out_spe[0], self.deltas_dict)
+        ax1_twin.plot([x, x_exp], [0, 0], 'r', lw=4)
         self.axes[2].errorbar(x, y, yerr, fmt='.:', label='difference')
         for a in self.axes:
             a.grid()
@@ -139,4 +141,4 @@ class XAxisFineCalibration(FilterWidget):
         spe_pos_match_idx, ref_pos_match_idx = rc2utils.find_closest_pairs_idx(spe_pos, ref_pos)
         spe_pos_match = spe_pos[spe_pos_match_idx]
         ref_pos_match = ref_pos[ref_pos_match_idx]
-        return ref_pos_match, (spe_pos_match-ref_pos_match), spe_pos_err[spe_pos_match_idx]
+        return ref_pos_match, spe_pos_match, (spe_pos_match-ref_pos_match), spe_pos_err[spe_pos_match_idx]
