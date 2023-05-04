@@ -56,7 +56,7 @@ class TestSpectra(CreatorWidget):
 
     def process(self):
         self.out_spe = list()
-        for fn in self.selected_filenames:
+        for fn in data.prepend_prefix(self.selected_filenames):
             spe = rc2.spectrum.from_local_file(fn)
             self.out_spe.append(spe)
         self.send_outputs()

@@ -32,7 +32,7 @@ class XAxisFineCalibration(FilterWidget):
         gui.checkBox(box, self, "should_fit", "Should fit", callback=self.auto_process)
 
         gui.comboBox(box, self, 'poly_order', sendSelectedValue=True,
-                     items=['poly0', 'poly1', 'poly2', 'poly3', 'poly4'],
+                     items=['poly0', 'poly1', 'poly2', 'poly3', 'poly4', 'RBF thin-plate-spline'],
                      callback=self.auto_process
                      )
 
@@ -88,8 +88,13 @@ class XAxisFineCalibration(FilterWidget):
             raise ValueError(f'Expects a single spectrum input. {len(self.in_spe)} found')
         for spe in self.in_spe:
             for iter in range(self.n_iters):
-                spe = spe.xcal_fine(ref=self.deltas_dict, poly_order=poly_order_num, should_fit=self.should_fit,
-                                    find_peaks_kw=dict(prominence=spe.y_noise*self.prominence, wlen=self.wlen))
+                if self.poly_order == 'RBF thin-plate-spline':
+                    spe = spe.xcal_fine_RBF(ref=self.deltas_dict, should_fit=self.should_fit,
+                                            find_peaks_kw=dict(prominence=spe.y_noise*self.prominence, wlen=self.wlen)
+                                            )
+                else:
+                    spe = spe.xcal_fine(ref=self.deltas_dict, poly_order=poly_order_num, should_fit=self.should_fit,
+                                        find_peaks_kw=dict(prominence=spe.y_noise*self.prominence, wlen=self.wlen))
             self.out_spe.append(spe)
         self.send_outputs()
 
