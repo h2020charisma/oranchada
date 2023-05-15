@@ -18,6 +18,7 @@ class XAxisFineCalibration(FilterWidget):
     should_fit = Setting(False)
     prominence = Setting(3.)
     wlen = Setting(200)
+    min_peak_width = Setting(2)
     should_auto_proc = Setting(False)
     n_iters = Setting(1)
 
@@ -28,6 +29,7 @@ class XAxisFineCalibration(FilterWidget):
         gui.doubleSpin(box, self, 'prominence', 0, 50000, decimals=2, step=1, callback=self.auto_process,
                        label='Prominence [×σ]')
         gui.spin(box, self, 'wlen', 0, 50000, step=1, callback=self.auto_process, label='wlen')
+        gui.spin(box, self, 'min_peak_width', 1, 5000, callback=self.auto_process, label='Min peak width')
 
         gui.checkBox(box, self, "should_fit", "Should fit", callback=self.auto_process)
 
@@ -90,11 +92,18 @@ class XAxisFineCalibration(FilterWidget):
             for iter in range(self.n_iters):
                 if self.poly_order == 'RBF thin-plate-spline':
                     spe = spe.xcal_fine_RBF(ref=self.deltas_dict, should_fit=self.should_fit,
-                                            find_peaks_kw=dict(prominence=spe.y_noise*self.prominence, wlen=self.wlen)
+                                            find_peaks_kw=dict(prominence=spe.y_noise*self.prominence,
+                                                               wlen=self.wlen,
+                                                               width=self.min_peak_width,
+                                                               )
                                             )
                 else:
                     spe = spe.xcal_fine(ref=self.deltas_dict, poly_order=poly_order_num, should_fit=self.should_fit,
-                                        find_peaks_kw=dict(prominence=spe.y_noise*self.prominence, wlen=self.wlen))
+                                        find_peaks_kw=dict(prominence=spe.y_noise*self.prominence,
+                                                           wlen=self.wlen,
+                                                           width=self.min_peak_width,
+                                                           )
+                                        )
             self.out_spe.append(spe)
         self.send_outputs()
 
