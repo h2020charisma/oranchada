@@ -35,7 +35,7 @@ class Resample_NUDFT(FilterWidget):
                             'triang',
                             ], callback=self.auto_process)
 
-    def process(self, spe):
+    def process(self):
         self.out_spe = list()
         for spe in self.in_spe:
             self.out_spe.append(
