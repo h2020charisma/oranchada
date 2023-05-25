@@ -1,1 +1,2 @@
-ICON = "icons/spectra.svg"
+BACKGROUND = "#131c4a"
+ICON = "icons/CHARISMA_logo.svg"
