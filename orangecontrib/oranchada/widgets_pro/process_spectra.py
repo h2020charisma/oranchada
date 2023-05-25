@@ -16,7 +16,7 @@ log = logging.getLogger("charisma")
 log.info("log hijack for debugging")
 
 
-class ProcessSpectraWidget(OWWidget):
+class ProcessSpectraWidget:  # (OWWidget):
     # Define the widget's name, category, and outputs
     name = "Process Spectra"
     description = "Process spectra provided as Orange data table"

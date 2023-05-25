@@ -41,10 +41,13 @@ class LoadFile(CreatorWidget):
             self.auto_process()
 
     def process(self):
-        self.out_spe = [
-            rc2.spectrum.from_local_file(fname,
-                                         filetype=(self.fileformat if self.fileformat != 'Auto' else None),
-                                         )
-            for fname in self.filenames
-            ]
+        self.out_spe = []
+        for fname in self.filenames:
+            spe = rc2.spectrum.from_local_file(fname,
+                                               filetype=(self.fileformat if self.fileformat != 'Auto' else None),
+                                               )
+            meta_dct = spe.meta.dict()['__root__']
+            meta_dct['xlabel'] = 'Raman shift [cm¯¹]'
+            spe.meta = meta_dct
+            self.out_spe.append(spe)
         self.send_outputs()

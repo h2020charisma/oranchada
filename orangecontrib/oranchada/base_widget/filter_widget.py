@@ -18,6 +18,9 @@ class FilterWidget(BaseWidget, openclass=True):
         if spe:
             self.in_spe = spe
             self.auto_process()
+            self.info.set_input_summary(f'{len(self.in_spe)} RC2Spectra',
+                                        '\n'.join([f'· {repr(i)}' for i in self.in_spe]))
         else:
             self.in_spe = RC2Spectra()
+            self.info.set_input_summary(self.info.NoInput)
         self.input_hook()
