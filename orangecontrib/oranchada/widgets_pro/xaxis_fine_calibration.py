@@ -130,6 +130,8 @@ class XAxisFineCalibration(FilterWidget):
         self.axes[0].set_title('Before calibration')
         self.axes[1].set_title('After calibration')
         self.axes[2].set_title('Difference')
+        self.axes[2].set_xlabel(ax.get_xlabel())
+        ax.set_xlabel('')
 
     def plot_create_axes(self):
         self.axes = self.figure.subplots(nrows=3, sharex=True)

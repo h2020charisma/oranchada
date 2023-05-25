@@ -9,5 +9,6 @@ class HDRMerger(FilterWidget):
     icon = "icons/spectra.svg"
 
     def process(self):
-        self.out_spe = [rc2.spectrum.hdr_from_multi_exposure(self.in_spe)]
+        if self.in_spe:
+            self.out_spe = [rc2.spectrum.hdr_from_multi_exposure(self.in_spe)]
         self.send_outputs()

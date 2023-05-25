@@ -9,7 +9,7 @@ from Orange.data import Table
 from Orange.data.pandas_compat import table_from_frame
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
-from Orange.widgets.widget import Output, OWBaseWidget
+from Orange.widgets.widget import Msg, Output, OWBaseWidget, OWWidget
 
 from .types import RC2Spectra
 
@@ -23,8 +23,13 @@ class BaseWidget(OWBaseWidget, openclass=True):
     should_pass_datatable = Setting(False)
     should_plot_legend = Setting(True)
 
+    class Warning(OWWidget.Warning):
+        different_x_labels = Msg('When multiple spectra are provided they are expected to have same xlabel')
+
     def __init__(self):
         super().__init__()
+        self.info.set_input_summary(self.info.NoInput)
+        self.info.set_output_summary(self.info.NoOutput)
         self.in_spe = RC2Spectra()
         self.figure = None
         self.is_processed = False
@@ -37,7 +42,7 @@ class BaseWidget(OWBaseWidget, openclass=True):
                                       stateWhenDisabled=False, callback=self.process)
         gui.checkBox(self.optionsBox, self, "should_auto_proc", "Auto process",
                      disables=[self.should_auto_plot_checkbox, pass_datatable])
-        gui.button(self.optionsBox, self, "Process", callback=self.process)
+        self.process_btn = gui.button(self.optionsBox, self, "Process", callback=self.process)
         gui.button(self.optionsBox, self, "Plot", callback=self.force_plot)
         gui.checkBox(self.optionsBox, self, "should_plot_legend", "Plot legend", callback=self.auto_process)
 
@@ -58,23 +63,47 @@ class BaseWidget(OWBaseWidget, openclass=True):
         if self.figure is None:
             self.figure = plt.figure(tight_layout=True)
             self.canvas = FigureCanvas(self.figure)
-            self.toolbar = NavigationToolbar(self.canvas, self)
-            self.mainArea.layout().addWidget(self.toolbar)
-            self.mainArea.layout().addWidget(self.canvas)
-        for ax in self.figure.axes:
-            self.figure.delaxes(ax)
+            self.mainArea.layout().insertWidget(0, self.canvas)
+            self.toolbar = None
+        for a in self.figure.axes:
+            self.figure.delaxes(a)
         ax = self.plot_create_axes()
         for spe in self.out_spe:
             spe.plot(ax=ax, label=f'id(spe)={id(spe)}')
+        self.set_x_title(ax)
         self.custom_plot(ax)
         if self.should_plot_legend:
             ax.legend(fontsize='x-small', ncols=2)
         else:
             ax.legend([])
+        if self.toolbar:
+            self.toolbar.setParent(None)
+            self.toolbar.destroy()
+        self.toolbar = NavigationToolbar(self.canvas, self, coordinates=True)
+        self.mainArea.layout().insertWidget(0, self.toolbar)
+        self.figure.set_tight_layout(True)
         self.canvas.draw()
 
     def custom_plot(self, ax):
         pass
+
+    def set_x_title(self, ax):
+        xlab = ''
+        for spe in reversed(self.out_spe):
+            if 'xlabel' in spe.meta.__root__:
+                xlab = spe.meta['xlabel']
+        if not xlab:
+            return
+        should_warn = False
+        for spe in self.out_spe:
+            if 'xlabel' in spe.meta.__root__:
+                if xlab != spe.meta['xlabel']:
+                    should_warn = True
+            else:
+                should_warn = True
+        if should_warn:
+            self.Warning.different_x_labels()
+        ax.set_xlabel(xlab)
 
     def send_output_table(self):
         if self.should_pass_datatable:
@@ -84,8 +113,13 @@ class BaseWidget(OWBaseWidget, openclass=True):
             self.Outputs.data.send(table_from_frame(df))
 
     def send_outputs(self):
-        self.Outputs.out_spe.send(self.out_spe)
-        self.send_output_table()
+        if self.out_spe:
+            self.Outputs.out_spe.send(self.out_spe)
+            self.send_output_table()
+            self.info.set_output_summary(f'{len(self.out_spe)} RC2Spectra',
+                                         '\n'.join([f'· {repr(i)}' for i in self.out_spe]))
+        else:
+            self.info.set_output_summary(self.info.NoOutput)
 
     def process(self):
         self.is_processed = True
