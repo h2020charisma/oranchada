@@ -6,7 +6,7 @@ from setuptools import find_packages, setup
 
 NAME = 'oranchada'
 
-VERSION = '0.0.9'
+VERSION = '0.0.10'
 
 DESCRIPTION = 'Orange add-on for Raman spectroscopy'
 README_FILE = path.join(path.dirname(__file__), 'README.pypi')
