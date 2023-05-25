@@ -40,7 +40,7 @@
 
 1. Once Orange restarts, you should see an **Oranchada Easy** and **Pro** categories in the left panel. Click them to reveal all widgets.
 
-    ![image](https://github.com/h2020charisma/oranchada/assets/1084155/a860944f-3bbd-452e-a5fb-def9cff3bac7)
+    ![image](https://github.com/h2020charisma/oranchada/assets/1084155/329aba14-d714-4a22-95d1-6fb03ee168a2)
 
 
 ### Manual installation
@@ -50,6 +50,7 @@ If your network connection has very tight security that severely restricts what 
 1. Open https://pypi.org/project/oranchada/#files and download the "Built Distribution" `.whl` file.
 1. Open **Options** ➡️ **Add-ons** then drag & drop the downloaded `.whl` file to the add-ons window.
 1. Proceed with the general instructions above, starting from step 5 ("scroll down the list until you find **oranchada**").
+
 
 ## Updating
 
@@ -70,6 +71,7 @@ If your network connection has very tight security that severely restricts what 
     2. **IMPORTANT**: In case the upgrade fails, click **OK** and repeat the steps above—it should work on the second attempt. Do **NOT** close *Orange* here without repeating the steps! If you do this, you will most likely not be able to start *Orange* again and will have to install it anew from the beginning, possibly losing some of your settings.
 
     ![image](https://github.com/h2020charisma/oranchada/assets/1084155/78419dcc-73f7-4573-9c80-2cb738ee3f56)
+
 
 ## For developers
 
