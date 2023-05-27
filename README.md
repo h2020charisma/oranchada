@@ -40,7 +40,7 @@
 
 1. Once Orange restarts, you should see an **Oranchada Easy** and **Pro** categories in the left panel. Click them to reveal all widgets.
 
-    ![image](https://github.com/h2020charisma/oranchada/assets/1084155/329aba14-d714-4a22-95d1-6fb03ee168a2)
+    ![image](https://github.com/h2020charisma/oranchada/assets/1084155/e8fb0a68-9939-4371-a2e5-8486bd9a6d23)
 
 
 ### Manual installation
