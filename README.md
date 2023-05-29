@@ -42,6 +42,24 @@
 
     ![image](https://github.com/h2020charisma/oranchada/assets/1084155/e8fb0a68-9939-4371-a2e5-8486bd9a6d23)
 
+1. To verify the Oranchada installation:
+
+    1. Click the **Load Test Spectra** widget or drag it to the workflow area to the right.
+
+        ![image](https://github.com/h2020charisma/oranchada/assets/1084155/da824cdd-d2c5-4a46-a067-f1139094c4df)
+    
+    2. Right-click on the widget in the workflow area and select **Open** or simply double click the widget.
+
+        ![image](https://github.com/h2020charisma/oranchada/assets/1084155/64c8527b-b750-4444-b495-71a26f2dab5f)
+    
+    3. Scroll down the options on the left until you reach the **filenames** section and select an arbitrary filename from the list (e.g., the first one).
+
+        ![image](https://github.com/h2020charisma/oranchada/assets/1084155/948d377e-0b6e-42c0-ac56-94826ccd9ba3)
+    
+    4. Scroll the options back to the top and click the **Plot** button. If Oranchada was installed correctly, you should see a spectrum visualization on the right.
+
+        ![image](https://github.com/h2020charisma/oranchada/assets/1084155/9ecf6adb-0408-4a74-8f7c-d4b8d1bda2a2)
+
 
 ### Manual installation
 
