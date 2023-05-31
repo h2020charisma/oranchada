@@ -10,6 +10,8 @@
 
     1. **Windows**: Download the *Portable Orange* ZIP from https://orangedatamining.com/download/#windows and extract it to some place from which it will be convenient for you to start it. If you are not sure about the place, just extract it to your desktop (it will be possible to move it later if you change your mind). To run Portable Orange, open the shortcut. On the first run, there might be a security warning. In this case, unselect **Always ask before opening this file** and click **Open**.
 
+    ![image](https://github.com/h2020charisma/oranchada/assets/1084155/b91bbf52-d206-4a36-ad1f-a459723d92d1)
+
     ![image](https://github.com/h2020charisma/oranchada/assets/1084155/1545a7d9-c497-41b4-be97-7ac1e022a3f8)
 
     ![image](https://github.com/h2020charisma/oranchada/assets/1084155/0c45b2f2-62e0-4fc7-8056-8544a0fbf74f)
@@ -90,6 +92,20 @@ If your network connection has very tight security that severely restricts what 
 
     ![image](https://github.com/h2020charisma/oranchada/assets/1084155/78419dcc-73f7-4573-9c80-2cb738ee3f56)
 
+
+## Troubleshooting
+
+### Windows cannot find 'Orange\pythonw.exe'
+
+You may encounter the following error message when trying to start the portable Orange:
+
+![image](https://github.com/h2020charisma/oranchada/assets/1084155/d2524a28-f57e-4575-b5f7-73cdbb1343cc)
+
+A possible workaround is to open the `Orange` directory and then the `Scripts` one and start `orange-canvas.exe` from it. You may also need to restart *Orange* manually after installing or updating Oranchada or other add-ons.
+
+### api-ms-win-core-path-l1-1-0.dll missing
+
+You may encouter this or a similar error on Windows 7 and earlier. There are some workarounds, but since they require messing with important Windows components, we cannot recommend them to the casual user.
 
 ## For developers
 
