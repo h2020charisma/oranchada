@@ -20,7 +20,7 @@ class FindPeaks(FilterWidget):
         super().__init__()
         box = gui.widgetBox(self.controlArea, self.name)
         self.hht_chain_edit = gui.lineEdit(box, self, 'hht_chain_str', label='HHT Chain', callback=self.auto_process)
-        gui.checkBox(box, self, "is_sharpening_enabled", "Enable shaprening", callback=self.auto_process,
+        gui.checkBox(box, self, "is_sharpening_enabled", "Enable sharpening", callback=self.auto_process,
                      stateWhenDisabled=False, disables=self.hht_chain_edit)
         self.is_sharpening_enabled = False
 
