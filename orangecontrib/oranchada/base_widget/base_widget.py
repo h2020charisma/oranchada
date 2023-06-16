@@ -41,7 +41,7 @@ class BaseWidget(OWBaseWidget, openclass=True):
         pass_datatable = gui.checkBox(self.optionsBox, self, "should_pass_datatable", "Pass datatable",
                                       stateWhenDisabled=False, callback=self.process)
         gui.checkBox(self.optionsBox, self, "should_auto_proc", "Auto process",
-                     disables=[self.should_auto_plot_checkbox, pass_datatable])
+                     disables=[self.should_auto_plot_checkbox])
         self.process_btn = gui.button(self.optionsBox, self, "Process", callback=self.process)
         gui.button(self.optionsBox, self, "Plot", callback=self.force_plot)
         gui.checkBox(self.optionsBox, self, "should_plot_legend", "Plot legend", callback=self.auto_process)
