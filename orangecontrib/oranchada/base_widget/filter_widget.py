@@ -14,6 +14,7 @@ class FilterWidget(BaseWidget, openclass=True):
 
     @Inputs.in_spe
     def set_in_spe(self, spe):
+        self.Warning.clear()
         self.should_auto_plot = False
         if spe:
             self.in_spe = spe
