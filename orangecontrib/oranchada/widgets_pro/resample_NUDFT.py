@@ -1,5 +1,6 @@
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
+from Orange.widgets.widget import Msg
 from scipy import signal
 
 from ..base_widget import FilterWidget
@@ -14,6 +15,9 @@ class Resample_NUDFT(FilterWidget):
     xmax = Setting(4000)
     nbins = Setting(100)
     window_function = Setting('blackmanharris')
+
+    class Warning(FilterWidget.Warning):
+        small_boundaries = Msg('Provided spectra exceed x-min/x-max limits')
 
     def __init__(self):
         super().__init__()
@@ -36,8 +40,11 @@ class Resample_NUDFT(FilterWidget):
                             ], callback=self.auto_process)
 
     def process(self):
+        self.Warning.clear()
         self.out_spe = list()
         for spe in self.in_spe:
+            if self.xmin > spe.x.min() or self.xmax < spe.x.max():
+                self.Warning.small_boundaries()
             self.out_spe.append(
                 spe.resample_NUDFT_filter(x_range=(self.xmin, self.xmax), xnew_bins=self.nbins,
                                           window=getattr(signal.windows, self.window_function))
