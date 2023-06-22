@@ -1,6 +1,6 @@
 from AnyQt import QtCore
-from AnyQt.QtWidgets import (QTableWidget, QTableWidgetItem, QTabWidget,
-                             QVBoxLayout, QWidget, QLabel)
+from AnyQt.QtWidgets import (QLineEdit, QTableWidget, QTableWidgetItem,
+                             QTabWidget, QVBoxLayout, QWidget)
 from Orange.widgets.settings import Setting
 
 from ..base_widget import FilterWidget
@@ -85,7 +85,10 @@ class MetadataEditorOW(FilterWidget):
             table = QTableWidget()
             table.itemChanged.connect(self.onChanged)
             self.spe_to_table(spe, table)
-            layout.addWidget(QLabel(repr(spe)))
+            le = QLineEdit(None)
+            le.setText(repr(spe))
+            le.setReadOnly(True)
+            layout.addWidget(le)
             layout.addWidget(table)
             self.tabw.addTab(widg, str(spe_i))
             self.tmp_spe.append(spe)

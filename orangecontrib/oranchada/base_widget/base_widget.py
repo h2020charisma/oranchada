@@ -38,8 +38,8 @@ class BaseWidget(OWBaseWidget, openclass=True):
         self.optionsBox.setDisabled(False)
         self.should_auto_plot_checkbox = gui.checkBox(self.optionsBox, self, "should_auto_plot", "Auto update plot",
                                                       stateWhenDisabled=False, callback=self.force_plot)
-        pass_datatable = gui.checkBox(self.optionsBox, self, "should_pass_datatable", "Pass datatable",
-                                      stateWhenDisabled=False, callback=self.process)
+        gui.checkBox(self.optionsBox, self, "should_pass_datatable", "Pass datatable",
+                     stateWhenDisabled=False, callback=self.process)
         gui.checkBox(self.optionsBox, self, "should_auto_proc", "Auto process",
                      disables=[self.should_auto_plot_checkbox])
         self.process_btn = gui.button(self.optionsBox, self, "Process", callback=self.process)
