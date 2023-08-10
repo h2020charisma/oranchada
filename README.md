@@ -92,6 +92,9 @@ If your network connection has very tight security that severely restricts what 
 
     ![image](https://github.com/h2020charisma/oranchada/assets/1084155/78419dcc-73f7-4573-9c80-2cb738ee3f56)
 
+## User guide
+
+[ORANCHADA visual guide (Widget usage examples)](https://zenodo.org/record/8232578)
 
 ## Troubleshooting
 
