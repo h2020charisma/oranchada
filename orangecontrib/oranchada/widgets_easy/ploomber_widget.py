@@ -8,7 +8,7 @@ import numpy as np
 import logging
 from itertools import cycle
 import pandas as pd
-
+#from ploomber import DAG
 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
@@ -65,11 +65,11 @@ class PloomberWidget(OWWidget):
             initialFilter='All files (*)',
             )
         if filenames:
-            self.pipeline_file = filenames
+            self.yaml_file = filenames
             #domain = Domain([StringVariable("File Name")])
             #data = Table(domain, [(os.path.basename(filename),) for filename in self.filenames])
             #self.Outputs.data.send(data)
-            df = pd.DataFrame(self.pipeline_filepipeline_file, columns=["filename"])
+            df = pd.DataFrame(self.yaml_file, columns=["filename"])
             #df = pd.DataFrame({"a" : {"col1" : "val1","col2" :"val2"}})
             self.Outputs.data.send(table_from_frame(df))   
 
