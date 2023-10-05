@@ -8,7 +8,10 @@ import numpy as np
 import logging
 from itertools import cycle
 import pandas as pd
-#from ploomber import DAG
+import ploomber
+from ploomber.executors import Serial
+from ploomber.spec import DAGSpec
+from ploomber import DAG
 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
@@ -20,9 +23,9 @@ log.info("log hijack for debugging")
 
 class PloomberWidget(OWWidget):
     # Define the widget's name, category, and outputs
-    name = "Run ploomber workflow"
-    description = "run Ploomber workflow"
-    icon = "icons/spectra.svg"
+    name = "Ploomber Workflow Runner"
+    description = "Execute Ploomber workflows with YAML and environment files."
+    icon = "icons/ploomber.png"
     priority = 10
     # want_main_area = False
     # resizing_enabled = False
@@ -65,7 +68,7 @@ class PloomberWidget(OWWidget):
             initialFilter='All files (*)',
             )
         if filenames:
-            self.yaml_file = filenames
+            self.yaml_file = filenames[0]
             #domain = Domain([StringVariable("File Name")])
             #data = Table(domain, [(os.path.basename(filename),) for filename in self.filenames])
             #self.Outputs.data.send(data)
@@ -81,14 +84,28 @@ class PloomberWidget(OWWidget):
             initialFilter='All files (*)',
             )
         if filenames:
-            self.env_file = filenames
+            self.env_file = filenames[0]
             df = pd.DataFrame(self.env_file, columns=["filename"])
             #df = pd.DataFrame({"a" : {"col1" : "val1","col2" :"val2"}})
             self.Outputs.data.send(table_from_frame(df))               
 
-    def run_workflow(self):
+    def run_workflow_(self):
         df = pd.DataFrame({"b" : {"xxx" : "val1","yyy" :"val2"}})
         self.Outputs.data.send(table_from_frame(df))
+
+    def run_workflow(self):
+        if not self.yaml_file or not self.env_file:
+            self.statusBar().showMessage("Please select both YAML and environment files.")
+            return
+        try:
+            dag_spec = DAGSpec(data= self.yaml_file, env = self.env_file)
+            dag = dag_spec.to_dag()
+            log.info(dag.status())
+           
+            self.statusBar().showMessage("Workflow executed successfully.")
+        except Exception as e:
+            log.info(e)
+            self.statusBar().showMessage(f"Error: {str(e)}")
 
     @Inputs.data
     def set_data(self, data):
