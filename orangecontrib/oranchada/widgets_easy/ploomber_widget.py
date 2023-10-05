@@ -52,11 +52,13 @@ class PloomberWidget(OWWidget):
         # Initialize the widget
         super().__init__()
         self.data = None
+        self.dag=None
         box = gui.widgetBox(self.controlArea, self.name)
-        gui.button(box, self, "Select YAML File", callback=self.load_file_pipeline)
+        gui.button(box, self, "Select pipeline YAML File", callback=self.load_file_pipeline)
         gui.button(box, self, "Select ENV File", callback=self.load_file_env)
         
-        gui.button(box, self, "Run", callback=self.run_workflow)
+        gui.button(box, self, "Load pipeline", callback=self.load_workflow)
+        gui.button(box, self, "Run pipeline", callback=self.run_workflow)
         #gui.button(self.optionsBox, self, "Commit", callback=self.commit)
         #self.optionsBox.setDisabled(False)
 
@@ -93,19 +95,31 @@ class PloomberWidget(OWWidget):
         df = pd.DataFrame({"b" : {"xxx" : "val1","yyy" :"val2"}})
         self.Outputs.data.send(table_from_frame(df))
 
-    def run_workflow(self):
+    def load_workflow(self):
         if not self.yaml_file or not self.env_file:
             self.statusBar().showMessage("Please select both YAML and environment files.")
             return
         try:
-            dag_spec = DAGSpec(data= self.yaml_file, env = self.env_file)
-            dag = dag_spec.to_dag()
-            log.info(dag.status())
+            self.dag_spec = DAGSpec(data= self.yaml_file, env = self.env_file)
+            self.dag = self.dag_spec.to_dag()
+            log.info(self.dag.status())
+           
+            self.statusBar().showMessage("Workflow loaded successfully.")
+        except Exception as e:
+            log.info(e)
+            self.statusBar().showMessage(f"Error: {str(e)}")
+
+    def run_workflow(self):
+        if self.dag is None:
+            self.statusBar().showMessage("Please load the pipelinefirst,then click Run.")
+            return
+        try:
+            self.dag.build()
            
             self.statusBar().showMessage("Workflow executed successfully.")
         except Exception as e:
             log.info(e)
-            self.statusBar().showMessage(f"Error: {str(e)}")
+            self.statusBar().showMessage(f"Error: {str(e)}")            
 
     @Inputs.data
     def set_data(self, data):
