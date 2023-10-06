@@ -1,6 +1,9 @@
 # oranchada
 [Orange](https://orangedatamining.com/) workflow add-on for processing [Raman spectra](https://en.wikipedia.org/wiki/Raman_spectroscopy). Based on [ramanchada2](https://github.com/h2020charisma/ramanchada2).
 
+- [Poster: OPEN-SOURCE FOR RAMAN SPECTROSCOPY HARMONISATION](https://zenodo.org/record/8029032)
+- [ORANCHADA visual guide (Widget usage examples)](https://zenodo.org/record/8232578)
+
 
 ## Installation
 
