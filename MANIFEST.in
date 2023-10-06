@@ -1,2 +1,3 @@
 include README.pypi
 recursive-include orangecontrib *.svg
+graft orangecontrib/oranchada/widgets_easy/ploomber
