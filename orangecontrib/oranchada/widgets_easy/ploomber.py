@@ -13,6 +13,7 @@ from ploomber.executors import Serial
 from ploomber.spec import DAGSpec
 from ploomber import DAG
 import os
+import yaml
 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
@@ -41,9 +42,10 @@ class PredefinedPloomberWidget(OWWidget):
         # specify the name of the input and the type
         data = Input("Data", Table)
 
+
     class Outputs:
         # if there are two or more outputs, default=True marks the default output
-        data = Output("Processed Data", Table, default=True)
+        data_out = Output("Processed Data", Table, default=True)
 
     # same class can be initiated for Error and Information messages
     class Warning(OWWidget.Warning):
@@ -52,10 +54,19 @@ class PredefinedPloomberWidget(OWWidget):
     class Error(OWWidget.Error):
         processing_error = Msg("Processing error(s).")
 
+    def env2table(self):
+        with open(self.env_file, "r") as file:
+            env = yaml.safe_load(file)        
+        self.env = env
+        self.set_data(table_from_frame(pd.DataFrame.from_dict(env, orient="index", columns=["value"])))
+
     def __init__(self):
         # Initialize the widget
         super().__init__()
-        self.data = None
+
+        # Load the environment dictionary from the env.yaml file
+        self.env2table()
+ 
         self.dag=None
         box = gui.widgetBox(self.controlArea, self.name)
         gui.button(box, self, "Select ENV File", callback=self.load_file_env)
@@ -73,16 +84,14 @@ class PredefinedPloomberWidget(OWWidget):
             )
         if filenames:
             self.env_file = filenames[0]
-            df = pd.DataFrame(self.env_file, columns=["filename"])
-            #df = pd.DataFrame({"a" : {"col1" : "val1","col2" :"val2"}})
-            self.Outputs.data.send(table_from_frame(df))     
+            self.env2table()   
 
     def load_workflow(self):
         if not self.yaml_file or not self.env_file:
             self.statusBar().showMessage("Please select both YAML and environment files.")
             return
         try:
-            self.dag_spec = DAGSpec(data= self.yaml_file, env = self.env_file)
+            self.dag_spec = DAGSpec(data= self.yaml_file, env = self.env)
             self.dag = self.dag_spec.to_dag()
             self.dag.on_finish(lambda dag,report: print(report))                   
             log.info(self.dag.status())
