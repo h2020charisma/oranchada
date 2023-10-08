@@ -1,9 +1,8 @@
 # + tags=["parameters"]
-upstream = []
+upstream = ["mimic_rcspectra"]
 product = None
-root_data_folder: None
-files_spectra_reference: None
-files_spectra_twinned: None
+key_spectra = None
+key_leds= None
 
 # -
 
@@ -11,60 +10,137 @@ import os
 import ramanchada2 as rc2
 import re
 import pandas as pd
+import numpy as np
 
+input_dataset = upstream["mimic_rcspectra"]["data"]
+input_spe = pd.read_hdf(input_dataset, key=key_spectra)
+input_spe["reference"].unique()
 
+input_leds = pd.read_hdf(input_dataset, key=key_leds)
+input_leds["reference"].unique()
 
-def load_spectra(root_data_folder=root_data_folder,folder_path=[files_spectra_reference,files_spectra_twinned]):
-    devices = None
-    reference = True
-    for subset in folder_path:
-        spectra = {}
-        for filename in os.listdir(os.path.join(root_data_folder,subset)):
-            #print(os.path.join(folder_path,filename))
-            #print(filename.split("_"))
-            
-            result = re.split(r'[_().]+', filename)
-            result = [s for s in result if s]
-            laser_power = int(re.sub(r'\D', '',  result[6]))
-            laser_power_percent = float(re.sub(r'\D', '',  result[5]))
-            instrument = result[3]
-            probe = result[4]
-            acquisition_time =  result[7]
-            #print(result)
-            #tag =  '_'.join(result[:-3] + result[-3:-2])
-            tag = "{}:{}:{}:{}:{}".format(subset,instrument,probe,laser_power,acquisition_time)
-            spe = rc2.spectrum.from_local_file(os.path.join(root_data_folder,subset,filename))
-            #print(tag)
-            if not tag in spectra:
-                spectra[tag] = {"laser_power" : laser_power, "laser_power_percent" :  laser_power_percent,  "acquisition_time" : acquisition_time,
-                                "spectrum" : spe , "count" : 1 , "probe" : probe,
-                                "instrument" : instrument}
-            else:
-                spectra[tag]["spectrum"] = spectra[tag]["spectrum"] + spe
-                spectra[tag]["count"] = spectra[tag]["count"] + 1
-        
-        #average replicates
-        for tag in spectra:
-            spe = spectra[tag]["spectrum"]
-            spe /= spectra[tag]["count"]
-            #spe = spe - spe.moving_minimum(32)
-            spectra[tag]["spectrum"] = spe
-            #print(tag,spectra[tag]["count"],spectra[tag]["acquisition_time"],
-            #        spectra[tag]["probe"],spectra[tag]["laser_power"],spectra[tag]["laser_power_percent"])
-            
-        tmp = pd.DataFrame(spectra).T
-        tmp["device"] = subset
-        tmp["reference"] = reference
-        if devices is None:
-            devices = tmp
+from fuzzywuzzy import fuzz
+
+tags = { '785nm':"wavelength", 
+        '532nm':"wavelength", 
+        '785':"wavelength", 
+        '532':"wavelength", 
+        '150mW':"laser_power",
+        '327mW':"laser_power",
+        '(200mW)':"laser_power",        
+          '150ms' : "acquisition_time",
+          '150msx5ac' : "acquisition_time",
+          'Probe': "probe", 
+          '1': "replicate",
+          '2': "replicate",
+          '3': "replicate",
+          '4': "replicate",
+         '5': "replicate",
+         'txt' : "extension"}
+
+_lookup = {
+    "Original file" : "Original file",
+    "laser_wavelength" : "wavelength",
+    "model" : "instrument",
+    "title" : "title",
+    "laser_wavelength" : "wavelength",
+    "laser_powerlevel" : "laser_power_percent",
+    "intigration times(ms)":"acquisition_time"    
+}
+def fuzzy_match(vals,tags):
+    parsed = {}
+    parsed_similarity= {}
+    for val in vals:
+        similarity_score = None
+        match = None
+        for tag in tags:
+            _tmp = fuzz.ratio(val,tag)
+            if (similarity_score is None) or (similarity_score < _tmp):
+                similarity_score =_tmp
+                match = tags[tag]
+        if not match in parsed:
+            parsed[match]  = val
+            parsed_similarity[match] = similarity_score
         else:
-            devices = pd.concat([devices, tmp], ignore_index=False)
-        reference = False
+            if parsed_similarity[match] < similarity_score:
+                parsed[match]  = val
+                parsed_similarity[match] = similarity_score        
+    if "wavelength" in parsed:
+         parsed["wavelength"] = re.findall(r'\d+', parsed["wavelength"])[0]
+    if "extension" in parsed:
+        del parsed["extension"]            
+    return (parsed,parsed_similarity)
 
-        #devices[subset] = spectra
+
+def spe_area(spe: rc2.spectrum.Spectrum):
+    return np.sum(spe.y * np.diff(spe.x_bin_boundaries))
+
+
+
+def load_spectra(input_spe , leds = False):
+    spectra={}
+    for index,row in input_spe.iterrows():
+        spe=row["spectrum"]
+        subset = "reference" if row["reference"] else "twinning"
+        result = re.split(r'[_().]+', spe.meta["Original file"])
+        parsed,parsed_similarity = fuzzy_match([s for s in result if s],tags)
+        #print(result)
+        for m in ["Original file","laser_wavelength","model","title","laser_powerlevel","intigration times(ms)"]:
+            parsed[_lookup[m]] = spe.meta[m]
+        #print("parsed",parsed)
+        #print("similarity",parsed_similarity)
+
+        laser_power = parsed["laser_power"] if "laser_power" in parsed else None
+        laser_power_percent = parsed["laser_power_percent"] if "laser_power_percent" in parsed else None
+        acquisition_time = parsed["acquisition_time"] if "acquisition_time" in parsed else None
+
+        if leds:
+            tag=subset
+        else:
+            tag = "{}:{}:{}:{}:{}".format(subset,
+                                    parsed["instrument"],parsed["probe"],laser_power,acquisition_time)
+        if not tag in spectra:
+            spectra[tag] = {"laser_power" : laser_power, "laser_power_percent" :   laser_power_percent,  
+                                    "acquisition_time" :  acquisition_time, "reference" : row["reference"],
+                                    "spectrum" : spe , "count" : 1 , "probe" : parsed["probe"],"device":subset,
+                                    "instrument" :  parsed["instrument"],"title" :  parsed["title"]
+                                    ,"wavelength" :  parsed["wavelength"],
+                                    "original_file"  : [parsed["Original file"]]
+                                    }
+        else:
+            spectra[tag]["spectrum"] = spectra[tag]["spectrum"] + spe
+            spectra[tag]["count"] = spectra[tag]["count"] + 1
+            print(spectra[tag])
+            spectra[tag]["original_file"].append(parsed["Original file"])
+            
+        if leds:
+            spe_led_y = spe.y
+            spe_led_y[spe_led_y < 0] = 0
+            spe.y = spe_led_y
+            spectra[tag]["spe_dist"] = spe.spe_distribution()
+            spectra[tag]["area"] =   spe_area(spe)                   
+        #average replicates
+
+    for tag in spectra:
+        spe = spectra[tag]["spectrum"]
+        spe /= spectra[tag]["count"]
+        
+    devices = pd.DataFrame(spectra).T
+    devices['laser_power'] = devices['laser_power'].str.extract('(\d+)')
+    devices['laser_power'] = pd.to_numeric(devices['laser_power'])
     return devices
 
-devices=load_spectra(root_data_folder=root_data_folder,folder_path=[files_spectra_reference,files_spectra_twinned])
-devices.head()
-
+devices = None
+devices =  load_spectra(input_spe)   
 devices.to_hdf(product["data"], key='devices', mode='w')
+
+leds = None
+leds =  load_spectra(input_leds,leds=True)   
+leds.to_csv("leds.csv")
+leds.to_hdf(product["data"], key='led', mode='a')
+
+try:
+    devices.to_csv(product["meta_spectra"])
+    leds.to_csv(product["meta_leds"])
+except:
+    pass

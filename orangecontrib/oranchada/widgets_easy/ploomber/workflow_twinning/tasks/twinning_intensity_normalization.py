@@ -1,10 +1,6 @@
 # + tags=["parameters"]
-upstream = ["twinning_normalize","load_leds"]
+upstream = ["twinning_normalize"]
 product = None
-files_led_reference: None
-files_led_twinned: None
-files_spectra_reference: None
-files_spectra_twinned: None
 probe: None
 wavelength: None
 moving_minimum_window: 10
@@ -63,10 +59,27 @@ def Y(x,wavelength=785):
 
 
 match_led={
-    files_spectra_reference : files_led_reference,
-    files_spectra_twinned: files_led_twinned
+    "reference" : "reference",
+    "twinning": "twinning"
 }
 match_led
+
+
+devices_h5file= upstream["twinning_normalize"]["data"]
+print(devices_h5file)
+devices = pd.read_hdf(devices_h5file, "devices")
+devices.head()
+
+led_frame = pd.read_hdf(devices_h5file, "led")
+led_frame.head()
+
+processing = pd.read_hdf(devices_h5file, "processing")
+processing.head()
+
+devices_h5file= product["data"]
+devices.head()
+
+
 
 
 def intensity_normalization(row,spectrum_to_correct):
@@ -77,10 +90,11 @@ def intensity_normalization(row,spectrum_to_correct):
         _Y = Y(spe.x,wavelength)
 
         subset=row["device"]
-        led_row = led_frame.loc[match_led[subset]]
+        led_row = led_frame.loc[led_frame["device"]==subset]
+        spe_dist =led_row["spe_dist"].values[0]
         #spe_led = led_row["spectrum"]
-        spe_dist = led_row["spe_dist"]
-        area = led_row["area"]
+        #spe_dist = led_row["spe_dist"]
+        area = led_row["area"].values[0]
 
         spe_led_sampled= spe_dist.pdf(spe.x)*area
         spe_corrected = _Y*spe_y/spe_led_sampled
@@ -91,19 +105,6 @@ def intensity_normalization(row,spectrum_to_correct):
         print(err)
         return None
 
-
-devices_h5file= upstream["twinning_normalize"]["data"]
-print(devices_h5file)
-devices = pd.read_hdf(devices_h5file, "devices")
-devices.head()
-
-processing = pd.read_hdf(devices_h5file, "processing")
-processing.head()
-
-devices_h5file= product["data"]
-devices.head()
-
-led_frame = pd.read_hdf(upstream["load_leds"]["data"], "led")
 
 baseline_column = "{}_baseline".format(spectrum_corrected_column)  if baseline_after_ledcorrection else "{}_baseline".format(spectrum_to_correct) 
 twinned_condition = (~devices["reference"]) & (devices["probe"] == probe)
@@ -131,6 +132,8 @@ else:
         
 devices.columns
 
+devices_h5file
+
 devices.to_hdf(devices_h5file, key='devices', mode='w')
 
 processing.to_hdf(devices_h5file, key='processing', mode='a')
@@ -138,7 +141,8 @@ processing.to_hdf(devices_h5file, key='processing', mode='a')
 
 led_frame.to_hdf(devices_h5file, key='led', mode='a')
 
-print(devices.columns)
+led_frame.columns
+
 # Assert that the DataFrame contains the expected columns
 assert set([spectrum_corrected_column,baseline_column]).issubset(devices.columns), "a processed spectrum column is missing"
 
