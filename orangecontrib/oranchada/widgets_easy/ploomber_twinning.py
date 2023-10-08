@@ -25,28 +25,43 @@ log = logging.getLogger("charisma")
 log.info("log hijack for debugging")
 
 
-class PredefinedPloomberWidget(BaseWidget):
+class PloomberTwinningWidget(BaseWidget):
     # Define the widget's name, category, and outputs
-    name = "Ploomber Workflow Runner"
-    description = "Execute predefined Ploomber workflows with YAML and environment files."
-   # icon = "icons/ploomber.png"
+    name = "CHARISMA Twinning protocol"
+    description = """Protocol for twinning devices and spectra harmonization.\n\n
+            - Input: 5 spectra per spectrometer using different laser power (mW).\n\n
+            - Spectra treatment: Normalize Raman spectra (same power and integration time). Remove baseline.\n
+            - LED correction: LED intensity correction.\n
+            - Power regression line and Factor Correction (FC) calculaiton: Find 144 cm-1 peaks. Linear regression (laser power vs maximum intensity). FC = Slope A/ Slope B.\n
+            - Harmonization: FC * spectra to harmonize\n
+            - Quality calculation
+            \n"""
+    icon = "icons/twinning.png"
     priority = 10
     # want_main_area = False
     # resizing_enabled = False
     # proportion = Setting(50)
     commitOnChange = Setting(0)
+
+
+    baseline_algorithm =  Setting("movmin") #als ,snip, none
+    wlen =   Setting(10)    
+    baseline_after_ledcorrection =  Setting(False)
+    fit_peak = Setting(False)
+
     # label = Setting("")
     yaml_file = os.path.join(os.path.dirname(__file__), "ploomber","workflow_twinning", "pipeline.yaml")
     env_file = os.path.join(os.path.dirname(__file__), "ploomber", "workflow_twinning","env.yaml")
 
+
     should_auto_proc = Setting(False)
 
     class Inputs:
-        reference_spe = Input("Reference (RC2Spectra)", RC2Spectra, default=True)
-        twinned_spe = Input("Twinned (RC2Spectra)", RC2Spectra, default=False)
-        reference_led = Input("Reference LED (RC2Spectra)", RC2Spectra, default=True)
-        twinned_led = Input("Twinned LED (RC2Spectra)", RC2Spectra, default=False)      
-        data = Input("Data", Table, default=False)   
+        reference_spe = Input("Raw data (RC2Spectra) of spectrometer A (REFERENCE device)", RC2Spectra, default=True)
+        twinned_spe = Input("Raw data (RC2Spectra) of spectrometer B (device to TWIN)", RC2Spectra, default=False)
+        reference_led = Input("Reference device LED spectra (RC2Spectra)", RC2Spectra, default=True)
+        twinned_led = Input("Twinned device LED spectra (RC2Spectra)", RC2Spectra, default=False)      
+        data_env = Input("Settings", Table, default=False)   
 
     class Outputs:
         reference_spe = Output("Reference (RC2Spectra)", RC2Spectra, default=True)
@@ -64,7 +79,7 @@ class PredefinedPloomberWidget(BaseWidget):
         with open(self.env_file, "r") as file:
             env = yaml.safe_load(file)        
         self.env = env
-        self.set_data(table_from_frame(pd.DataFrame.from_dict(env, orient="index", columns=["value"])))
+        self.set_data_env(table_from_frame(pd.DataFrame.from_dict(env, orient="index", columns=["value"])))
 
     def __init__(self):
         # Initialize the widget
@@ -80,6 +95,8 @@ class PredefinedPloomberWidget(BaseWidget):
         gui.button(box, self, "Run pipeline", callback=self.run_workflow)
         #gui.button(self.optionsBox, self, "Commit", callback=self.commit)
         #self.optionsBox.setDisabled(False)
+        box = gui.widgetBox(self.controlArea, "Baseline removal")
+        gui.spin(box, self, 'wlen', 1, 5000, step=20, callback=self.auto_process, label='Window length')        
 
     def load_file_env(self):
         filenames, filt = QFileDialog.getOpenFileNames(
@@ -118,6 +135,16 @@ class PredefinedPloomberWidget(BaseWidget):
         except Exception as e:
             log.info(e)
             self.statusBar().showMessage(f"Error: {str(e)}")
+
+
+    def prepare_input(self):
+        for spe in self.reference_spe:
+            pass
+      # reference_spe = Input("Raw data (RC2Spectra) of spectrometer A (REFERENCE device)", RC2Spectra, default=True)
+      #  twinned_spe = Input("Raw data (RC2Spectra) of spectrometer B (device to TWIN)", RC2Spectra, default=False)
+      #  reference_led = Input("Reference device LED spectra (RC2Spectra)", RC2Spectra, default=True)
+      #  twinned_led = Input("Twinned device LED spectra (RC2Spectra)", RC2Spectra, default=False)      
+      #  data_env = Input("Settings", Table, default=False)               
 
     def run_workflow(self):
         if self.dag is None:
@@ -167,13 +194,13 @@ class PredefinedPloomberWidget(BaseWidget):
         self.update_inputs_info()
         self.auto_process()            
 
-    @Inputs.data
-    def set_data(self, data):
+    @Inputs.data_env
+    def set_data_env(self, data_env):
         self.Error.processing_error.clear()
-        if data:
-            self.data = data
+        if data_env:
+            self.data_env = data_env
         else:
-            self.data = None
+            self.data_env = None
 
 
     def send_report(self):
@@ -185,7 +212,7 @@ if __name__ == "__main__":
     from Orange.data import Table
     import os
     try:
-        WidgetPreview(PredefinedPloomberWidget).run()
+        WidgetPreview(PloomberTwinningWidget).run()
     except Exception as err:
         print(err)
-        WidgetPreview(PredefinedPloomberWidget).run()
+        WidgetPreview(PloomberTwinningWidget).run()
