@@ -1,0 +1,11 @@
+ 
+output_folder: "\\tmp\\twinning_oranchada"
+
+#als,snip,moving minimum
+moving_minimum_window: 10
+baseline_algorithm: "movmin"
+#baseline_algorithm: None
+#baseline_algorithm: "als"
+#baseline_algorithm: "snip"
+baseline_after_ledcorrection: False
+fit_peak: True

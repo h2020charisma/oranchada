@@ -1,5 +1,5 @@
 # + tags=["parameters"]
-upstream = ["twinning_peaks","load_leds"]
+upstream = ["twinning_peaks"]
 product = None
 probe: None
 
@@ -77,6 +77,9 @@ devices_h5file= upstream["twinning_peaks"]["data"]
 devices = pd.read_hdf(devices_h5file, "devices")
 devices.head()
 
+led_frame = pd.read_hdf(devices_h5file, "led")
+led_frame.head()
+
 processing = pd.read_hdf(devices_h5file, "processing")
 processing.head()
 
@@ -86,13 +89,16 @@ regression,factor_correction
 
 print(factor_correction.iloc[0,0])
 
-leds_h5file= upstream["load_leds"]["data"]
-leds = pd.read_hdf(leds_h5file, "led")
+leds = pd.read_hdf(devices_h5file, "led")
 leds.head()
 
-match_led = pd.read_hdf(leds_h5file, "match")
-match_led.head()
-
+#match_led = pd.read_hdf(devices_h5file, "match")
+#match_led.head()
+match_led={
+    "reference" : "reference",
+    "twinning": "twinning"
+}
+match_led
     
 print(processing.index,processing["field"])
  

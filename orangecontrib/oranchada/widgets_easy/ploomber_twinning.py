@@ -32,7 +32,7 @@ class PloomberTwinningWidget(BaseWidget):
             - Input: 5 spectra per spectrometer using different laser power (mW).\n\n
             - Spectra treatment: Normalize Raman spectra (same power and integration time). Remove baseline.\n
             - LED correction: LED intensity correction.\n
-            - Power regression line and Factor Correction (FC) calculaiton: Find 144 cm-1 peaks. Linear regression (laser power vs maximum intensity). FC = Slope A/ Slope B.\n
+            - Power regression line and Factor Correction (FC) calculation: Find 144 cm-1 peaks. Linear regression (laser power vs maximum intensity). FC = Slope A/ Slope B.\n
             - Harmonization: FC * spectra to harmonize\n
             - Quality calculation
             \n"""
@@ -96,7 +96,8 @@ class PloomberTwinningWidget(BaseWidget):
         #gui.button(self.optionsBox, self, "Commit", callback=self.commit)
         #self.optionsBox.setDisabled(False)
         box = gui.widgetBox(self.controlArea, "Baseline removal")
-        gui.spin(box, self, 'wlen', 1, 5000, step=20, callback=self.auto_process, label='Window length')        
+        gui.spin(box, self, 'wlen', 1, 5000, step=20, callback=self.auto_process, label='Window length')     
+        box = gui.widgetBox(self.controlArea, "Peak fitting")   
 
     def load_file_env(self):
         filenames, filt = QFileDialog.getOpenFileNames(
@@ -138,8 +139,32 @@ class PloomberTwinningWidget(BaseWidget):
 
 
     def prepare_input(self):
+        A = RC2Spectra()
         for spe in self.reference_spe:
-            pass
+            A.append(spe)
+        B = RC2Spectra()
+        for spe in self.twinned_spe:
+            B.append(spe)
+        dfA= pd.DataFrame(A.data,columns=["spectrum"])
+        dfA["reference"]= True
+        dfB= pd.DataFrame(B.data,columns=["spectrum"])
+        dfB["reference"]= False
+        df_spectra = pd.concat([dfA,dfB], ignore_index=True)        
+
+        A = RC2Spectra()
+        for spe in self.reference_led:
+            A.append(spe)
+        B = RC2Spectra()
+        for spe in self.twinned_led:
+            B.append(spe)
+        dfA= pd.DataFrame(A.data,columns=["spectrum"])
+        dfA["reference"]= True
+        dfB= pd.DataFrame(B.data,columns=["spectrum"])
+        dfB["reference"]= False
+        df_leds = pd.concat([dfA,dfB], ignore_index=True)    
+
+        df_spectra.to_hdf(os.path.join( self.env["output_folder"],"input_data.h5"), key='input_spectra', mode='w')
+        df_leds.to_hdf(self.env["output_folder"],"input_data.h5", key='input_leds', mode='w')
       # reference_spe = Input("Raw data (RC2Spectra) of spectrometer A (REFERENCE device)", RC2Spectra, default=True)
       #  twinned_spe = Input("Raw data (RC2Spectra) of spectrometer B (device to TWIN)", RC2Spectra, default=False)
       #  reference_led = Input("Reference device LED spectra (RC2Spectra)", RC2Spectra, default=True)

@@ -1,24 +1,11 @@
 tasks:
-  
-  - source: tasks/mimic_rcspectra.py
-    product: 
-      nb: "{{output_folder}}/mimic_rcspectra.ipynb"
-      data: "{{output_folder}}/input_rcspectra.h5"
-    params:
-      root_led_folder: "{{root_led}}"
-      root_data_folder: "{{root_twinning}}"
-      files_spectra_reference: "{{files_spectra_reference}}"
-      files_spectra_twinned: "{{files_spectra_twinned}}"
-      files_led_reference: "{{files_led_reference}}"      
-      files_led_twinned: "{{files_led_twinned}}"      
-      filter_probe : "Probe"
 
   - source: tasks/load_spectra.py
     product: 
       nb: "{{output_folder}}/load_spectra.ipynb"
       data: "{{output_folder}}/twinning_spectra_table.h5"
       meta_spectra: "{{output_folder}}/twinning_spectra_table.csv"
-      meta_leds: "{{output_folder}}/twinning_led_table.csv"
+      meta_leds: "{{output_folder}}/twinning_led_table.csv"      
     params:
       key_spectra: "input_spectra"
       key_leds: "input_leds"

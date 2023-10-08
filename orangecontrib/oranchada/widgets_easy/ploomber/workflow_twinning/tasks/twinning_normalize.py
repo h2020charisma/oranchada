@@ -27,6 +27,9 @@ devices_h5file= upstream["load_spectra"]["data"]
 devices = pd.read_hdf(devices_h5file, key="devices")
 devices.head()
 
+leds = pd.read_hdf(devices_h5file, key="led")
+leds.head()
+
 def calculate_twinned_score(devices,reference_condition,twinned_condition):
     for group, group_df in devices.loc[reference_condition].groupby(['device', 'instrument', 'probe']):
         probe = group[2]
@@ -61,5 +64,7 @@ assert set([result_spectrum]).issubset(devices.columns), "a processed spectrum c
 
 
 devices.to_hdf(product["data"], key='devices', mode='w')
+
+leds.to_hdf(product["data"], key='led', mode='a')
 
 pd.DataFrame({"original" : {"field" : "spectrum"}, "normalized" : {"field"  : result_spectrum}}).T.to_hdf(product["data"], key='processing', mode='a')
