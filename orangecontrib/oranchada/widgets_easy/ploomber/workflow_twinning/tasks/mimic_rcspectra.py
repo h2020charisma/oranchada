@@ -9,6 +9,8 @@ files_spectra_reference: None
 files_spectra_twinned: None
 filter_probe: None
 input_rcspectra: None
+key_spectra: None
+key_leds: None
 
 # -
 
@@ -39,7 +41,7 @@ dfB= pd.DataFrame(B,columns=["spectrum"])
 dfB["reference"]= False
 df_spectra = pd.concat([dfA,dfB], ignore_index=True)
 
-df_spectra.to_hdf(product["data"], key='input_spectra', mode='w')
+df_spectra.to_hdf(product["data"], key=key_spectra, mode='w')
 
 A =[]
 for filename in os.listdir(os.path.join(root_led_folder,files_led_reference)):
@@ -64,4 +66,4 @@ dfB= pd.DataFrame(B,columns=["spectrum"])
 dfB["reference"]= False
 df_leds = pd.concat([dfA,dfB], ignore_index=True)
 
-df_leds.to_hdf(product["data"], key='input_leds', mode='a')
+df_leds.to_hdf(product["data"], key=key_leds, mode='a')
