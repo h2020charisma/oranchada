@@ -1,5 +1,6 @@
  
-output_folder: "\\tmp\\twinning_oranchada"
+output_folder: "\\tmp\\twinning_ploomber"
+input_rcspectra: "input_rcspectra.h5"
 
 #als,snip,moving minimum
 moving_minimum_window: 10

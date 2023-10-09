@@ -7,6 +7,7 @@ tasks:
       meta_spectra: "{{output_folder}}/twinning_spectra_table.csv"
       meta_leds: "{{output_folder}}/twinning_led_table.csv"      
     params:
+      input_h5: "{{output_folder}}/{{input_rcspectra}}"
       key_spectra: "input_spectra"
       key_leds: "input_leds"
         

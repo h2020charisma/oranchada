@@ -50,8 +50,8 @@ class PloomberTwinningWidget(BaseWidget):
     fit_peak = Setting(False)
 
     # label = Setting("")
-    yaml_file = os.path.join(os.path.dirname(__file__), "ploomber","workflow_twinning", "pipeline.yaml")
-    env_file = os.path.join(os.path.dirname(__file__), "ploomber", "workflow_twinning","env.yaml")
+    yaml_file = os.path.join(os.path.dirname(__file__), "ploomber","workflow_twinning", "pipeline_ploomber.yaml")
+    env_file = os.path.join(os.path.dirname(__file__), "ploomber", "workflow_twinning","env_ploomber.yaml")
 
 
     should_auto_proc = Setting(False)
