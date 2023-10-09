@@ -8,8 +8,8 @@ tasks:
       meta_leds: "{{output_folder}}/twinning_led_table.csv"      
     params:
       input_h5: "{{output_folder}}/{{input_rcspectra}}"
-      key_spectra: "input_spectra"
-      key_leds: "input_leds"
+      key_spectra: "{{key_spectra}}"
+      key_leds: "{{key_leds}}"
         
   - source: tasks/twinning_normalize.py
     product: 
