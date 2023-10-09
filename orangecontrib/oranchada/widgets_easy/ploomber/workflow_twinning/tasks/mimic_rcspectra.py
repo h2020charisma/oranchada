@@ -8,6 +8,7 @@ files_led_twinned: None
 files_spectra_reference: None
 files_spectra_twinned: None
 filter_probe: None
+input_rcspectra: None
 
 # -
 

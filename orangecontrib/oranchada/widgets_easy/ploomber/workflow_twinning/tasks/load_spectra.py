@@ -1,8 +1,9 @@
 # + tags=["parameters"]
-upstream = ["mimic_rcspectra"]
+upstream = []
 product = None
 key_spectra = None
 key_leds= None
+input_h5 = None
 
 # -
 
@@ -12,11 +13,10 @@ import re
 import pandas as pd
 import numpy as np
 
-input_dataset = upstream["mimic_rcspectra"]["data"]
-input_spe = pd.read_hdf(input_dataset, key=key_spectra)
+input_spe = pd.read_hdf(input_h5, key=key_spectra)
 input_spe["reference"].unique()
 
-input_leds = pd.read_hdf(input_dataset, key=key_leds)
+input_leds = pd.read_hdf(input_h5, key=key_leds)
 input_leds["reference"].unique()
 
 from fuzzywuzzy import fuzz
