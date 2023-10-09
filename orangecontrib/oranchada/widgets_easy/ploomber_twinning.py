@@ -126,10 +126,13 @@ class PloomberTwinningWidget(BaseWidget):
         
     # same class can be initiated for Error and Information messages
     class Warning(OWWidget.Warning):
-        warning = Msg("My warning!")
+        warning = Msg("Warning")
+
+    class Information(OWWidget.Warning):
+        success = Msg("Workflow successful")
 
     class Error(OWWidget.Error):
-        processing_error = Msg("Processing error(s).")
+        processing_error = Msg("Workflow error")
 
     def env2table(self):
         with open(self.env_file, "r") as file:
@@ -206,7 +209,6 @@ class PloomberTwinningWidget(BaseWidget):
         try:
             A = RC2Spectra()
             for spe in self.reference_spe:
-                self.out_spe.append(spe)
                 A.append(spe)
             self.send_outputs()
             log.info(len(A.data))
@@ -260,22 +262,37 @@ class PloomberTwinningWidget(BaseWidget):
             log.error(err)
 
         try:
-            self.dag.build()
-            devices_h5file = os.path.join( self.env["output_folder"],self.env["twinning_spectra_table_harmonized"])
+            self.dag.build(force=False)
+            devices_h5file = os.path.join( self.env["output_folder"],"twinning_spectra_table_harmonized.h5")
             results = pd.read_hdf(devices_h5file, key='devices')
-            key='spectrum_harmonized'
             #devices_h5file= upstream["twinning_peaks"]["data"]
             #devices = pd.read_hdf(devices_h5file, "devices")
             #devices.head()
             #processing = pd.read_hdf(devices_h5file, "processing")
 
             for index,row in results.iterrows():
-                self.out_spe.append(results[key])
+                if row["reference"]:
+                    key="spectrum_corrected"
+                else:
+                    key="spectrum_harmonized"
+                try:    
+                    spe = row[key]
+                    sc1 = spe.trim_axes(method='x-axis', boundaries=(65,max(spe.x)-500))
+                    meta={}
+                    for tag in ["laser_power","reference","device","laser_power_percent"]:
+                        meta[tag] = row[tag]
+                    self.out_spe.append(sc1)
+                    #rc2.spectrum.Spectrum(sc1.x,sc1.y,meta))
+                except Exception as err:
+                    print(err)
+                #,label="{}".format(row["device"]))
             self.send_outputs()
-            self.statusBar().showMessage("Workflow executed successfully.")
+            self.Information.success()
+            #self.statusBar().showMessage("Workflow executed successfully.")
         except Exception as e:
-            log.info(e)
-            self.statusBar().showMessage(f"Error: {str(e)}")            
+            log.error(e)
+            self.Error.processing_error(f"Error: {str(e)}")
+            #self.statusBar().showMessage(f"Error: {str(e)}")            
 
     def set_meta_spectra(self, data):
         self.Error.processing_error.clear()
