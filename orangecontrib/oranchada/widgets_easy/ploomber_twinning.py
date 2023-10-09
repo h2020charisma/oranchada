@@ -60,7 +60,7 @@ class PloomberTwinningWidget(BaseWidget):
     class Inputs:
         reference_spe = Input("Raw data (RC2Spectra) of spectrometer A (REFERENCE device)", RC2Spectra, default=True)
         twinned_spe = Input("Raw data (RC2Spectra) of spectrometer B (device to TWIN)", RC2Spectra, default=False)
-        reference_led = Input("Reference device LED spectra (RC2Spectra)", RC2Spectra, default=True)
+        reference_led = Input("Reference device LED spectra (RC2Spectra)", RC2Spectra, default=False)
         twinned_led = Input("Twinned device LED spectra (RC2Spectra)", RC2Spectra, default=False)      
         data_env = Input("Settings", Table, default=False)   
 
@@ -73,6 +73,57 @@ class PloomberTwinningWidget(BaseWidget):
         meta_leds = Output("Metadata LEDs", Table, default=False)
                
 
+    @Inputs.reference_spe
+    def set_reference_spe(self, spe):
+        if spe:
+            self.reference_spe = spe
+        else:
+            self.reference_spe = None
+        self.update_inputs_info()
+
+
+    @Inputs.twinned_spe
+    def set_twinned_spe(self, spe):
+        if spe:
+            self.twinned_spe = spe
+        else:
+            self.twinned_spe = None
+        self.update_inputs_info()
+    
+
+    @Inputs.reference_led
+    def set_reference_led(self, spe):
+        if spe:
+            self.reference_led = spe
+        else:
+            self.reference_led = None
+        self.update_inputs_info()
+
+    @Inputs.twinned_led
+    def set_twinned_led(self, spe):
+        if spe:
+            self.twinned_led = spe
+        else:
+            self.twinned_led = None
+        self.update_inputs_info()
+        
+
+    @Inputs.data_env
+    def set_data_env(self, data_env):
+        self.Error.processing_error.clear()
+        if data_env:
+            self.data_env = data_env
+        else:
+            self.data_env = None
+
+    def update_inputs_info(self):
+        self.Warning.clear()
+        len11 = len(self.reference_spe) if self.reference_spe else None
+        len12 = len(self.reference_led) if self.reference_led else None
+        len21 = len(self.twinned_spe) if self.twinned_spe else None
+        len22 = len(self.twinned_led) if self.twinned_led else None        
+        self.info.set_input_summary(f' (Reference {len11} RC2Spectra + {len12} LED RC2Spectra)\n (Twinned {len21} RC2Spectra + {len22} LED RC2Spectra)')
+        
     # same class can be initiated for Error and Information messages
     class Warning(OWWidget.Warning):
         warning = Msg("My warning!")
@@ -84,7 +135,7 @@ class PloomberTwinningWidget(BaseWidget):
         with open(self.env_file, "r") as file:
             env = yaml.safe_load(file)        
         self.env = env
-        self.env["output_folder"] =os.path.join(tempfile.gettempdir(),"Oranchada","ploomber","twinning")
+        self.env["output_folder"] = os.path.join(tempfile.gettempdir(),"ploomber_twinning")
         self.set_data_env(table_from_frame(pd.DataFrame.from_dict(env, orient="index", columns=["value"])))
 
     def __init__(self):
@@ -93,13 +144,12 @@ class PloomberTwinningWidget(BaseWidget):
 
         # Load the environment dictionary from the env.yaml file
         self.env2table()
- 
+        self.out_spe = RC2Spectra()
         self.dag=None
         box = gui.widgetBox(self.controlArea, self.name)
         #gui.button(box, self, "Select ENV File", callback=self.load_file_env)
         gui.button(box, self, "Load pipeline", callback=self.load_workflow)
-        if self.should_auto_proc:
-            self.load_workflow()
+        gui.button(box, self, "Prepare input", callback=self.prepare_input)
         gui.button(box, self, "Run", callback=self.run_workflow)
         #gui.button(self.optionsBox, self, "Commit", callback=self.commit)
         #self.optionsBox.setDisabled(False)
@@ -119,21 +169,21 @@ class PloomberTwinningWidget(BaseWidget):
             self.env2table()   
 
     def on_finish(self,dag,report):
-        print(dag)
-        print(report)
+        #print(dag)
+        log.info(report)
 
     def on_render(self,dag):
-        print("render ",dag)
+        log.info("render ",dag)
 
     def on_failure(self,dag,report):
         print(report)
 
     def load_workflow(self):
-        self.prepare_input()
         if not self.yaml_file or not self.env_file:
             log.info("Please select both YAML and environment files.")
             return
         try:
+            log.info(self.yaml_file,self.env_file,self.env)
             self.dag_spec = DAGSpec(data= self.yaml_file, env = self.env)
             self.dag = self.dag_spec.to_dag()
             self.dag.on_finish = self.on_finish
@@ -148,35 +198,49 @@ class PloomberTwinningWidget(BaseWidget):
 
 
     def prepare_input(self):
-        A = RC2Spectra()
-        for spe in self.reference_spe:
-            A.append(spe)
-        B = RC2Spectra()
-        for spe in self.twinned_spe:
-            B.append(spe)
-        dfA= pd.DataFrame(A.data,columns=["spectrum"])
-        dfA["reference"]= True
-        dfB= pd.DataFrame(B.data,columns=["spectrum"])
-        dfB["reference"]= False
-        df_spectra = pd.concat([dfA,dfB], ignore_index=True)        
+        df_spectra = None
+        df_leds = None
+        log.info("prepare_input")
+        input_rcspectra = os.path.join( self.env["output_folder"],self.env["input_rcspectra"])
+        #log.info("prepare_input  {}".format(input_rcspectra))               
+        try:
+            A = RC2Spectra()
+            for spe in self.reference_spe:
+                self.out_spe.append(spe)
+                A.append(spe)
+            self.send_outputs()
+            log.info(len(A.data))
+            B = RC2Spectra()
+            for spe in self.twinned_spe:
+                B.append(spe)
+            dfA= pd.DataFrame(A.data,columns=["spectrum"])
+            
+            dfA["reference"]= True
+            dfB= pd.DataFrame(B.data,columns=["spectrum"])
+            dfB["reference"]= False
+            df_spectra = pd.concat([dfA,dfB], ignore_index=True)  
+            df_spectra.to_hdf(input_rcspectra, key=self.env['key_spectra'], mode='w')                  
+        except Exception as err:
+            log.error(err)
 
-        A = RC2Spectra()
-        for spe in self.reference_led:
-            A.append(spe)
-        B = RC2Spectra()
-        for spe in self.twinned_led:
-            B.append(spe)
-        dfA= pd.DataFrame(A.data,columns=["spectrum"])
-        dfA["reference"]= True
-        dfB= pd.DataFrame(B.data,columns=["spectrum"])
-        dfB["reference"]= False
-        df_leds = pd.concat([dfA,dfB], ignore_index=True)    
-
-        df_spectra.to_hdf(os.path.join( self.env["output_folder"],self.env["input_rcspectra"]), key=self.env['key_spectra'], mode='w')
-        df_leds.to_hdf(self.env["output_folder"],self.env["input_rcspectra"], key=self.env['key_leds'], mode='a')
-
+        try:
+            A = RC2Spectra()
+            for spe in self.reference_led:
+                A.append(spe)
+            B = RC2Spectra()
+            for spe in self.twinned_led:
+                B.append(spe)
+            log.info(len(A.data))
+            dfA= pd.DataFrame(A.data,columns=["spectrum"])
+            dfA["reference"]= True
+            dfB= pd.DataFrame(B.data,columns=["spectrum"])
+            dfB["reference"]= False
+            df_leds = pd.concat([dfA,dfB], ignore_index=True)    
+            df_leds.to_hdf(input_rcspectra, key=self.env['key_leds'], mode='a')
+        except Exception as err:
+            log.error(err)
         self.set_meta_spectra(table_from_frame(df_spectra))
-        self.set_meta_led(table_from_frame(df_leds))
+        self.set_meta_leds(table_from_frame(df_leds))
       # reference_spe = Input("Raw data (RC2Spectra) of spectrometer A (REFERENCE device)", RC2Spectra, default=True)
       #  twinned_spe = Input("Raw data (RC2Spectra) of spectrometer B (device to TWIN)", RC2Spectra, default=False)
       #  reference_led = Input("Reference device LED spectra (RC2Spectra)", RC2Spectra, default=True)
@@ -185,8 +249,16 @@ class PloomberTwinningWidget(BaseWidget):
 
     def run_workflow(self):
         if self.dag is None:
-            self.statusBar().showMessage("Please load the pipelinefirst,then click Run.")
+            log.info("Please load the pipelinefirst,then click Run.")
             return
+        
+        try:
+            log.info("prepare input")
+            self.prepare_input()
+
+        except Exception as err:
+            log.error(err)
+
         try:
             self.dag.build()
             devices_h5file = os.path.join( self.env["output_folder"],self.env["twinning_spectra_table_harmonized"])
@@ -196,58 +268,14 @@ class PloomberTwinningWidget(BaseWidget):
             #devices = pd.read_hdf(devices_h5file, "devices")
             #devices.head()
             #processing = pd.read_hdf(devices_h5file, "processing")
-            out_spe = RC2Spectra()
+
             for index,row in results.iterrows():
-                out_spe.append(results[key])
+                self.out_spe.append(results[key])
             self.send_outputs()
             self.statusBar().showMessage("Workflow executed successfully.")
         except Exception as e:
             log.info(e)
             self.statusBar().showMessage(f"Error: {str(e)}")            
-
-    @Inputs.reference_spe
-    def set_reference_spe(self, spe):
-        if spe:
-            self.reference_spe = spe
-        else:
-            self.reference_spe = None
-        self.update_inputs_info()
-        self.auto_process()
-
-    @Inputs.twinned_spe
-    def set_twinned_spe(self, spe):
-        if spe:
-            self.twinned_spe = spe
-        else:
-            self.twinned_spe = None
-        self.update_inputs_info()
-        self.auto_process()     
-
-    @Inputs.reference_led
-    def set_reference_led(self, spe):
-        if spe:
-            self.reference_led = spe
-        else:
-            self.reference_led = None
-        self.update_inputs_info()
-        self.auto_process()
-
-    @Inputs.twinned_led
-    def set_twinned_spe(self, spe):
-        if spe:
-            self.twinned_led = spe
-        else:
-            self.twinned_led = None
-        self.update_inputs_info()
-        self.auto_process()            
-
-    @Inputs.data_env
-    def set_data_env(self, data_env):
-        self.Error.processing_error.clear()
-        if data_env:
-            self.data_env = data_env
-        else:
-            self.data_env = None
 
     def set_meta_spectra(self, data):
         self.Error.processing_error.clear()
@@ -267,6 +295,12 @@ class PloomberTwinningWidget(BaseWidget):
         pass
 
 
+    def process(self):
+        self.out_spe = list()
+        for id_, spes in self.reference_spe:
+            self.out_spe.append(spes)
+        self.send_outputs()
+
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview
     from Orange.data import Table
@@ -274,5 +308,5 @@ if __name__ == "__main__":
     try:
         WidgetPreview(PloomberTwinningWidget).run()
     except Exception as err:
-        print(err)
+        log.error(err)
         WidgetPreview(PloomberTwinningWidget).run()
