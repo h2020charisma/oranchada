@@ -2,7 +2,7 @@ tasks:
 
   - source: tasks/load_spectra.py
     product: 
-      nb: "{{output_folder}}/load_spectra.ipynb"
+      nb: "{{output_folder}}/load_spectra.html"
       data: "{{output_folder}}/twinning_spectra_table.h5"
       meta_spectra: "{{output_folder}}/twinning_spectra_table.csv"
       meta_leds: "{{output_folder}}/twinning_led_table.csv"      
@@ -13,7 +13,7 @@ tasks:
         
   - source: tasks/twinning_normalize.py
     product: 
-      nb: "{{output_folder}}/twinning_normalize.ipynb"
+      nb: "{{output_folder}}/twinning_normalize.html"
       data: "{{output_folder}}/twinning_spectra_table_normalized.h5"
     params:
       probe: "Probe"
@@ -21,7 +21,7 @@ tasks:
 
   - source: tasks/twinning_intensity_normalization.py
     product: 
-      nb: "{{output_folder}}/twinning_intensity_normalization.ipynb"
+      nb: "{{output_folder}}/twinning_intensity_normalization.html"
       data: "{{output_folder}}/twinning_spectra_table_corrected.h5"
     params:
       probe: "Probe"
@@ -34,7 +34,7 @@ tasks:
 
   - source: tasks/twinning_peaks.py
     product: 
-      nb: "{{output_folder}}/twinning_peaks.ipynb"
+      nb: "{{output_folder}}/twinning_peaks.html"
       data: "{{output_folder}}/twinning_spectra_table_harmonized.h5"
     params:
       probe: "Probe"  
@@ -44,6 +44,6 @@ tasks:
 
   - source: tasks/twinning_plot.py
     product: 
-      nb: "{{output_folder}}/twinning_plot.ipynb"
+      nb: "{{output_folder}}/twinning_plot.html"
     params:
       probe: "Probe"             

@@ -17,6 +17,7 @@ import yaml
 from ..base_widget import FilterWidget
 from ..base_widget import BaseWidget, RC2Spectra
 import tempfile
+#from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
@@ -153,7 +154,7 @@ class PloomberTwinningWidget(BaseWidget):
         #gui.button(box, self, "Select ENV File", callback=self.load_file_env)
         gui.button(box, self, "Load pipeline", callback=self.load_workflow)
         gui.button(box, self, "Prepare input", callback=self.prepare_input)
-        gui.button(box, self, "Run", callback=self.run_workflow)
+        #gui.button(box, self, "Run", callback=self.run_workflow)
         #gui.button(self.optionsBox, self, "Commit", callback=self.commit)
         #self.optionsBox.setDisabled(False)
         cbox = gui.widgetBox(box, "Baseline removal")
@@ -193,18 +194,20 @@ class PloomberTwinningWidget(BaseWidget):
             self.dag.on_render = self.on_render
 
             log.info(self.dag.status())
-
+            self.plot_spe()
             log.info("Workflow loaded successfully.")
         except Exception as e:
             log.info(e)
-            log.info.showMessage(f"Error: {str(e)}")
+            self.Error.processing_error(f"Error: {str(e)}")
 
+    def workflow_input_file(self):
+        return os.path.join( self.env["output_folder"],self.env["input_rcspectra"])
 
     def prepare_input(self):
         df_spectra = None
         df_leds = None
         log.info("prepare_input")
-        input_rcspectra = os.path.join( self.env["output_folder"],self.env["input_rcspectra"])
+        input_rcspectra = self.workflow_input_file()
         #log.info("prepare_input  {}".format(input_rcspectra))               
         try:
             A = RC2Spectra()
@@ -251,8 +254,7 @@ class PloomberTwinningWidget(BaseWidget):
 
     def run_workflow(self):
         if self.dag is None:
-            log.info("Please load the pipelinefirst,then click Run.")
-            return
+            self.load_workflow()
         
         try:
             log.info("prepare input")
@@ -277,7 +279,7 @@ class PloomberTwinningWidget(BaseWidget):
                     key="spectrum_harmonized"
                 try:    
                     spe = row[key]
-                    sc1 = spe.trim_axes(method='x-axis', boundaries=(65,max(spe.x)-500))
+                    sc1 = spe.trim_axes(method='x-axis', boundaries=(100,max(spe.x)-1000))
                     meta={}
                     for tag in ["laser_power","reference","device","laser_power_percent"]:
                         meta[tag] = row[tag]
@@ -313,10 +315,22 @@ class PloomberTwinningWidget(BaseWidget):
 
 
     def process(self):
-        self.out_spe = list()
-        for id_, spes in self.reference_spe:
-            self.out_spe.append(spes)
-        self.send_outputs()
+        self.run_workflow()
+
+    def custom_plot(self, ax):      
+        if self.dag is None:
+            pass
+        else:
+            pass
+            #ipython_image  = self.dag.plot("embed")
+            #imagebox = OffsetImage(ipython_image, zoom=0.5)  # You can adjust the zoom factor as needed
+            #ab = AnnotationBbox(imagebox, (0.5, 0.5), frameon=False, xycoords='axes fraction')
+            #ax.add_artist(ab)
+
+            # Optional: Customize the plot or axis as needed
+            #ax.set_xlim(0, 1)
+            #ax.set_ylim(0, 1)
+            #ax.set_aspect('equal')            
 
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview
