@@ -136,7 +136,6 @@ devices.to_hdf(product["data"], key='devices', mode='w')
 
 leds = None
 leds =  load_spectra(input_leds,leds=True)   
-leds.to_csv("leds.csv")
 leds.to_hdf(product["data"], key='led', mode='a')
 
 try:
