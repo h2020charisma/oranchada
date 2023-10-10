@@ -1,13 +1,13 @@
 from collections import UserList
 
+from Orange.data import Table
 from AnyQt.QtWidgets import QFileDialog
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
 from Orange.widgets.widget import Output, OWBaseWidget
 
-
-class FileList(UserList):
-    pass
+import pandas as pd
+from Orange.data.pandas_compat import table_from_frame
 
 
 class LoadFileNames(OWBaseWidget):
@@ -20,7 +20,7 @@ class LoadFileNames(OWBaseWidget):
     filenames = Setting([])
 
     class Outputs:
-        data = Output("FileList", FileList, auto_summary = False)
+        data = Output("File list", Table, default=False, auto_summary=False)
 
     def __init__(self):
         super().__init__()
@@ -34,4 +34,6 @@ class LoadFileNames(OWBaseWidget):
             filter='All files (*)',
             initialFilter='All files (*)',
             )
-        self.Outputs.data.send(self.filenames)
+
+        self.Outputs.data.send(table_from_frame(pd.DataFrame(self.filenames,columns=["filename"])))
+
