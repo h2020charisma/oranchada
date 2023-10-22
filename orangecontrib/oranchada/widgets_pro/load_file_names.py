@@ -8,7 +8,7 @@ from Orange.widgets.widget import Output, OWBaseWidget
 
 import pandas as pd
 from Orange.data.pandas_compat import table_from_frame
-
+import os.path
 
 class LoadFileNames(OWBaseWidget):
     name = "Load File Names"
@@ -34,6 +34,9 @@ class LoadFileNames(OWBaseWidget):
             filter='All files (*)',
             initialFilter='All files (*)',
             )
-
-        self.Outputs.data.send(table_from_frame(pd.DataFrame(self.filenames,columns=["filename"])))
+        _tmp = []
+        for fn in self.filenames:
+            parent_path, filename = os.path.split(fn)
+            _tmp.append([fn,parent_path,filename])
+        self.Outputs.data.send(table_from_frame(pd.DataFrame(_tmp,columns=["path","folder","filename"])))
 
