@@ -19,7 +19,7 @@ from dependency_injector import containers, providers
 from dependency_injector.wiring import Provide, inject
 from keycloak import KeycloakOpenID
 from pynanomapper.clients.authservice import TokenService
-from pynanomapper.clients.service_h5 import H5Service
+from pynanomapper.clients.service_charisma import H5Service
 
 
 class Container(containers.DeclarativeContainer):
