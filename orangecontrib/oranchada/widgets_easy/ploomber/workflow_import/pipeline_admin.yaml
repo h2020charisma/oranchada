@@ -10,5 +10,5 @@ tasks:
       keycloak_server_url: "{{keycloak_server_url}}"
       keycloak_client_id: "{{keycloak_client_id}}"
       keycloak_realm_name: "{{keycloak_realm_name}}"
-      hs_admin_username: "{{hs_admin}}"
-      hs_admin_password: "{{hs_adminpassword}}"
+      hs_username: "{{hs_username}}"
+      hs_password: "{{hs_password}}"

@@ -1,6 +1,7 @@
 # + tags=["parameters"]
-upstream = ["generate_metadata"]
+upstream = []
 product = None
+metadata = None
 ramandb_api = None
 hsds_investigation = None
 dry_run = None
@@ -50,7 +51,7 @@ class Container(containers.DeclarativeContainer):
 def main(importservice = Provide[Container.importservice], ):
     importservice.login(hs_username,hs_password)
     try:
-        metadata_file = upstream["generate_metadata"]["data"]        
+        metadata_file = metadata     
         importservice.import2hsds(metadata_file,product["data"])
     except Exception as err:
         traceback.print_exc()

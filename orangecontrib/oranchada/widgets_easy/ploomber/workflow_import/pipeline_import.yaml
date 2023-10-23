@@ -19,15 +19,16 @@ tasks:
       nb: "{{output_folder}}/generate_metadata.ipynb"
     params:
       input_folder: "{{input_folder}}"
-      hsds_investigation: "TEST"      
-      hsds_provider: "FNMT-Burgos"
-      hsds_instrument: "BWTek iRaman"
+      hsds_investigation: "{{hsds_investigation}}"      
+      hsds_provider: "{{hsds_provider}}"
+      hsds_instrument: "{{hsds_instrument}}"
 
   - source: import.py
     product:
       data: "{{output_folder}}/logs/"
       nb: "{{output_folder}}/import.ipynb"
     params:
+      metadata: "{{output_folder}}/metadata.xlsx"
       ramandb_api: "{{ramandb_api}}"
       hsds_investigation: "{{hsds_investigation}}"
       dry_run: "{{dry_run}}"
