@@ -2,7 +2,7 @@ from Orange.data import Table, Domain, StringVariable
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
 from AnyQt.QtWidgets import QFileDialog
-from Orange.widgets.widget import OWWidget, Input, Output, Msg
+from Orange.widgets.widget import Msg, Input, Output, OWBaseWidget, OWWidget
 from Orange.data.pandas_compat import table_from_frame
 import numpy as np
 import logging
@@ -12,16 +12,12 @@ import ploomber
 from ploomber.executors import Serial
 from ploomber.spec import DAGSpec
 from ploomber import DAG
-
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-logging.basicConfig(handlers=[logging.FileHandler("charisma.log", mode='w')], level=logging.NOTSET)
-logging.root.setLevel(logging.NOTSET)
-log = logging.getLogger("charisma")
-log.info("log hijack for debugging")
+from ..base_widget import BaseWidget
 
 
-class PloomberWidget(OWWidget):
+
+
+class PloomberExternalWidget(BaseWidget):
     # Define the widget's name, category, and outputs
     name = "Ploomber Workflow Runner"
     description = "Execute Ploomber workflows with YAML and environment files."
@@ -139,7 +135,7 @@ if __name__ == "__main__":
     from Orange.data import Table
     import os
     try:
-        WidgetPreview(PloomberWidget).run()
+        WidgetPreview(PloomberExternalWidget).run()
     except Exception as err:
         print(err)
-        WidgetPreview(PloomberWidget).run()
+        WidgetPreview(PloomberExternalWidget).run()
