@@ -1,28 +1,5 @@
 tasks:
 
-  - source: auth.py
-    product:
-      nb: "{{output_folder}}/auth.ipynb"
-    params:
-      hsds_investigation: "{{hsds_investigation}}"
-      keycloak_server_url: "{{keycloak_server_url}}"
-      keycloak_client_id: "{{keycloak_client_id}}"
-      keycloak_realm_name: "{{keycloak_realm_name}}"
-      hs_username: "{{hs_username}}"
-      hs_password: "{{hs_password}}"
-      hs_endpoint: "{{hs_endpoint}}"
-      ramandb_api: "{{ramandb_api}}"
-
-  - source: generate_metadata.py
-    product:
-      data: "{{output_folder}}/metadata.xlsx"
-      nb: "{{output_folder}}/generate_metadata.ipynb"
-    params:
-      input_folder: "{{input_folder}}"
-      hsds_investigation: "{{hsds_investigation}}"      
-      hsds_provider: "{{hsds_provider}}"
-      hsds_instrument: "{{hsds_instrument}}"
-
   - source: import.py
     product:
       data: "{{output_folder}}/logs/"

@@ -19,13 +19,6 @@ from ..base_widget import BaseWidget, RC2Spectra
 import tempfile
 #from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-logging.basicConfig(handlers=[logging.FileHandler("charisma.log", mode='w')], level=logging.NOTSET)
-logging.root.setLevel(logging.NOTSET)
-log = logging.getLogger("charisma")
-log.info("log hijack for debugging")
-
 
 class PloomberTwinningWidget(BaseWidget):
     # Define the widget's name, category, and outputs
@@ -129,7 +122,7 @@ class PloomberTwinningWidget(BaseWidget):
     class Warning(OWWidget.Warning):
         warning = Msg("Warning")
 
-    class Information(OWWidget.Warning):
+    class Information(OWWidget.Status):
         success = Msg("Workflow successful")
 
     class Error(OWWidget.Error):

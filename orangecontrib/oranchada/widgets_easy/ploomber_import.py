@@ -3,7 +3,7 @@ from Orange.widgets import gui
 from Orange.widgets.settings import Setting
 from AnyQt.QtWidgets import QFileDialog
 from Orange.widgets.widget import OWWidget, Input, Output, Msg
-from Orange.data.pandas_compat import table_from_frame
+from Orange.data.pandas_compat import table_from_frame, table_to_frame
 import numpy as np
 import logging
 from itertools import cycle
@@ -13,7 +13,15 @@ from ploomber.executors import Serial
 from ploomber.spec import DAGSpec
 from ploomber import DAG
 from ..base_widget import BaseWidget
+from .ploomber_base import load_env, env2table
+import os.path
 
+for handler in logging.root.handlers[:]:
+    logging.root.removeHandler(handler)
+logging.basicConfig(handlers=[logging.FileHandler("charisma_ploomber.log", mode='w')], level=logging.NOTSET)
+logging.root.setLevel(logging.NOTSET)
+log = logging.getLogger("charisma")
+log.info("log hijack for debugging")
 
 class PloomberImportWidget(BaseWidget):
     # Define the widget's name, category, and outputs
@@ -25,106 +33,160 @@ class PloomberImportWidget(BaseWidget):
     # resizing_enabled = False
     # proportion = Setting(50)
     commitOnChange = Setting(0)
+    should_auto_proc = Setting(False)
+    investigation =  Setting("TEST") 
+
     # label = Setting("")
+    yaml_file = os.path.join(os.path.dirname(__file__), "ploomber","workflow_import", "pipeline_import.yaml")
+    env_file = os.path.join(os.path.dirname(__file__), "ploomber", "workflow_import","env_ploomber.yaml")
+
 
     class Inputs:
         # specify the name of the input and the type
-        data = Input("Data", Table)
+        metadata = Input("Metadata", Table)
+        data_env = Input("Settings", Table, default=False)           
 
     class Outputs:
         # if there are two or more outputs, default=True marks the default output
         data = Output("Processed Data", Table, default=True)
 
+    @Inputs.metadata
+    def set_metadata(self, metadata):
+        if metadata:
+            self.metadata = metadata
+        else:
+            self.metadata = None
+        self.update_inputs_info()
+        
+
+    @Inputs.data_env
+    def set_data_env(self, data_env):
+        self.Error.processing_error.clear()
+        if data_env:
+            self.data_env = data_env
+        else:
+            self.data_env = None
+
+
+    def update_inputs_info(self):
+        self.Warning.clear()
+        len11 = len(self.metadata) if self.metadata else None
+    
+        self.info.set_input_summary(f' (Reference {len11} metadata)')
+
+ 
     # same class can be initiated for Error and Information messages
     class Warning(OWWidget.Warning):
         warning = Msg("My warning!")
 
     class Error(OWWidget.Error):
         processing_error = Msg("Processing error(s).")
+    
+    class Information(OWWidget.Warning):
+        success = Msg("Workflow successful")
 
     def __init__(self):
         # Initialize the widget
         super().__init__()
-        self.data = None
+
+        # Load the environment dictionary from the env.yaml file
+        self.env = load_env(self.env_file,"ploomber_import")
+        self.env["input_folder"] = ""
+        self.investigation = self.env["hsds_investigation"]
+        self.provider = self.env["hsds_provider"]
+        self.instrument = self.env["hsds_instrument"]
+        self.username = self.env["hs_username"]
+        self.password = self.env["hs_password"]
+
+        self.set_data_env(env2table(self.env))
         self.dag=None
         box = gui.widgetBox(self.controlArea, self.name)
-        gui.button(box, self, "Select pipeline YAML File", callback=self.load_file_pipeline)
-        gui.button(box, self, "Select ENV File", callback=self.load_file_env)
+        #gui.button(box, self, "Load pipeline", callback=self.load_workflow)
+        self.investigation_edit = gui.lineEdit(box, self, 'investigation', label='Investigation')
+        self.provider_edit = gui.lineEdit(box, self, 'provider', label='Provider')
+        self.instrument_edit = gui.lineEdit(box, self, 'instrument', label='Instrument')
+
+        self.instrument_edit.textChanged.connect(lambda text: self.update_field("hsds_instrument", text))
+        self.provider_edit.textChanged.connect(lambda text: self.update_field("hsds_provider", text))
+        self.investigation_edit.textChanged.connect(lambda text: self.update_field("hsds_investigation", text))
+
+        box1 = gui.widgetBox(box, "CHARISMA DB login")
+        self.user_edit = gui.lineEdit(box1, self, 'username', label='Username')
+        self.password_edit = gui.lineEdit(box1, self, 'password', label='Password')
         
-        gui.button(box, self, "Load pipeline", callback=self.load_workflow)
-        gui.button(box, self, "Run pipeline", callback=self.run_workflow)
-        #gui.button(self.optionsBox, self, "Commit", callback=self.commit)
-        #self.optionsBox.setDisabled(False)
+        self.user_edit.textChanged.connect(lambda text: self.update_field("hs_username", text))
+        self.password_edit.textChanged.connect(lambda text: self.update_field("hs_password", text))
 
-    def load_file_pipeline(self):
-        filenames, filt = QFileDialog.getOpenFileNames(
-            caption='Select YAML File',
-            directory='',
-            filter='YAML Files (*.yaml *.yml);;All Files (*)',
-            initialFilter='All files (*)',
-            )
-        if filenames:
-            self.yaml_file = filenames[0]
-            #domain = Domain([StringVariable("File Name")])
-            #data = Table(domain, [(os.path.basename(filename),) for filename in self.filenames])
-            #self.Outputs.data.send(data)
-            df = pd.DataFrame(self.yaml_file, columns=["filename"])
-            #df = pd.DataFrame({"a" : {"col1" : "val1","col2" :"val2"}})
-            self.Outputs.data.send(table_from_frame(df))   
+    def update_field(self, field_name, text):
+        setattr(self, field_name, text)
+        self.env[field_name] = text
+        self.set_data_env(env2table(self.env))
+   
 
-    def load_file_env(self):
-        filenames, filt = QFileDialog.getOpenFileNames(
-            caption='Select ENV File',
-            directory='',
-            filter='YAML Files (*.yaml *.yml);;All Files (*)',
-            initialFilter='All files (*)',
-            )
-        if filenames:
-            self.env_file = filenames[0]
-            df = pd.DataFrame(self.env_file, columns=["filename"])
-            #df = pd.DataFrame({"a" : {"col1" : "val1","col2" :"val2"}})
-            self.Outputs.data.send(table_from_frame(df))               
+    def workflow_input_file(self):
+        return os.path.join( self.env["output_folder"],'metadata.xlsx')
+    
+    def prepare_input(self):
+        metadata_file = self.workflow_input_file()
+        df = table_to_frame(self.metadata,include_metas=True)
+        df.set_index("index", inplace=True)
+        df["enabled"] = True
+        df["delete"] = False
+        df["hsds_investigation"] = self.env["hsds_investigation"]
+        df["hsds_provider"] = self.env["hsds_provider"]
+        df["hsds_instrument"] = self.env["hsds_instrument"]        
 
-    def run_workflow_(self):
-        df = pd.DataFrame({"b" : {"xxx" : "val1","yyy" :"val2"}})
-        self.Outputs.data.send(table_from_frame(df))
+        with pd.ExcelWriter(metadata_file, engine='openpyxl') as writer:
+            df.to_excel(writer,sheet_name="files", index=True)
+            pd.DataFrame({"value": [self.env["input_folder"]]}, index=["path"]).to_excel(writer, sheet_name='paths')        
+    
 
     def load_workflow(self):
         if not self.yaml_file or not self.env_file:
-            self.statusBar().showMessage("Please select both YAML and environment files.")
+            log.info("Please select both YAML and environment files.")
             return
         try:
-            self.dag_spec = DAGSpec(data= self.yaml_file, env = self.env_file)
+            log.info(self.yaml_file,self.env_file,self.env)
+            self.dag_spec = DAGSpec(data= self.yaml_file, env = self.env)
             self.dag = self.dag_spec.to_dag()
+
             log.info(self.dag.status())
-           
-            self.statusBar().showMessage("Workflow loaded successfully.")
+            #self.plot_spe()
+            log.info("Workflow loaded successfully.")
         except Exception as e:
             log.info(e)
-            self.statusBar().showMessage(f"Error: {str(e)}")
+            self.Error.processing_error(f"Error: {str(e)}")
 
     def run_workflow(self):
         if self.dag is None:
-            self.statusBar().showMessage("Please load the pipelinefirst,then click Run.")
-            return
+            self.load_workflow()
+        
         try:
-            self.dag.build()
-           
-            self.statusBar().showMessage("Workflow executed successfully.")
+            log.info("prepare input")
+            self.prepare_input()
+
+        except Exception as err:
+            log.error(err)
+            self.Error.processing_error(f"Error while preparing input: {str(err)}")
+
+        try:
+            self.dag.build(force=True)
+            #tbd read results
+            #self.send_outputs()
+            self.Information.success()
+            #self.statusBar().showMessage("Workflow executed successfully.")
         except Exception as e:
-            log.info(e)
-            self.statusBar().showMessage(f"Error: {str(e)}")            
+            log.error(e)
+            self.Error.processing_error(f"Error: {str(e)}")
+            #self.statusBar().showMessage(f"Error: {str(e)}")   
 
-    @Inputs.data
-    def set_data(self, data):
-        self.Error.processing_error.clear()
-        if data:
-            self.data = data
-        else:
-            self.data = None
-
+    def process(self):
+        self.run_workflow()
 
     def send_report(self):
+        pass
+
+    def plot_spe(self):    
         pass
 
 
