@@ -12,16 +12,10 @@ import ploomber
 from ploomber.executors import Serial
 from ploomber.spec import DAGSpec
 from ploomber import DAG
-
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-logging.basicConfig(handlers=[logging.FileHandler("charisma.log", mode='w')], level=logging.NOTSET)
-logging.root.setLevel(logging.NOTSET)
-log = logging.getLogger("charisma")
-log.info("log hijack for debugging")
+from ..base_widget import BaseWidget
 
 
-class PloomberImportWidget(OWWidget):
+class PloomberImportWidget(BaseWidget):
     # Define the widget's name, category, and outputs
     name = "CHARISMA database import"
     description = "CHARISMA database import"

@@ -1,0 +1,19 @@
+output_folder: "D:\\nina\\DATA\\charisma\\workflow_import"
+
+hs_endpoint: "https://hsds-kc.ideaconsult.net"
+hsds_investigation: "ROUND_ROBIN_1_2"
+hsds_provider: "FNMT-Burgos"
+hsds_instrument: "BWTek iRaman"
+
+keycloak_server_url: "https://iam.ideaconsult.net/"
+keycloak_client_id: "idea-ui"
+keycloak_realm_name: "nano"
+
+hs_username: ""
+hs_password: ""
+
+ramandb_api: "https://api-dev.charisma.ideaconsult.net/"
+
+input_folder: "D:\\nina\\OneDrive\\CHARISMA - RUNTIME\\WP 3 - TF3_RoundRobin\\Round Robin\\Data Raman RR1 Static\\FNMT-Madrid"
+
+dry_run: False
