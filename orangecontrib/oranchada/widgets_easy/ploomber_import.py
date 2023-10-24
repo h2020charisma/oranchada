@@ -27,7 +27,7 @@ class PloomberImportWidget(BaseWidget):
     # Define the widget's name, category, and outputs
     name = "CHARISMA database import"
     description = "CHARISMA database import"
-    icon = "icons/ploomber.png"
+    icon = "icons/upload.png"
     priority = 10
     # want_main_area = False
     # resizing_enabled = False

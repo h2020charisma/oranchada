@@ -125,6 +125,8 @@ class PloomberExternalWidget(BaseWidget):
         else:
             self.data = None
 
+    def plot_spe(self):
+        pass
 
     def send_report(self):
         pass
