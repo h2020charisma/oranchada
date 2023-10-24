@@ -1,0 +1,50 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="" description="">
+	<nodes>
+		<node id="0" name="Load File" qualified_name="orangecontrib.oranchada.widgets_pro.load_file.LoadFile" project_name="oranchada" version="" title="Load File" position="(300, 150)" />
+		<node id="1" name="Load File" qualified_name="orangecontrib.oranchada.widgets_pro.load_file.LoadFile" project_name="oranchada" version="" title="Load File (1)" position="(300, 450)" />
+		<node id="2" name="Merger" qualified_name="orangecontrib.oranchada.widgets_pro.merger.Merger" project_name="oranchada" version="" title="Merger" position="(450, 300)" />
+		<node id="3" name="HDR Merger" qualified_name="orangecontrib.oranchada.widgets_pro.hdr_merge.HDRMerger" project_name="oranchada" version="" title="HDR Merger" position="(600, 150)" />
+		<node id="4" name="HDR Merger" qualified_name="orangecontrib.oranchada.widgets_pro.hdr_merge.HDRMerger" project_name="oranchada" version="" title="HDR Merger (1)" position="(600, 450)" />
+		<node id="5" name="Merger" qualified_name="orangecontrib.oranchada.widgets_pro.merger.Merger" project_name="oranchada" version="" title="Merger (1)" position="(750, 300)" />
+		<node id="6" name="HDR Merger" qualified_name="orangecontrib.oranchada.widgets_pro.hdr_merge.HDRMerger" project_name="oranchada" version="" title="HDR Merger (2)" position="(600, 300)" />
+	</nodes>
+	<links>
+		<link id="0" source_node_id="0" sink_node_id="2" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" source_channel_id="out_spe" sink_channel_id="in_spe" />
+		<link id="1" source_node_id="1" sink_node_id="2" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" source_channel_id="out_spe" sink_channel_id="in_spe" />
+		<link id="2" source_node_id="0" sink_node_id="3" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" source_channel_id="out_spe" sink_channel_id="in_spe" />
+		<link id="3" source_node_id="1" sink_node_id="4" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" source_channel_id="out_spe" sink_channel_id="in_spe" />
+		<link id="4" source_node_id="2" sink_node_id="6" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" source_channel_id="out_spe" sink_channel_id="in_spe" />
+		<link id="5" source_node_id="3" sink_node_id="5" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" source_channel_id="out_spe" sink_channel_id="in_spe" />
+		<link id="6" source_node_id="4" sink_node_id="5" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" source_channel_id="out_spe" sink_channel_id="in_spe" />
+		<link id="7" source_node_id="6" sink_node_id="5" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" source_channel_id="out_spe" sink_channel_id="in_spe" />
+	</links>
+	<annotations>
+		<text id="0" type="text/plain" rect="(103.0, 117.0, 120.0, 69.0)" font-family="Sans Serif" font-size="16">Load underexposed spectrum</text>
+		<text id="1" type="text/plain" rect="(111.0, 420.0, 103.0, 69.0)" font-family="Sans Serif" font-size="16">Load overexposed spectrum</text>
+		<text id="2" type="text/plain" rect="(286.0, 269.0, 82.0, 69.0)" font-family="Sans Serif" font-size="16">Merge to a single stream</text>
+		<text id="3" type="text/plain" rect="(673.0, 50.0, 107.0, 50.0)" font-family="Sans Serif" font-size="16">Time normalization</text>
+		<arrow id="4" start="(684.0, 99.0)" end="(634.0, 140.0)" fill="#C1272D" />
+		<arrow id="5" start="(697.0, 101.0)" end="(630.0, 430.00000000000006)" fill="#C1272D" />
+		<text id="6" type="text/plain" rect="(462.0, 182.0, 79.0, 50.0)" font-family="Sans Serif" font-size="16">Optimal spectrum</text>
+		<arrow id="7" start="(535.0, 222.0)" end="(582.0, 274.0)" fill="#C1272D" />
+		<arrow id="8" start="(349.0, 295.0)" end="(411.0, 298.0)" fill="#C1272D" />
+		<arrow id="9" start="(223.0, 148.0)" end="(272.0, 149.0)" fill="#C1272D" />
+		<arrow id="10" start="(219.0, 452.0)" end="(271.0, 451.0)" fill="#C1272D" />
+		<text id="11" type="text/plain" rect="(799.0, 141.0, 150.0, 69.0)" font-family="Sans Serif" font-size="16">Compare the initial spectra and the resulting spectrum</text>
+		<arrow id="12" start="(836.0, 215.0)" end="(782.0, 274.0)" fill="#C1272D" />
+	</annotations>
+	<thumbnail />
+	<node_properties>
+		<properties node_id="0" format="literal">{'controlAreaVisible': True, 'filenames': ['/home/georgieff/my/proj/charisma/problems/2023-05-sofia-hands-on/altered/ICV-iRaman-532/Ne_532nm_x20_5ms.txt'], 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x03\x00\x00\x00-\x00\x00\x08,\x00\x00\x05\x97\x00\x00\x00\x05\x00\x00\x00-\x00\x00\x08*\x00\x00\x05\x95\x00\x00\x00\x00\x00\x00\x00\x00\rd\x00\x00\x00\x05\x00\x00\x00-\x00\x00\x08*\x00\x00\x05\x95', 'should_auto_plot': False, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+		<properties node_id="1" format="literal">{'controlAreaVisible': True, 'filenames': ['/home/georgieff/my/proj/charisma/problems/2023-05-sofia-hands-on/altered/ICV-iRaman-532/Ne_532nm_x20_400ms.txt'], 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x03\x00\x00\x00-\x00\x00\x08,\x00\x00\x05\x97\x00\x00\x00\x05\x00\x00\x00-\x00\x00\x08*\x00\x00\x05\x95\x00\x00\x00\x00\x00\x00\x00\x00\rd\x00\x00\x00\x05\x00\x00\x00-\x00\x00\x08*\x00\x00\x05\x95', 'should_auto_plot': False, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+		<properties node_id="2" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': None, 'should_auto_plot': False, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+		<properties node_id="3" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00*\x00\x00\x07x\x00\x00\x043\x00\x00\x00\x00\x00\x00\x00*\x00\x00\x07x\x00\x00\x043\x00\x00\x00\x00\x00\x00\x00\x00\x07y\x00\x00\x00\x00\x00\x00\x00*\x00\x00\x07x\x00\x00\x043', 'should_auto_plot': False, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+		<properties node_id="4" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00*\x00\x00\x07x\x00\x00\x043\x00\x00\x00\x00\x00\x00\x00*\x00\x00\x07x\x00\x00\x043\x00\x00\x00\x00\x00\x00\x00\x00\x07y\x00\x00\x00\x00\x00\x00\x00*\x00\x00\x07x\x00\x00\x043', 'should_auto_plot': False, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+		<properties node_id="5" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x03\x00\x00\x00-\x00\x00\x08,\x00\x00\x05\x97\x00\x00\x00\x05\x00\x00\x00-\x00\x00\x08*\x00\x00\x05\x95\x00\x00\x00\x00\x00\x00\x00\x00\rd\x00\x00\x00\x05\x00\x00\x00-\x00\x00\x08*\x00\x00\x05\x95', 'should_auto_plot': False, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+		<properties node_id="6" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\x00\x00\x00\x00*\x00\x00\x07x\x00\x00\x043\x00\x00\x00\x00\x00\x00\x00*\x00\x00\x07x\x00\x00\x043\x00\x00\x00\x00\x00\x00\x00\x00\x07y\x00\x00\x00\x00\x00\x00\x00*\x00\x00\x07x\x00\x00\x043', 'should_auto_plot': False, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+	</node_properties>
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>
