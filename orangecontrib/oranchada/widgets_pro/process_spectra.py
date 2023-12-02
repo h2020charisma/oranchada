@@ -8,13 +8,8 @@ import logging
 from itertools import cycle
 
 
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-logging.basicConfig(handlers=[logging.FileHandler("charisma.log", mode='w')], level=logging.NOTSET)
-logging.root.setLevel(logging.NOTSET)
-log = logging.getLogger("charisma")
-log.info("log hijack for debugging")
-
+log = logging.getLogger(__name__)
+log.setLevel(logging.DEBUG)
 
 class ProcessSpectraWidget:  # (OWWidget):
     # Define the widget's name, category, and outputs
