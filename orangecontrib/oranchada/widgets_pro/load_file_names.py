@@ -20,7 +20,7 @@ class LoadFileNames(OWBaseWidget):
     filenames = Setting([])
 
     class Outputs:
-        data = Output("FileList", FileList)
+        data = Output("FileList", FileList, auto_summary = False)
 
     def __init__(self):
         super().__init__()

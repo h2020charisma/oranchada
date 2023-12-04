@@ -10,8 +10,8 @@ class Subtract(ArithmeticWidget):
     icon = "icons/spectra.svg"
 
     class Inputs:
-        minuend = Input("Minuend (RC2Spectra)", RC2Spectra)
-        subtrahend = Input("Subtrahend (RC2Spectra)", RC2Spectra)
+        minuend = Input("Minuend (RC2Spectra)", RC2Spectra, auto_summary = False)
+        subtrahend = Input("Subtrahend (RC2Spectra)", RC2Spectra, auto_summary = False)
 
     class Warning(ArithmeticWidget.Warning):
         operands_dont_broadcast = Msg('Operands do not broadcast')

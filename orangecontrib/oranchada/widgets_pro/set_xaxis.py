@@ -13,7 +13,7 @@ class SetXaxis(FilterWidget):
         self.in_spe_calib = None
 
     class Inputs(FilterWidget.Inputs):
-        in_spe_calib = Input("RC2Spectra calib", RC2Spectra)
+        in_spe_calib = Input("RC2Spectra calib", RC2Spectra, auto_summary = False)
 
     @Inputs.in_spe_calib
     def set_in_spe_calib(self, spe):

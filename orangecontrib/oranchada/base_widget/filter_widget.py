@@ -10,7 +10,7 @@ class FilterWidget(BaseWidget, openclass=True):
         pass
 
     class Inputs:
-        in_spe = Input("RC2Spectra", RC2Spectra, default=True)
+        in_spe = Input("RC2Spectra", RC2Spectra, default=True, auto_summary = False)
 
     @Inputs.in_spe
     def set_in_spe(self, spe):

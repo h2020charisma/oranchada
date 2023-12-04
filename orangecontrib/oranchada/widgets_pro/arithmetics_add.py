@@ -10,8 +10,8 @@ class Add(ArithmeticWidget):
     icon = "icons/spectra.svg"
 
     class Inputs:
-        addend1 = Input("Addend1 (RC2Spectra)", RC2Spectra, default=True)
-        addend2 = Input("Addend2 (RC2Spectra)", RC2Spectra, default=False)
+        addend1 = Input("Addend1 (RC2Spectra)", RC2Spectra, default=True, auto_summary = False)
+        addend2 = Input("Addend2 (RC2Spectra)", RC2Spectra, default=False, auto_summary = False)
 
     class Warning(ArithmeticWidget.Warning):
         operands_dont_broadcast = Msg('Operands do not broadcast')

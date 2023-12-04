@@ -18,7 +18,7 @@ class Merger(BaseWidget):
             self.select_box.addItem(f'{spe_i}: {spe!r}')
 
     class Inputs:
-        in_spe = Input("RC2Spectra", RC2Spectra, multiple=True)
+        in_spe = Input("RC2Spectra", RC2Spectra, multiple=True, auto_summary = False)
 
     @Inputs.in_spe
     def set_in_spe(self, spe, id_):

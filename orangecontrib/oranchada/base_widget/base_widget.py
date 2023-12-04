@@ -47,7 +47,7 @@ class BaseWidget(OWBaseWidget, openclass=True):
         gui.checkBox(self.optionsBox, self, "should_plot_legend", "Plot legend", callback=self.auto_process)
 
     class Outputs:
-        out_spe = Output("RC2Spectra", RC2Spectra, default=True)
+        out_spe = Output("RC2Spectra", RC2Spectra, default=True, auto_summary = False)
         data = Output("Data", Table, default=False)
 
     def force_plot(self):
