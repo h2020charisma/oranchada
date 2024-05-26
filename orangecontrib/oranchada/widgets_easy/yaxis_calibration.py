@@ -3,27 +3,19 @@ import ramanchada2.misc.constants as rc2const
 import ramanchada2.misc.utils as rc2utils
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
-from Orange.widgets.widget import OWWidget, Input, Output, Msg
-from ..base_widget import FilterWidget, BaseWidget , RC2Spectra
+from Orange.widgets.widget import OWWidget, Input, Msg
+from ..base_widget import BaseWidget , RC2Spectra
 import logging
 import ramanchada2 as rc2
 
 from ramanchada2.protocols.calibration import YCalibrationComponent, YCalibrationCertificate, CertificatesDict
 
 
-for handler in logging.root.handlers[:]:
-    logging.root.removeHandler(handler)
-logging.basicConfig(handlers=[logging.FileHandler("charisma_twinning.log", mode='w')], level=logging.NOTSET)
-logging.root.setLevel(logging.NOTSET)
-log = logging.getLogger("charisma")
-log.info("log hijack for debugging")
 
 class YAxisCalibrationWidget(BaseWidget):
     name = "Y axis calibration"
     description = "Y-axis (intensity) calibration"
     icon = "icons/spectra.svg"
-
-
 
     selected_wavelength = Setting("785")
     selected_certificate = Setting('NIST785_SRM2241')
