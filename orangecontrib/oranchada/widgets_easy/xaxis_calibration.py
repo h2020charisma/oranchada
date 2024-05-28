@@ -79,9 +79,8 @@ class XAxisCalibrationWidget(FilterWidget):
                        label='Laser Wavelength [nm]')        
 
     def derive_model(self,laser_wl,spe_neon,spe_sil):
-        print(laser_wl)
-        spe_sil = spe_sil.trim_axes(method='x-axis',boundaries=(520.45-200,520.45+200))
-        spe_neon = spe_neon.trim_axes(method='x-axis',boundaries=(100,max(spe_neon.x)))
+
+
         calmodel = CalibrationModel(laser_wl)
         calmodel.prominence_coeff = 3
         print("derive_model_zero")
@@ -104,6 +103,14 @@ class XAxisCalibrationWidget(FilterWidget):
         return new_spe    
     
     def process(self):
+        print(self.laser_wl)
+        self.spe_si[0] = self.spe_si[0].trim_axes(method='x-axis',boundaries=(520.45-200,520.45+200))
+        self.spe_neon[0] = self.spe_neon[0].trim_axes(method='x-axis',boundaries=(100,max(self.spe_neon[0].x)))
+
+        ## baseline  SNIP
+        kwargs = {"niter" : 40 }
+        self.spe_neon[0] = self.spe_neon[0].subtract_baseline_rc1_snip(**kwargs)  
+        self.spe_si[0] = self.spe_si[0].subtract_baseline_rc1_snip(**kwargs)          
         self.calibration_model = self.derive_model(self.laser_wl,self.spe_neon[0],self.spe_si[0])
 
         self.out_spe = list()
@@ -114,6 +121,23 @@ class XAxisCalibrationWidget(FilterWidget):
         self.is_processed = True            
         self.send_outputs()    
     
+    def custom_plot(self, ax):
+        if not self.in_spe:
+            return
+        for spe in self.in_spe:
+            spe.plot(ax=self.axes[1])
+
+        for spe in self.spe_neon:
+            spe.plot(ax=self.axes[0])            
+
+        for spe in self.spe_si:
+            spe.plot(ax=self.axes[0]) 
+        self.axes[1].set_xlim(520.45-50,520.45+50)        
+
+    def plot_create_axes(self):
+        self.axes = self.figure.subplots(nrows=2, sharex=True)
+        return self.axes[1]
+        
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview
     import os
