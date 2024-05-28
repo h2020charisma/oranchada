@@ -1,31 +1,38 @@
 
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
-from Orange.widgets.widget import  Input,Output, Msg
-from ..base_widget import BaseWidget , RC2Spectra
+from Orange.widgets.widget import  Input,Output, Msg, OWWidget
+from ..base_widget import BaseWidget , FilterWidget, RC2Spectra
 import ramanchada2 as rc2
 from Orange.data import Table
 
 from ramanchada2.protocols.calibration import CalibrationModel
 
-class XAxisCalibrationWidget(BaseWidget):
+class XAxisCalibrationWidget(FilterWidget):
     name = "X axis calibration"
     description = "X-axis  calibration"
     icon = "icons/spectra.svg"
 
-    #selected_wavelength = Setting("785")
+    laser_wl = Setting(785)
 
     def input_hook(self):
         pass
 
+    class Warning(OWWidget.Warning):
+        warning = Msg("Warning")
 
-    class Inputs(BaseWidget):
-        in_spe = Input("Spectra to calibrate", RC2Spectra, default=False)
+    class Information(OWWidget.Information):
+        success = Msg("Workflow successful")
+
+    class Error(OWWidget.Error):
+        processing_error = Msg("Workflow error")
+
+    class Inputs(FilterWidget.Inputs):
         spe_neon = Input("Neon spectrum", RC2Spectra, default=True)
         spe_si = Input("Si spectrum", RC2Spectra, default=False)
 
-    #class Outputs(BaseWidget.Outputs):
-    #    out_table = Output("Calibration model", CalibrationModel)
+    class Outputs(FilterWidget.Outputs):
+        out_model = Output("Calibration model", CalibrationModel)
 
     @Inputs.in_spe
     def set_in_spe(self, spe):
@@ -53,10 +60,12 @@ class XAxisCalibrationWidget(BaseWidget):
 
     def update_inputs_info(self):
         self.Warning.clear()
-        len11 = len(self.spe_neon) if self.neon_spe else None
-        len12 = len(self.spe_si) if self.si_spe else None
+        self.should_auto_plot = False        
+        len00 = len(self.in_spe) if self.in_spe else None
+        len11 = len(self.spe_neon) if self.spe_neon else None
+        len12 = len(self.spe_si) if self.spe_si else None
        
-        self.info.set_input_summary(f' (Neon {len11} RC2Spectra + {len12} Si RC2Spectra)')        
+        self.info.set_input_summary(f' {len00} RC2Spectra + Neon {len11} RC2Spectra + {len12} Si RC2Spectra')        
 
     def __init__(self):
         super().__init__()
@@ -65,26 +74,45 @@ class XAxisCalibrationWidget(BaseWidget):
 
         self.calibration_model = None
         box = gui.widgetBox(self.controlArea, self.name)
+        gui.doubleSpin(box, self, 'laser_wl', 0, 5000, decimals=0, step=1, 
+                       #callback=self.auto_process,
+                       label='Laser Wavelength [nm]')        
 
-    def calibration_model(self,laser_wl,spe_neon,spe_sil):
+    def derive_model(self,laser_wl,spe_neon,spe_sil):
+        print(laser_wl)
+        spe_sil = spe_sil.trim_axes(method='x-axis',boundaries=(520.45-200,520.45+200))
+        spe_neon = spe_neon.trim_axes(method='x-axis',boundaries=(100,max(spe_neon.x)))
         calmodel = CalibrationModel(laser_wl)
         calmodel.prominence_coeff = 3
+        print("derive_model_zero")
         model_neon = calmodel.derive_model_curve(spe_neon,calmodel.neon_wl[laser_wl],spe_units="cm-1",ref_units="nm",find_kw={},fit_peaks_kw={},should_fit = False,name="Neon calibration")
         spe_sil_ne_calib = model_neon.process(spe_sil,spe_units="cm-1",convert_back=False)
         find_kw = {"prominence" :spe_sil_ne_calib.y_noise * calmodel.prominence_coeff , "wlen" : 200, "width" :  1 }
+        print("derive_model_zero")
         model_si = calmodel.derive_model_zero(spe_sil_ne_calib,ref={520.45:1},spe_units="nm",ref_units="cm-1",find_kw=find_kw,fit_peaks_kw={},should_fit=True,name="Si calibration")
         #model_si.peaks.to_csv(os.path.join(config_root,template_file.replace(".xlsx","peaks.csv")),index=False)
         #spe_sil_calib = model_si.process(spe_sil_ne_calib,spe_units="nm",convert_back=False)
         return calmodel        
     
-    def apply_calibration_x(self,calmodel: CalibrationModel, old_spe: rc2.spectrum.Spectrum, spe_units="cm-1"):
+    def apply_calibration_x(self, old_spe: rc2.spectrum.Spectrum, spe_units="cm-1"):
         new_spe = old_spe
         model_units = spe_units
-        for model in calmodel.components:
+        for model in self.calibration_model.components:
             if model.enabled:
                 new_spe = model.process(new_spe, model_units, convert_back=False)
                 model_units = model.model_units
         return new_spe    
+    
+    def process(self):
+        self.calibration_model = self.derive_model(self.laser_wl,self.spe_neon[0],self.spe_si[0])
+
+        self.out_spe = list()
+        for spe in self.in_spe:
+            self.out_spe.append(
+                    self.apply_calibration_x(spe)
+                )
+        self.is_processed = True            
+        self.send_outputs()    
     
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview
