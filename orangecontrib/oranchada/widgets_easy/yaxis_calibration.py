@@ -129,7 +129,10 @@ class YAxisCalibrationWidget(BaseWidget):
         for spe in self.in_spe:
             spe.plot(ax=self.axes[0])
         for spe in self.srm_spe:
-            spe.plot(ax=self.axes[0])
+            try:
+                spe.plot(ax=self.axes[0],color="magenta",label=spe.meta["Original file"])
+            except:
+                pass
         cert = self.get_certificate()
         if cert != None:
             cert.plot(ax=self.axes[0].twinx(),color="pink")
