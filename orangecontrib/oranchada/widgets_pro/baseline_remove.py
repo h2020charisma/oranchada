@@ -80,5 +80,5 @@ class BaselineRemove(FilterWidget):
 
     def auto_process(self):
         self.update_visibility()
-        self._parent.auto_process()
+        super().auto_process()
             
