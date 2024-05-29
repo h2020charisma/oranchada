@@ -7,13 +7,27 @@ import ramanchada2 as rc2
 from Orange.data import Table
 
 from ramanchada2.protocols.calibration import CalibrationModel
+available_models = ['Gaussian', 'Lorentzian', 'Moffat', 'Voigt', 'PseudoVoigt', 'Pearson4', 'Pearson7']
 
 class XAxisCalibrationWidget(FilterWidget):
     name = "X axis calibration"
     description = "X-axis  calibration"
     icon = "icons/spectra.svg"
-
     laser_wl = Setting(785)
+
+    kw_findpeak_prominence = Setting(3)
+    kw_findpeak_wlen = Setting(200)
+    kw_findpeak_width = Setting(1)
+    
+    ne_peak_profile = Setting(available_models[0])
+    si_peak_profile = Setting(available_models[5])
+
+    should_auto_proc = Setting(False)
+    should_auto_plot = Setting(False)
+
+    ne_should_fit = Setting(False)
+    si_should_fit = Setting(True)
+
 
     def input_hook(self):
         pass
@@ -76,19 +90,37 @@ class XAxisCalibrationWidget(FilterWidget):
         box = gui.widgetBox(self.controlArea, self.name)
         gui.doubleSpin(box, self, 'laser_wl', 0, 5000, decimals=0, step=1, 
                        #callback=self.auto_process,
-                       label='Laser Wavelength [nm]')        
+                       label='Laser Wavelength [nm]')    
+        curve_box = gui.widgetBox(self.controlArea, "Calibration curve")     
+        gui.comboBox(curve_box, self, 'ne_peak_profile', sendSelectedValue=True, items=available_models,
+                     callback=self.auto_process,label="Peak profile")        
+        gui.checkBox(curve_box, self, "ne_should_fit", "Should fit", callback=self.auto_process)
+
+        lazerzero_box = gui.widgetBox(self.controlArea, "Lazer zeroing")   
+        gui.comboBox(lazerzero_box, self, 'si_peak_profile', sendSelectedValue=True, items=available_models,
+                     callback=self.auto_process)
+        gui.checkBox(lazerzero_box, self, "si_should_fit", "Should fit", callback=self.auto_process)
+
+        self.peakbox = gui.widgetBox(self.controlArea, "Peak finding options")     
+        gui.doubleSpin(self.peakbox, self, 'kw_findpeak_prominence', 1, 10, decimals=1, step=1, callback=self.auto_process,
+                       label='prominence')
+        gui.doubleSpin(self.peakbox, self, 'kw_findpeak_wlen', 1, 1000, decimals=0, step=10, callback=self.auto_process,
+                       label='wlen') 
+        gui.doubleSpin(self.peakbox, self, 'kw_findpeak_width', 1, 10, decimals=1, step=1, callback=self.auto_process,
+                       label='width')            
+
 
     def derive_model(self,laser_wl,spe_neon,spe_sil):
-
-
         calmodel = CalibrationModel(laser_wl)
-        calmodel.prominence_coeff = 3
-        print("derive_model_zero")
-        model_neon = calmodel.derive_model_curve(spe_neon,calmodel.neon_wl[laser_wl],spe_units="cm-1",ref_units="nm",find_kw={},fit_peaks_kw={},should_fit = False,name="Neon calibration")
+        calmodel.prominence_coeff = self.kw_findpeak_prominence
+        print("derive_model_curve")
+        find_kw = {"prominence" :spe_neon.y_noise * calmodel.prominence_coeff , "wlen" : self.kw_findpeak_wlen, "width" :  self.kw_findpeak_width }
+        model_neon = calmodel.derive_model_curve(spe_neon,calmodel.neon_wl[laser_wl],spe_units="cm-1",ref_units="nm",find_kw=find_kw,fit_peaks_kw={},should_fit = self.ne_should_fit,name="Neon calibration")
         spe_sil_ne_calib = model_neon.process(spe_sil,spe_units="cm-1",convert_back=False)
-        find_kw = {"prominence" :spe_sil_ne_calib.y_noise * calmodel.prominence_coeff , "wlen" : 200, "width" :  1 }
+        find_kw = {"prominence" :spe_sil_ne_calib.y_noise * calmodel.prominence_coeff , "wlen" : self.kw_findpeak_wlen, "width" :  self.kw_findpeak_width }
         print("derive_model_zero")
-        model_si = calmodel.derive_model_zero(spe_sil_ne_calib,ref={520.45:1},spe_units="nm",ref_units="cm-1",find_kw=find_kw,fit_peaks_kw={},should_fit=True,name="Si calibration")
+        model_si = calmodel.derive_model_zero(spe_sil_ne_calib,ref={520.45:1},spe_units="nm",ref_units="cm-1",
+                            find_kw=find_kw,fit_peaks_kw={},should_fit=self.si_should_fit,name="Si calibration",profile=self.si_peak_profile)
         #model_si.peaks.to_csv(os.path.join(config_root,template_file.replace(".xlsx","peaks.csv")),index=False)
         #spe_sil_calib = model_si.process(spe_sil_ne_calib,spe_units="nm",convert_back=False)
         return calmodel        
