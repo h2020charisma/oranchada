@@ -3,6 +3,8 @@ from AnyQt.QtWidgets import QFileDialog
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
 
+import os
+
 from ..base_widget import CreatorWidget
 
 
@@ -21,13 +23,15 @@ class LoadFile(CreatorWidget):
         gui.comboBox(box, self, 'fileformat', sendSelectedValue=True,
                      items=['Auto', 'spc', 'sp', 'spa', '0', '1', '2',
                             'wdf', 'ngs', 'jdx', 'dx',
-                            'txt', 'txtr', 'csv', 'prn', 'rruf'],
+                            'txt', 'txtr', 'csv', 'prn', 'rruf'
+                            '.cha'],
                      label='File format')
 
     def load_file(self):
         filters = ['TXT (*.txt)',
                    'CSV (*.csv)',
-                   'All spectra formats (*.txt *.csv)',
+                   'CHADA (*.cha)',
+                   'All spectra formats (*.txt *.csv *.spc *.wdf)',
                    'All files (*)',
                    ]
         filenames, filt = QFileDialog.getOpenFileNames(
@@ -43,7 +47,11 @@ class LoadFile(CreatorWidget):
     def process(self):
         self.out_spe = []
         for fname in self.filenames:
-            spe = rc2.spectrum.from_local_file(fname,
+            name, extension = os.path.splitext(fname)
+            if extension == ".cha":
+                spe = rc2.spectrum.from_chada(fname)
+            else:
+                spe = rc2.spectrum.from_local_file(fname,
                                                filetype=(self.fileformat if self.fileformat != 'Auto' else None),
                                                )
             meta_dct = spe.meta.dict()['__root__']
