@@ -5,13 +5,15 @@ from Orange.widgets.widget import  Input,Output, Msg, OWWidget
 from ..base_widget import BaseWidget , FilterWidget, RC2Spectra
 import ramanchada2 as rc2
 from Orange.data import Table
+import pickle
+from AnyQt.QtWidgets import QFileDialog
 
 from ramanchada2.protocols.calibration import CalibrationModel
 available_models = ['Gaussian', 'Lorentzian', 'Moffat', 'Voigt', 'PseudoVoigt', 'Pearson4', 'Pearson7']
 
 class XAxisCalibrationWidget(FilterWidget):
-    name = "X axis calibration"
-    description = "X-axis  calibration"
+    name = "CHARISMA X axis calibration"
+    description = "X-axis calibration according to CHARISMA protocol"
     icon = "icons/spectra.svg"
     laser_wl = Setting(785)
 
@@ -109,6 +111,7 @@ class XAxisCalibrationWidget(FilterWidget):
         gui.doubleSpin(self.peakbox, self, 'kw_findpeak_width', 1, 10, decimals=1, step=1, callback=self.auto_process,
                        label='width')            
 
+        self.save_button = gui.button(self.controlArea, self, "Save calibration model", callback=self.save_to_pickle)
 
     def derive_model(self,laser_wl,spe_neon,spe_sil):
         calmodel = CalibrationModel(laser_wl)
@@ -172,6 +175,15 @@ class XAxisCalibrationWidget(FilterWidget):
     def plot_create_axes(self):
         self.axes = self.figure.subplots(nrows=3, sharex=False)
         return self.axes[2]
+    
+    def save_to_pickle(self):
+        if self.calibration_model is not None:
+            options = QFileDialog.Options()
+            filename, _ = QFileDialog.getSaveFileName(self, "Save Calibration model", "",
+                                                      "Calibration model (*.calmodel)", options=options)
+            if filename:
+                with open(filename, 'wb') as file:
+                    pickle.dump(self.calibration_model, file)    
         
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview
