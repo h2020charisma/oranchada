@@ -15,6 +15,8 @@ class BaselineRemove(FilterWidget):
     als_lam = Setting(1e5)
     als_p = Setting(0.001)
     window_size = Setting(10)
+    should_auto_proc = Setting(True)
+    should_auto_plot = Setting(True)    
     
     def __init__(self):
         # Initialize the widget

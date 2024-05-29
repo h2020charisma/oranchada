@@ -19,6 +19,8 @@ class YAxisCalibrationWidget(BaseWidget):
 
     selected_wavelength = Setting("785")
     selected_certificate = Setting('NIST785_SRM2241')
+    should_auto_proc = Setting(True)
+    should_auto_plot = Setting(True)
 
     def input_hook(self):
         pass
