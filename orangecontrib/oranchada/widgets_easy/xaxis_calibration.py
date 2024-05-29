@@ -103,14 +103,14 @@ class XAxisCalibrationWidget(FilterWidget):
         return new_spe    
     
     def process(self):
-        print(self.laser_wl)
-        self.spe_si[0] = self.spe_si[0].trim_axes(method='x-axis',boundaries=(520.45-200,520.45+200))
-        self.spe_neon[0] = self.spe_neon[0].trim_axes(method='x-axis',boundaries=(100,max(self.spe_neon[0].x)))
+        #these should be done in previous widgets
+        #self.spe_si[0] = self.spe_si[0].trim_axes(method='x-axis',boundaries=(520.45-200,520.45+200))
+        #self.spe_neon[0] = self.spe_neon[0].trim_axes(method='x-axis',boundaries=(100,max(self.spe_neon[0].x)))
 
         ## baseline  SNIP
-        kwargs = {"niter" : 40 }
-        self.spe_neon[0] = self.spe_neon[0].subtract_baseline_rc1_snip(**kwargs)  
-        self.spe_si[0] = self.spe_si[0].subtract_baseline_rc1_snip(**kwargs)          
+        #kwargs = {"niter" : 40 }
+        #self.spe_neon[0] = self.spe_neon[0].subtract_baseline_rc1_snip(**kwargs)  
+        #self.spe_si[0] = self.spe_si[0].subtract_baseline_rc1_snip(**kwargs)          
         self.calibration_model = self.derive_model(self.laser_wl,self.spe_neon[0],self.spe_si[0])
 
         self.out_spe = list()
@@ -122,21 +122,24 @@ class XAxisCalibrationWidget(FilterWidget):
         self.send_outputs()    
     
     def custom_plot(self, ax):
-        if not self.in_spe:
-            return
-        for spe in self.in_spe:
-            spe.plot(ax=self.axes[1])
-
-        for spe in self.spe_neon:
-            spe.plot(ax=self.axes[0])            
-
+        self.calibration_model.plot(ax=self.axes[0])            
+        self.axes[0].legend()
         for spe in self.spe_si:
-            spe.plot(ax=self.axes[0]) 
+            spe.plot(ax=self.axes[1]) 
+            _tmp = self.apply_calibration_x(spe)
+            _tmp.plot(ax=self.axes[1],color='orange', label='calibrated')
+        self.axes[1].legend()
+        ax.set_xlabel("cm-1")
+
         self.axes[1].set_xlim(520.45-50,520.45+50)        
+        if self.in_spe:
+            for spe in self.in_spe:
+                spe.plot(ax=self.axes[2],label="original")
+    
 
     def plot_create_axes(self):
-        self.axes = self.figure.subplots(nrows=2, sharex=True)
-        return self.axes[1]
+        self.axes = self.figure.subplots(nrows=3, sharex=False)
+        return self.axes[2]
         
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview
