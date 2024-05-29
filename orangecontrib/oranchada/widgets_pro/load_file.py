@@ -14,6 +14,7 @@ class LoadFile(CreatorWidget):
     icon = "icons/spectra.svg"
 
     filenames = Setting([])
+    dataset = Setting("/raw")
 
     def __init__(self):
         super().__init__()
@@ -24,8 +25,9 @@ class LoadFile(CreatorWidget):
                      items=['Auto', 'spc', 'sp', 'spa', '0', '1', '2',
                             'wdf', 'ngs', 'jdx', 'dx',
                             'txt', 'txtr', 'csv', 'prn', 'rruf'
-                            '.cha'],
+                            'cha'],
                      label='File format')
+        gui.lineEdit(box, self, "dataset", label="Dataset name  (.cha file):", callback=self.load_file)
 
     def load_file(self):
         filters = ['TXT (*.txt)',
@@ -49,7 +51,7 @@ class LoadFile(CreatorWidget):
         for fname in self.filenames:
             name, extension = os.path.splitext(fname)
             if extension == ".cha":
-                spe = rc2.spectrum.from_chada(fname)
+                spe = rc2.spectrum.from_chada(fname,dataset=self.dataset)
             else:
                 spe = rc2.spectrum.from_local_file(fname,
                                                filetype=(self.fileformat if self.fileformat != 'Auto' else None),

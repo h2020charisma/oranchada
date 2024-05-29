@@ -14,16 +14,15 @@ class SaveFile(FilterWidget):
     icon = "icons/spectra.svg"
 
     filenames = Setting([])
+    dataset = Setting("/oranchada")
 
     def __init__(self):
         super().__init__()
         box = gui.widgetBox(self.controlArea, self.name)
+        gui.lineEdit(box, self, "dataset", label="Dataset name:")
+              
         gui.button(box, self, "Save File", callback=self.save_file)
-        
-        self.fileformat = 'Auto'
-        gui.comboBox(box, self, 'fileformat', sendSelectedValue=True,
-                     items=['.cha', 'txt'],
-                     label='File format')
+
 
     def save_file(self):
         filters = ['CHADA file (*.cha)',
@@ -40,7 +39,7 @@ class SaveFile(FilterWidget):
             _, extension = os.path.splitext(filename)
             if extension.lower() == ".cha":
                 for spe in self.in_spe:
-                    spe.write_cha(filename,dataset = "/oranchada")
+                    spe.write_cha(filename,dataset = self.dataset)
             elif extension.lower() == ".txt":
                 for spe in self.in_spe:
                     #spe.write_cha(filename,dataset = "/raw")    
@@ -48,4 +47,6 @@ class SaveFile(FilterWidget):
 
     def process(self):
         self.out_spe = []
+        for spe in self.in_spe:
+            self.out_spe.append(spe)
         self.send_outputs()
