@@ -50,3 +50,8 @@ class Resample_NUDFT(FilterWidget):
                                           window=getattr(signal.windows, self.window_function))
                 )
         self.send_outputs()
+
+    def custom_plot(self, ax):
+        for spe in self.in_spe:
+            spe.trim_axes(method="x-axis",boundaries=(self.xmin, self.xmax)).plot(ax=ax,label='original') 
+        ax.legend()
