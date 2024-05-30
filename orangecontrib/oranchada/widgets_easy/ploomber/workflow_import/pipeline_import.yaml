@@ -1,0 +1,16 @@
+tasks:
+
+  - source: import.py
+    product:
+      data: "{{output_folder}}/logs/"
+      nb: "{{output_folder}}/import.ipynb"
+    params:
+      metadata: "{{output_folder}}/metadata.xlsx"
+      ramandb_api: "{{ramandb_api}}"
+      hsds_investigation: "{{hsds_investigation}}"
+      dry_run: "{{dry_run}}"
+      keycloak_server_url: "{{keycloak_server_url}}"
+      keycloak_client_id: "{{keycloak_client_id}}"
+      keycloak_realm_name: "{{keycloak_realm_name}}"
+      hs_username: "{{hs_username}}"
+      hs_password: "{{hs_password}}"

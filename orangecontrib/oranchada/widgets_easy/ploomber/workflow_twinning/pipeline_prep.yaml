@@ -1,0 +1,16 @@
+tasks:
+  
+  - source: tasks/mimic_rcspectra.py
+    product: 
+      nb: "{{output_folder}}/mimic_rcspectra.ipynb"
+      data: "{{output_folder}}/{{input_rcspectra}}"
+    params:
+      root_led_folder: "{{root_led}}"
+      root_data_folder: "{{root_twinning}}"
+      files_spectra_reference: "{{files_spectra_reference}}"
+      files_spectra_twinned: "{{files_spectra_twinned}}"
+      files_led_reference: "{{files_led_reference}}"      
+      files_led_twinned: "{{files_led_twinned}}"      
+      filter_probe : "Probe"
+      key_spectra: "{{key_spectra}}"
+      key_leds: "{{key_leds}}"

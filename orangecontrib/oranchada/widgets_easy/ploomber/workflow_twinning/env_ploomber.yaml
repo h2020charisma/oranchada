@@ -1,0 +1,14 @@
+ 
+output_folder: "\\tmp\\Oranchada\\ploomber\\twinning"
+input_rcspectra: "input_rcspectra.h5"
+key_spectra: "input_spectra"
+key_leds: "input_leds"
+
+#als,snip,moving minimum
+moving_minimum_window: 10
+baseline_algorithm: "movmin"
+#baseline_algorithm: None
+#baseline_algorithm: "als"
+#baseline_algorithm: "snip"
+baseline_after_ledcorrection: False
+fit_peak: True

@@ -1,0 +1,49 @@
+tasks:
+
+  - source: tasks/load_spectra.py
+    product: 
+      nb: "{{output_folder}}/load_spectra.html"
+      data: "{{output_folder}}/twinning_spectra_table.h5"
+      meta_spectra: "{{output_folder}}/twinning_spectra_table.csv"
+      meta_leds: "{{output_folder}}/twinning_led_table.csv"      
+    params:
+      input_h5: "{{output_folder}}/{{input_rcspectra}}"
+      key_spectra: "{{key_spectra}}"
+      key_leds: "{{key_leds}}"
+        
+  - source: tasks/twinning_normalize.py
+    product: 
+      nb: "{{output_folder}}/twinning_normalize.html"
+      data: "{{output_folder}}/twinning_spectra_table_normalized.h5"
+    params:
+      probe: "Probe"
+      result_spectrum: "spectrum_normalized"        
+
+  - source: tasks/twinning_intensity_normalization.py
+    product: 
+      nb: "{{output_folder}}/twinning_intensity_normalization.html"
+      data: "{{output_folder}}/twinning_spectra_table_corrected.h5"
+    params:
+      probe: "Probe"
+      wavelength: 785
+      moving_minimum_window: "{{moving_minimum_window}}"
+      spectrum_to_correct: "spectrum_normalized" 
+      spectrum_corrected_column: "spectrum_corrected" 
+      baseline_after_ledcorrection: "{{baseline_after_ledcorrection}}"
+      baseline_algorithm: "{{baseline_algorithm}}"
+
+  - source: tasks/twinning_peaks.py
+    product: 
+      nb: "{{output_folder}}/twinning_peaks.html"
+      data: "{{output_folder}}/twinning_spectra_table_harmonized.h5"
+    params:
+      probe: "Probe"  
+      spectrum_corrected_column: "spectrum_corrected"   
+      baseline_after_ledcorrection: "{{baseline_after_ledcorrection}}"
+      fit_peak:  "{{fit_peak}}"      
+
+  - source: tasks/twinning_plot.py
+    product: 
+      nb: "{{output_folder}}/twinning_plot.html"
+    params:
+      probe: "Probe"             

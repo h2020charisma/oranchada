@@ -1,18 +1,18 @@
-from collections import UserList
+# + tags=["parameters"]
+upstream = None
+product = None
+input_folder = None
+hsds_investigation = None
+hsds_instrument = None
+hsds_provider = None
+# -
 
-from Orange.data import Table
-from AnyQt.QtWidgets import QFileDialog
-from Orange.widgets import gui
-from Orange.widgets.settings import Setting
-from Orange.widgets.widget import Output, OWBaseWidget
-
-import pandas as pd
-from Orange.data.pandas_compat import table_from_frame
-import os.path
-from fuzzywuzzy import fuzz
+import os
+import glob
 import re
+from fuzzywuzzy import fuzz
+import pandas as pd
 import ramanchada2 as rc2
-
 
 tags = { '785nm':"wavelength", 
         '532nm':"wavelength", 
@@ -25,7 +25,6 @@ tags = { '785nm':"wavelength",
           '150ms' : "acquisition_time",
           '150msx5ac' : "acquisition_time",
           'Probe': "probe", 
-          '20x': "probe", 
           '1': "replicate",
           '2': "replicate",
           '3': "replicate",
@@ -82,50 +81,41 @@ def fuzzy_match(vals,tags):
         del parsed["extension"]            
     return (parsed,parsed_similarity)
 
-class LoadFileNames(OWBaseWidget):
-    name = "Load File Names"
-    description = "Load file names"
-    icon = "icons/spectra.svg"
-    resizing_enabled = False
-    want_main_area = False
-
-    filenames = Setting([])
-
-    class Outputs:
-        data = Output("File list", Table, default=False, auto_summary=False)
-
-    def __init__(self):
-        super().__init__()
-        box = gui.widgetBox(self.controlArea, self.name)
-        gui.button(box, self, "Load File names", callback=self.load_file)
-
-    def load_file(self):
-        self.filenames, filt = QFileDialog.getOpenFileNames(
-            caption='Open spectra',
-            directory='',
-            filter='All files (*)',
-            initialFilter='All files (*)',
-            )
-        _tmp = {}
-        for fn in self.filenames:
-            #parent_path, filename = os.path.split(fn)
-            file_name = os.path.basename(fn)
+def list_files_in_directory(directory, file_pattern='*.*'):
+    metadata = {}
+    files = glob.glob(os.path.join(directory, '**', file_pattern), recursive=True)
+    for file in files:
+        try:
+            spe=rc2.spectrum.from_local_file(file)
+            #print(spe.meta)
+            file_name = os.path.basename(file)
             file_name, file_extension = os.path.splitext(file_name)
             basename = re.split(r'[-_()]+', file_name)
-
+            if file_extension in ["json","xlsx"]:
+                continue
             parsed,parsed_similarity = fuzzy_match([s for s in basename if s],tags)
-            try:
-                spe=rc2.spectrum.from_local_file(fn)
-                for m in ["Original file","laser_wavelength","model","title","laser_powerlevel","integration times(ms)","intigration times(ms)","integ_time","device","spectrometer"]:
-                    try:
-                        parsed[_lookup[m]] = spe.meta[m]
-                    except:
-                        pass
-            except Exception as err:
-                print(err)
-                pass
-            
-            _tmp[fn] = parsed
+            for m in ["Original file","laser_wavelength","wl","model","title","laser_powerlevel","integration times(ms)","intigration times(ms)","integ_time","device","spectrometer"]:
+                try:
+                    parsed[_lookup[m]] = spe.meta[m]
+                except:
+                    pass
+            relative_path = os.path.relpath(file, directory)
+            metadata[relative_path] = parsed
+        except:
+            pass
+    return metadata
 
-        self.Outputs.data.send(table_from_frame(pd.DataFrame.from_dict(_tmp, orient="index")))
-        #self.Outputs.data.send(table_from_frame(pd.DataFrame(_tmp,columns=["path","folder","filename"])))
+
+
+metadata = list_files_in_directory(input_folder)
+
+df = pd.DataFrame.from_dict(metadata, orient="index")
+df["hsds_investigation"] = hsds_investigation
+df["hsds_provider"] = hsds_provider
+df["hsds_instrument"] = hsds_instrument
+df["enabled"] = True
+df["delete"] = False
+
+with pd.ExcelWriter(product["data"], engine='openpyxl') as writer:
+    df.to_excel(writer,sheet_name="files")
+    pd.DataFrame({"value": [input_folder]}, index=["path"]).to_excel(writer, sheet_name='paths')

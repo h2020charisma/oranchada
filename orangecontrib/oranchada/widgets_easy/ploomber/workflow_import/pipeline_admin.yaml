@@ -1,0 +1,14 @@
+tasks:
+
+# tbd task to create provider/instrument/wavelength ; if not existing the submit will fail
+  - source: createinvestigation.py
+    product:
+      nb: "{{output_folder}}/createinvestigation.ipynb"
+    params:
+      hs_endpoint: "{{hs_endpoint}}"
+      hsds_investigation: "{{hsds_investigation}}"
+      keycloak_server_url: "{{keycloak_server_url}}"
+      keycloak_client_id: "{{keycloak_client_id}}"
+      keycloak_realm_name: "{{keycloak_realm_name}}"
+      hs_username: "{{hs_username}}"
+      hs_password: "{{hs_password}}"

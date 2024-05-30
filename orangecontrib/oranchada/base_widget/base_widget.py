@@ -5,7 +5,8 @@ from matplotlib.backends.backend_qt5agg import \
     FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import \
     NavigationToolbar2QT as NavigationToolbar
-from Orange.data import Table
+from Orange.data import Table, Domain, ContinuousVariable, Table,StringVariable,DiscreteVariable
+
 from Orange.data.pandas_compat import table_from_frame
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
@@ -105,12 +106,51 @@ class BaseWidget(OWBaseWidget, openclass=True):
             self.Warning.different_x_labels()
         ax.set_xlabel(xlab)
 
+    def output_table_old(self):
+        # has no metadata
+        df = pd.DataFrame([pd.Series(index=spe.x, data=spe.y) for spe in self.out_spe])
+        df = df.sort_index(axis='columns')
+        df.columns = [f'{i}' for i in df.columns]
+        return table_from_frame(df)
+
     def send_output_table(self):
         if self.should_pass_datatable:
-            df = pd.DataFrame([pd.Series(index=spe.x, data=spe.y) for spe in self.out_spe])
-            df = df.sort_index(axis='columns')
-            df.columns = [f'{i}' for i in df.columns]
-            self.Outputs.data.send(table_from_frame(df))
+            if self.out_spe:
+                try:
+                    self.Outputs.data.send(self.output_table_domain())
+                except: # just in case the new implementation breaks
+                    self.Outputs.data.send(self.output_table_old())
+
+    def output_table_domain(self):
+
+        # Extract unique x values from all spectra
+        unique_x_values = sorted(set(x for spe in self.out_spe for x in spe.x))
+        # Extract metadata keys
+        all_meta_keys = set()
+        for spe in self.out_spe:
+            all_meta_keys.update(spe.meta.get_all_keys())
+
+            # Create Orange Table Domain
+            domain_variables = [ContinuousVariable(str(x)) for x in unique_x_values]
+            meta_variables = [StringVariable(key) for key in all_meta_keys]
+            domain = Domain(domain_variables, metas=meta_variables)
+            data = []
+            for spe in self.out_spe:
+                row_data = [None] * len(unique_x_values)  # Initialize row data with None
+                for x, y in zip(spe.x, spe.y):
+                    column_index = unique_x_values.index(x)
+                    row_data[column_index] = y
+                meta_values = []
+                for key in all_meta_keys:
+                    if key in spe.meta.__root__:
+                        meta_values.append(spe.meta[key])
+                    else:
+                        meta_values.append(None)
+                data.append(row_data + meta_values)
+
+            return Table.from_list(domain, data)
+
+
 
     def send_outputs(self):
         if self.out_spe:
