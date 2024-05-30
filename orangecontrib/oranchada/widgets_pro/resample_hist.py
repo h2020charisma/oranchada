@@ -61,7 +61,7 @@ class Resample_density(FilterWidget):
                 spe.trim_axes(method="x-axis",boundaries=(self.xmin, self.xmax)).plot(ax=ax,label='original') 
         ax.legend()
 
-    def send_output_table(self):
+    def old_send_output_table(self):
         if self.should_pass_datatable:
             # Extract unique x values from all spectra
             unique_x_values = sorted(set(x for spe in self.out_spe for x, _ in zip(spe.x, spe.y)))
