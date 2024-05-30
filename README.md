@@ -95,11 +95,14 @@ If your network connection has very tight security that severely restricts what 
 
     ![image](https://github.com/h2020charisma/oranchada/assets/1084155/78419dcc-73f7-4573-9c80-2cb738ee3f56)
 
+
 ## User guide
 
 [ORANCHADA visual guide (Widget usage examples)](https://zenodo.org/record/8232578)
 
+
 ## Troubleshooting
+
 
 ### Windows cannot find 'Orange\pythonw.exe'
 
@@ -109,20 +112,68 @@ You may encounter the following error message when trying to start the portable 
 
 A possible workaround is to open the `Orange` directory and then the `Scripts` one and start `orange-canvas.exe` from it. You may also need to restart *Orange* manually after installing or updating Oranchada or other add-ons.
 
+
 ### api-ms-win-core-path-l1-1-0.dll missing
 
 You may encouter this or a similar error on Windows 7 and earlier. There are some workarounds, but since they require messing with important Windows components, we cannot recommend them to the casual user.
 
+
 ## For developers
 
-If you would like to install from cloned git repository, run
+Always use a virtual environment for better reproducibility. [Poetry](https://python-poetry.org/) may be introduced in the future, but currently it is recommended to use Conda.
 
-    pip install .
+Start by cloning the repo:
 
-To register this add-on with Orange, but keep the code in the development
-directory (do not copy it to Python's site-packages directory), run
+```
+git clone https://github.com/h2020charisma/oranchada.git
+```
 
-    pip install -e .
+or, if you have write access too:
+
+```
+git clone git@github.com:h2020charisma/oranchada.git
+```
+
+
+### Conda
+
+[Miniforge](https://github.com/conda-forge/miniforge) is recommended.
+
+Quick environment setup:
+
+```
+conda env create
+```
+
+This will create an environment named `oranchada` with Orange and oranchada installed in it. Oranchada will be installed in editable mode (a.k.a. `pip install -e`); restart Orange to have your local changes to the code picked up. To run Orange in the environment (don't forget to activate it first with `conda activate oranchada`) use `orange-canvas`.
+
+If you need to also change the code of some of the dependencies, e.g. [ramanchada2](https://github.com/h2020charisma/ramanchada2), install them in editable mode as well (this should override the previously installed dependency from package). Again, don't forget to do this from within the activated environment.
+
+```
+pip install -e ../ramanchada2
+```
+
+The quick setup above uses the provided `environment.yml` file. You can create a basic environment yourself too:
+
+```
+conda create -n oranchada -c conda-forge -c default pyqt orange3
+conda activate oranchada
+pip install -e .
+```
+
+
+### Python venv
+
+Make sure to use an appropriate Python version, typically what [Portable Orange](https://orangedatamining.com/download/) is bundled with (you can also check `environment.yml` in this repo). For POSIX systems, [pyenv](https://github.com/pyenv/pyenv) is convenient. For Windows, there's [pyenv-win](https://github.com/pyenv-win/pyenv-win).
+
+```
+cd oranchada
+python -m venv .venv/oranchada
+source .venv/oranchada/bin/activate
+pip install -e .
+```
+
+For other POSIX shells and Windows, see https://docs.python.org/3/library/venv.html#how-venvs-work
 
 
 ## Acknowledgements
