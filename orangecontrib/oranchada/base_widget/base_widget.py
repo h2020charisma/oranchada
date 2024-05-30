@@ -110,6 +110,7 @@ class BaseWidget(OWBaseWidget, openclass=True):
             df = pd.DataFrame([pd.Series(index=spe.x, data=spe.y) for spe in self.out_spe])
             df = df.sort_index(axis='columns')
             df.columns = [f'{i}' for i in df.columns]
+            #df['label'] = ['Label' + str(i) for i in range(len(df))]
             self.Outputs.data.send(table_from_frame(df))
 
     def send_outputs(self):
