@@ -34,9 +34,9 @@ class LoadFile(CreatorWidget):
     def update_visibility(self):
             # Show or hide boxes based on the selected method
             if self.fileformat == "cha":
-                self.datasetedit.show()
+                self.datasetbox.show()
             else:
-                self.datasetedit.hide()
+                self.datasetbox.hide()
 
     def load_file(self):
         filters = ['TXT (*.txt)',
