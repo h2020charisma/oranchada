@@ -30,6 +30,7 @@ class LoadFile(CreatorWidget):
                      label='File format',callback=self.update_visibility)
         self.datasetbox = gui.widgetBox(self.controlArea, "CHADA datasets")    
         self.datasetedit = gui.lineEdit(self.datasetbox, self, "dataset", label="Dataset name  (.cha file):", callback=self.load_file)
+        self.datasetbox.hide()
 
     def update_visibility(self):
             # Show or hide boxes based on the selected method
