@@ -47,7 +47,7 @@ class Table2RCSpectra(BaseWidget):
 
         for i, attr in enumerate(self.data.domain.attributes):
             try:
-                x_value = float(attr.name)
+                x_value = float(attr.name.replace("- Mean","").strip())
                 numeric_attrs.append(x_value)
                 numeric_indices.append(i)
             except ValueError:
