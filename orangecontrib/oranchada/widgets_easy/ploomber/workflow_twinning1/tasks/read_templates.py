@@ -7,7 +7,8 @@ reference_spectra: None
 twinned_spectra: None 
 reference_leds: None 
 twinned_leds: None 
-output_folder: None
+sample_spectra: None
+sample_test: None
 # -
 
 import pandas as pd 
@@ -35,12 +36,18 @@ def read_template(_path, source_tag = "reference", role_tag="spectra"):
 #    df_merged_list.append(df_merged)
 
 df_spe_ref = read_template(os.path.join(root,reference_spectra),"reference","spectra")
+df_spe_ref["path"] = os.path.dirname(reference_spectra)
 df_spe_twin = read_template(os.path.join(root,twinned_spectra),"twinned","spectra")
+df_spe_twin["path"] = os.path.dirname(twinned_spectra)
 df_led_ref = read_template(os.path.join(root,reference_leds),"reference","leds")
+df_led_ref["path"] = os.path.dirname(reference_leds)
 df_led_twin = read_template(os.path.join(root,twinned_leds),"twinned","leds")
+df_led_twin["path"] = os.path.dirname(twinned_leds)
 
 df_merged_list = pd.concat([df_spe_ref, df_spe_twin, df_led_ref, df_led_twin], ignore_index=True)
 df_merged_list['id'] = df_merged_list.apply(lambda row: f"{row['provider']}_{row['instrument_make']}_{row['instrument_model']}_{row['wavelength']}_{row['collection_optics']}_{row['investigation']}", axis=1)
+
+df_merged_list.loc[df_merged_list['sample'] == sample_test, 'role'] = 'test'
 
 df_merged_list.to_excel(product["data"],index=False)
 
