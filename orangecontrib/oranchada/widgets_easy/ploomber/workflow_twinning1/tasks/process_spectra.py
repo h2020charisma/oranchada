@@ -13,6 +13,7 @@ from ramanchada2.spectrum import from_chada,from_local_file, Spectrum
 from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np 
+from sklearn.linear_model import LinearRegression
 
 Path(product["data"]).mkdir(parents=True, exist_ok=True)
 
@@ -33,6 +34,12 @@ def findref_pair(id_twin,laser_power_percent):
     else:
         row = _tmp.iloc[0]
         return (row["id_ref"],row["laser_power_mw_ratio"],row["integration_time_ms_ratio"])
+
+def calc_regression(x,y):
+    model = LinearRegression().fit(x,y)
+    #print("Intercept:", model.intercept_)
+    #print("Slope (Coefficient):", model.coef_[0])    
+    return  (model.intercept_,model.coef_[0])
 
 def process(df, pair_normalize = False, baseline = False, ycalibration = False, peak =False):
     #leds have no laser_power etc,  we want them as well
@@ -78,16 +85,7 @@ def process(df, pair_normalize = False, baseline = False, ycalibration = False, 
             print(intensity_val,_position)
             laser_power_mw = group["laser_power_mw"].unique()
             data4regression.append((id,laser_power_mw[0],intensity_val))
-        #tbd y-calibration if 
 
-        #spe.plot(label=f'{id} {sample} {laser_power_percent} {integration_time_ms}')
-        
-        #spe_calib.write_cha(file_path,dataset="/calibrated")
-        #print(group["role"].unique())
-        #source = group["source"].unique()
-        #if "reference" in source:
-        #    #laser_power_mw_ratio = ratios.loc[ratios['id_ref'] == id, 'laser_power_mw_ratio'].values
-        #    #print(laser_power_mw_ratio)
     return data4regression
   
 def calc_peak_intensity(spe,peak=144,prominence=0.01,fit_peak= False,peak_intensity="height"):
@@ -135,11 +133,31 @@ def calc_peak_intensity(spe,peak=144,prominence=0.01,fit_peak= False,peak_intens
 #reference leds
 process(df.loc[(df["source"]=="reference") & (df["role"]=="leds")])
 #reference spectra
-data4regression_twinned = process(df.loc[(df["source"]=="reference") & (df["role"]=="spectra")], pair_normalize= False, baseline= True,ycalibration= True, peak=True)
+data4regression_reference = process(df.loc[(df["source"]=="reference") & (df["role"]=="spectra")], pair_normalize= False, baseline= True,ycalibration= True, peak=True)
 #twinned leds
 process(df.loc[(df["source"]=="twinned") & (df["role"]=="leds")])
 #twinned spectra
 data4regression = process(df.loc[(df["source"]=="twinned") & (df["role"]=="spectra")] , pair_normalize = True,baseline= True, ycalibration= True, peak = True)
 
+
+df = pd.DataFrame(data4regression_reference,columns=["id","laser_power_mw","peak_intensity"])
+factor_correction = []
+for id, group in df.groupby(['id']):
+
+    _intercept,_slope = calc_regression(group[["laser_power_mw"]].values,group[["peak_intensity"]].values)
+    factor_correction.append((id[0],_intercept[0],_slope[0]))
+df_fc = pd.DataFrame(factor_correction,columns=["id","intercept","slope"])
+with pd.ExcelWriter(os.path.join(product["data"],"data4regression_reference.xlsx"), engine='openpyxl', mode='a',if_sheet_exists='replace') as writer:
+    df.to_excel(writer, sheet_name='data4regression', index=False)
+    df_fc.to_excel(writer, sheet_name='factor_correction', index=False)
+
+
 df = pd.DataFrame(data4regression,columns=["id","laser_power_mw","peak_intensity"])
-df.to_excel(os.path.join(product["data"],"data4regression.xlsx"),index=False)
+factor_correction = []
+for id, group in df.groupby(['id']):
+    _intercept,_slope = calc_regression(group[["laser_power_mw"]].values,group[["peak_intensity"]].values)
+    factor_correction.append((id[0],_intercept[0],_slope[0]))
+df_fc = pd.DataFrame(factor_correction,columns=["id","intercept","slope"])    
+with pd.ExcelWriter(os.path.join(product["data"],"data4regression_twinned.xlsx"), engine='openpyxl', mode='a',if_sheet_exists='replace') as writer:
+    df.to_excel(writer, sheet_name='data4regression', index=False)
+    df_fc.to_excel(writer, sheet_name='factor_correction', index=False)
