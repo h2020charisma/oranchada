@@ -61,12 +61,12 @@ class LoadFile(CreatorWidget):
         for fname in self.filenames:
             name, extension = os.path.splitext(fname)
             if extension == ".cha":
-                spe = rc2.spectrum.from_chada(fname,dataset=self.dataset)
+                spe = rc2.spectrum.from_chada(fname, dataset=self.dataset)
             else:
                 spe = rc2.spectrum.from_local_file(fname,
-                                               filetype=(self.fileformat if self.fileformat != 'Auto' else None),
-                                               )
-            meta_dct = spe.meta.dict()['__root__']
+                                                   filetype=(self.fileformat if self.fileformat != 'Auto' else None),
+                                                   )
+            meta_dct = spe.meta.model_dump()
             meta_dct['xlabel'] = 'Raman shift [cm¯¹]'
             spe.meta = meta_dct
             self.out_spe.append(spe)

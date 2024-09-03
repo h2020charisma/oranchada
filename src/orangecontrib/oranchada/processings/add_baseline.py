@@ -1,13 +1,13 @@
 from typing import Union
 
-import pydantic
 import ramanchada2 as rc2
 from AnyQt.QtWidgets import QGroupBox
 from Orange.widgets import gui
+from pydantic import validate_call
 
 
 class AddBaseline:
-    @pydantic.validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config=dict(arbitrary_types_allowed=True))
     def __init__(self, parent, *,
                  n_freq: tuple[str, Union[None, QGroupBox]],
                  amplitude: tuple[str, Union[None, QGroupBox]],
@@ -43,7 +43,7 @@ class AddBaseline:
             gui.doubleSpin(quadratic[1], self._parent, self._quadratic, -100, 100, decimals=7, step=.000001,
                            label='quadratic', callback=self.auto_process)
 
-    @pydantic.validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config=dict(arbitrary_types_allowed=True))
     def __call__(self, spe: rc2.spectrum.Spectrum) -> rc2.spectrum.Spectrum:
         return spe.add_baseline(n_freq=self.n_freq,
                                 amplitude=self.amplitude,
