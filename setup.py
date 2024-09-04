@@ -26,7 +26,7 @@ KEYWORDS = [
     'spectroscopy',
 ]
 
-PYTHON_REQUIRES = '>3.8.0'
+PYTHON_REQUIRES = '>=3.9'
 
 PACKAGE_DATA = {}
 
