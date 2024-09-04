@@ -24,10 +24,10 @@ class WL2RS(FilterWidget):
     def process(self):
         self.out_spe = list()
         for spe in self.in_spe:
-            if 'xlabel' in spe.meta.__root__:
+            if 'xlabel' in spe.meta.root:
                 if spe.meta['xlabel'] != 'Wavelength [nm]':
                     self.Warning.x_label_not_wavelength()
-                meta_dct = spe.meta.dict()['__root__']
+                meta_dct = spe.meta.model_dump()
                 meta_dct['xlabel'] = 'Raman shift [cm¯¹]'
                 spe.meta = meta_dct
             self.out_spe.append(

@@ -1,5 +1,5 @@
 import unittest
-from widgets import ProcessSpectraWidget
+from widgets_pro.process_spectra import ProcessSpectraWidget
 
 
 class TestLoadSpectraWidget(unittest.TestCase):

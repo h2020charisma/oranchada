@@ -48,7 +48,7 @@ class BaseWidget(OWBaseWidget, openclass=True):
         gui.checkBox(self.optionsBox, self, "should_plot_legend", "Plot legend", callback=self.auto_process)
 
     class Outputs:
-        out_spe = Output("RC2Spectra", RC2Spectra, default=True, auto_summary = False)
+        out_spe = Output("RC2Spectra", RC2Spectra, default=True, auto_summary=False)
         data = Output("Data", Table, default=False)
 
     def force_plot(self):
@@ -91,13 +91,13 @@ class BaseWidget(OWBaseWidget, openclass=True):
     def set_x_title(self, ax):
         xlab = ''
         for spe in reversed(self.out_spe):
-            if 'xlabel' in spe.meta.__root__:
+            if 'xlabel' in spe.meta.root:
                 xlab = spe.meta['xlabel']
         if not xlab:
             return
         should_warn = False
         for spe in self.out_spe:
-            if 'xlabel' in spe.meta.__root__:
+            if 'xlabel' in spe.meta.root:
                 if xlab != spe.meta['xlabel']:
                     should_warn = True
             else:
@@ -118,7 +118,7 @@ class BaseWidget(OWBaseWidget, openclass=True):
             if self.out_spe:
                 try:
                     self.Outputs.data.send(self.output_table_domain())
-                except: # just in case the new implementation breaks
+                except:  # just in case the new implementation breaks
                     self.Outputs.data.send(self.output_table_old())
 
     def output_table_domain(self):
@@ -142,15 +142,13 @@ class BaseWidget(OWBaseWidget, openclass=True):
                     row_data[column_index] = y
                 meta_values = []
                 for key in all_meta_keys:
-                    if key in spe.meta.__root__:
+                    if key in spe.meta.root:
                         meta_values.append(spe.meta[key])
                     else:
                         meta_values.append(None)
                 data.append(row_data + meta_values)
 
             return Table.from_list(domain, data)
-
-
 
     def send_outputs(self):
         if self.out_spe:

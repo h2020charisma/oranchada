@@ -58,7 +58,7 @@ class TestSpectra(CreatorWidget):
         self.out_spe = list()
         for fn in data.prepend_prefix(self.selected_filenames):
             spe = rc2.spectrum.from_local_file(fn)
-            meta_dct = spe.meta.dict()['__root__']
+            meta_dct = spe.meta.model_dump()
             meta_dct['xlabel'] = 'Raman shift [cm¯¹]'
             spe.meta = meta_dct
             self.out_spe.append(spe)

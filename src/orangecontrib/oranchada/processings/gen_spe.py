@@ -1,13 +1,14 @@
-from Orange.widgets import gui
-import ramanchada2 as rc2
-import numpy as np
-from AnyQt.QtWidgets import QGroupBox
-import pydantic
 from typing import Union
+
+import numpy as np
+import ramanchada2 as rc2
+from AnyQt.QtWidgets import QGroupBox
+from Orange.widgets import gui
+from pydantic import validate_call
 
 
 class GenSpe:
-    @pydantic.validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config=dict(arbitrary_types_allowed=True))
     def __init__(self, parent, *,
                  spe_xmin: tuple[str, Union[None, QGroupBox]],
                  spe_xmax: tuple[str, Union[None, QGroupBox]],
@@ -44,7 +45,7 @@ class GenSpe:
             self.deltas = '620.9: 16, 795.8: 10, 1001.4: 100, 1031.8: 27, 1155.3: 13, 1450.5: 8, 1583.1: 12, 1602.3: 28, 2852.4: 9, 2904.5: 13, 3054.3: 32'  # noqa: E501
             self.deltas_edit.setReadOnly(True)
 
-    @pydantic.validate_arguments(config=dict(arbitrary_types_allowed=True))
+    @validate_call(config=dict(arbitrary_types_allowed=True))
     def __call__(self) -> rc2.spectrum.Spectrum:
         deltas_dict = dict([[float(j) for j in i.split(':')] for i in self.deltas.replace(' ', '').split(',')])
         spe1 = rc2.spectrum.Spectrum(x=np.array(list(deltas_dict.keys())), y=np.array(list(deltas_dict.values())))
