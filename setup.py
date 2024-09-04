@@ -2,7 +2,7 @@
 
 from os import path, walk
 
-from setuptools import find_packages, setup
+from setuptools import find_namespace_packages, setup
 
 NAME = 'oranchada'
 
@@ -28,9 +28,11 @@ KEYWORDS = [
 
 PYTHON_REQUIRES = '>3.8.0'
 
-PACKAGES = find_packages()
-
 PACKAGE_DATA = {}
+
+PACKAGE_DIR = { '': 'src' }
+
+PACKAGES = find_namespace_packages(where='src', exclude=['tests'])
 
 DATA_FILES = [
     # Data files that will be installed outside site-packages folder
@@ -153,7 +155,7 @@ def setup_package():
         long_description=LONG_DESCRIPTION,
         long_description_content_type=LONG_DESCRIPTION_CONTENT_TYPE,
         name=NAME,
-        namespace_packages=["orangecontrib"],
+        package_dir=PACKAGE_DIR,
         package_data=PACKAGE_DATA,
         packages=PACKAGES,
         python_requires=PYTHON_REQUIRES,

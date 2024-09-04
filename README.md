@@ -7,11 +7,13 @@
 
 ## Installation
 
-**UPDATE**: This guide used to suggest using the standalone installer of Orange. It is now recommended to use the portable version of Orange instead, which helps to avoid some possible incompatibilities.
+**UPDATE May 2024**: Orange 3.36 and later on Windows is affected by biolab/orange3#6744. Only use versions up to and including 3.35 ([download link](https://download.biolab.si/download/files/Orange3-3.35.0.zip)) and **do not** upgrade it until the bug is resolved. Oranchada can and still should be upgraded as usual when newer versions are available.
+
+**UPDATE May 2023**: This guide used to suggest using the standalone installer of Orange. It is now recommended to use the portable version of Orange instead, which helps to avoid some possible incompatibilities.
 
 1. Depending on your operating system:
 
-    1. **Windows**: Download the *Portable Orange* ZIP from https://orangedatamining.com/download/#windows and extract it to some place from which it will be convenient for you to start it. If you are not sure about the place, just extract it to your desktop (it will be possible to move it later if you change your mind). To run Portable Orange, open the shortcut. On the first run, there might be a security warning. In this case, unselect **Always ask before opening this file** and click **Open**.
+    1. **Windows**: Download the *Portable Orange* ZIP from https://download.biolab.si/download/files/Orange3-3.35.0.zip and extract it to some place from which it will be convenient for you to start it. If you are not sure about the place, just extract it to your desktop (it will be possible to move it later if you change your mind). To run Portable Orange, open the shortcut. On the first run, there might be a security warning. In this case, unselect **Always ask before opening this file** and click **Open**.
 
     ![image](https://github.com/h2020charisma/oranchada/assets/1084155/b91bbf52-d206-4a36-ad1f-a459723d92d1)
 

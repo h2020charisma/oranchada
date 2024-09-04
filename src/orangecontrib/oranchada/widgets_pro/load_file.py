@@ -21,13 +21,23 @@ class LoadFile(CreatorWidget):
         box = gui.widgetBox(self.controlArea, self.name)
         gui.button(box, self, "Load File", callback=self.load_file)
         self.fileformat = 'Auto'
+        
         gui.comboBox(box, self, 'fileformat', sendSelectedValue=True,
                      items=['Auto', 'spc', 'sp', 'spa', '0', '1', '2',
                             'wdf', 'ngs', 'jdx', 'dx',
-                            'txt', 'txtr', 'csv', 'prn', 'rruf'
+                            'txt', 'txtr', 'csv', 'prn', 'rruf',
                             'cha'],
-                     label='File format')
-        gui.lineEdit(box, self, "dataset", label="Dataset name  (.cha file):", callback=self.load_file)
+                     label='File format',callback=self.update_visibility)
+        self.datasetbox = gui.widgetBox(self.controlArea, "CHADA datasets")    
+        self.datasetedit = gui.lineEdit(self.datasetbox, self, "dataset", label="Dataset name  (.cha file):", callback=self.load_file)
+        self.datasetbox.hide()
+
+    def update_visibility(self):
+            # Show or hide boxes based on the selected method
+            if self.fileformat == "cha":
+                self.datasetbox.show()
+            else:
+                self.datasetbox.hide()
 
     def load_file(self):
         filters = ['TXT (*.txt)',
