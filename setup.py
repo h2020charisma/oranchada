@@ -6,7 +6,7 @@ from setuptools import find_namespace_packages, setup
 
 NAME = 'oranchada'
 
-VERSION = '0.0.15'
+VERSION = '1.0.0'
 
 DESCRIPTION = 'Orange add-on for Raman spectroscopy'
 README_FILE = path.join(path.dirname(__file__), 'README.pypi')
@@ -101,7 +101,7 @@ ENTRY_POINTS = {
 }
 
 CLASSIFIERS = [
-    'Development Status :: 4 - Beta',
+    'Development Status :: 5 - Production/Stable',
     'Environment :: Plugins',
     'Intended Audience :: Developers',
     'Intended Audience :: Education',
