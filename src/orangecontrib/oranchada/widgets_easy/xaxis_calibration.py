@@ -4,6 +4,7 @@ from Orange.widgets.settings import Setting
 from Orange.widgets.widget import  Input,Output, Msg, OWWidget
 from ..base_widget import BaseWidget , FilterWidget, RC2Spectra
 import ramanchada2 as rc2
+import ramanchada2.misc.constants as rc2const
 from Orange.data import Table
 import pickle
 from AnyQt.QtWidgets import QFileDialog
@@ -118,7 +119,7 @@ class XAxisCalibrationWidget(FilterWidget):
         calmodel.prominence_coeff = self.kw_findpeak_prominence
         print("derive_model_curve")
         find_kw = {"prominence" :spe_neon.y_noise * calmodel.prominence_coeff , "wlen" : self.kw_findpeak_wlen, "width" :  self.kw_findpeak_width }
-        model_neon = calmodel.derive_model_curve(spe_neon,calmodel.neon_wl[laser_wl],spe_units="cm-1",ref_units="nm",find_kw=find_kw,fit_peaks_kw={},should_fit = self.ne_should_fit,name="Neon calibration")
+        model_neon = calmodel.derive_model_curve(spe_neon,neon_wl = rc2const.NEON_WL[785],spe_units="cm-1",ref_units="nm",find_kw=find_kw,fit_peaks_kw={},should_fit = self.ne_should_fit,name="Neon calibration")
         spe_sil_ne_calib = model_neon.process(spe_sil,spe_units="cm-1",convert_back=False)
         find_kw = {"prominence" :spe_sil_ne_calib.y_noise * calmodel.prominence_coeff , "wlen" : self.kw_findpeak_wlen, "width" :  self.kw_findpeak_width }
         print("derive_model_zero")
