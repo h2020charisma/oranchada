@@ -45,11 +45,11 @@ class XAxisCalibrationWidget(FilterWidget):
         processing_error = Msg("Workflow error")
 
     class Inputs(FilterWidget.Inputs):
-        spe_neon = Input("Neon spectrum", RC2Spectra, default=True)
-        spe_si = Input("Si spectrum", RC2Spectra, default=False)
+        spe_neon = Input("Neon spectrum", RC2Spectra, default=True, auto_summary = False)
+        spe_si = Input("Si spectrum", RC2Spectra, default=False, auto_summary = False)
 
     class Outputs(FilterWidget.Outputs):
-        out_model = Output("Calibration model", CalibrationModel)
+        out_model = Output("Calibration model", CalibrationModel, auto_summary = False)
 
     @Inputs.in_spe
     def set_in_spe(self, spe):
@@ -115,18 +115,16 @@ class XAxisCalibrationWidget(FilterWidget):
         self.save_button = gui.button(self.controlArea, self, "Save calibration model", callback=self.save_to_pickle)
 
     def derive_model(self,laser_wl,spe_neon,spe_sil):
-        calmodel = CalibrationModel(laser_wl)
-        calmodel.prominence_coeff = self.kw_findpeak_prominence
-        print("derive_model_curve")
-        find_kw = {"prominence" :spe_neon.y_noise * calmodel.prominence_coeff , "wlen" : self.kw_findpeak_wlen, "width" :  self.kw_findpeak_width }
-        model_neon = calmodel.derive_model_curve(spe_neon,neon_wl = rc2const.NEON_WL[785],spe_units="cm-1",ref_units="nm",find_kw=find_kw,fit_peaks_kw={},should_fit = self.ne_should_fit,name="Neon calibration")
-        spe_sil_ne_calib = model_neon.process(spe_sil,spe_units="cm-1",convert_back=False)
-        find_kw = {"prominence" :spe_sil_ne_calib.y_noise * calmodel.prominence_coeff , "wlen" : self.kw_findpeak_wlen, "width" :  self.kw_findpeak_width }
-        print("derive_model_zero")
-        model_si = calmodel.derive_model_zero(spe_sil_ne_calib,ref={520.45:1},spe_units="nm",ref_units="cm-1",
-                            find_kw=find_kw,fit_peaks_kw={},should_fit=self.si_should_fit,name="Si calibration",profile=self.si_peak_profile)
-        #model_si.peaks.to_csv(os.path.join(config_root,template_file.replace(".xlsx","peaks.csv")),index=False)
-        #spe_sil_calib = model_si.process(spe_sil_ne_calib,spe_units="nm",convert_back=False)
+        calmodel = CalibrationModel.calibration_model_factory(
+                laser_wl,
+                spe_neon,
+                spe_sil,
+                neon_wl= rc2const.NEON_WL[laser_wl],
+                find_kw={"wlen": self.kw_findpeak_wlen, "width": self.kw_findpeak_width },
+                fit_peaks_kw={},
+                should_fit=self.si_should_fit,
+                prominence_coeff = self.kw_findpeak_prominence
+            )
         return calmodel        
     
     def apply_calibration_x(self, old_spe: rc2.spectrum.Spectrum, spe_units="cm-1"):

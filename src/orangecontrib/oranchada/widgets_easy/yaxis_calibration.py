@@ -27,8 +27,8 @@ class YAxisCalibrationWidget(BaseWidget):
 
 
     class Inputs:
-        in_spe = Input("Spectra to calibrate", RC2Spectra, default=True)
-        srm_spe = Input("SRM spectrum", RC2Spectra, default=False)
+        in_spe = Input("Spectra to calibrate", RC2Spectra, default=True,  auto_summary = False)
+        srm_spe = Input("SRM spectrum", RC2Spectra, default=False,  auto_summary = False)
 
 
     @Inputs.in_spe
