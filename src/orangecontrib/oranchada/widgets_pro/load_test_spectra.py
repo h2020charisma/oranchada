@@ -20,14 +20,19 @@ class TestSpectra(CreatorWidget):
         self.list_boxes = {}
         box = gui.widgetBox(self.controlArea, self.name)
         for k, v in data.get_filters().items():
-            var = 'listbox_' + k + '_select_idx'
-            setattr(self, var, list())
-            gui.label(box, self, k)
-            self.list_boxes[k] = gui.listBox(
-                box, self, var, selectionMode=QAbstractItemView.MultiSelection,
-                callback=self.update_filters)
-            for item in sorted(v):
-                self.list_boxes[k].addItem(item)
+            try:
+                v_sorted = sorted(v)
+                var = 'listbox_' + k + '_select_idx'
+                setattr(self, var, list())
+                gui.label(box, self, k)
+                self.list_boxes[k] = gui.listBox(
+                    box, self, var, selectionMode=QAbstractItemView.MultiSelection,
+                    callback=self.update_filters)
+                for item in v_sorted:
+                    self.list_boxes[k].addItem(item)
+            except TypeError as err:
+                # sorted(v) fails the attribute is not present in all spectra
+                pass
 
         gui.label(box, self, 'filenames')
 
