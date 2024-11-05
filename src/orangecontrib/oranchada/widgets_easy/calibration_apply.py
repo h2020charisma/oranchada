@@ -1,5 +1,5 @@
 from Orange.widgets.widget import Input
-from ramanchada2.protocols.calibration import CalibrationModel
+from ramanchada2.protocols.calibration.calibration_model import CalibrationModel
 import ramanchada2 as rc2
 from ..base_widget import FilterWidget
 
@@ -41,12 +41,12 @@ class ApplyCalibrationModel(FilterWidget):
 
     def custom_plot(self, ax):
         if self.calibration_model:
-            self.calibration_model.plot(ax=self.axes[0])            
+            self.calibration_model.plot(ax=self.axes[0])
         self.axes[0].legend()
         if self.in_spe:
             for spe in self.in_spe:
-                spe.plot(ax=self.axes[1],label="original")
+                spe.plot(ax=self.axes[1], label="original")
 
     def plot_create_axes(self):
         self.axes = self.figure.subplots(nrows=2, sharex=False)
-        return self.axes[1]        
+        return self.axes[1]

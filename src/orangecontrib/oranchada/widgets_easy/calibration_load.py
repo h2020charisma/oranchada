@@ -1,7 +1,7 @@
 import pickle
 from Orange.widgets import widget, gui
 from Orange.widgets.widget import Output
-from ramanchada2.protocols.calibration import CalibrationModel
+from ramanchada2.protocols.calibration.calibration_model import CalibrationModel
 from AnyQt.QtWidgets import QFileDialog
 
 
