@@ -1,15 +1,11 @@
-import numpy as np
-import ramanchada2.misc.constants as rc2const
-import ramanchada2.misc.utils as rc2utils
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
 from Orange.widgets.widget import OWWidget, Input, Msg
-from ..base_widget import BaseWidget , RC2Spectra
-import logging
-import ramanchada2 as rc2
+from ..base_widget import BaseWidget, RC2Spectra
 
-from ramanchada2.protocols.calibration import YCalibrationComponent, YCalibrationCertificate, CertificatesDict
-
+from ramanchada2.protocols.calibration.ycalibration import (
+    YCalibrationComponent, CertificatesDict
+    )
 
 
 class YAxisCalibrationWidget(BaseWidget):
@@ -25,10 +21,9 @@ class YAxisCalibrationWidget(BaseWidget):
     def input_hook(self):
         pass
 
-
     class Inputs:
-        in_spe = Input("Spectra to calibrate", RC2Spectra, default=True,  auto_summary = False)
-        srm_spe = Input("SRM spectrum", RC2Spectra, default=False,  auto_summary = False)
+        in_spe = Input("Spectra to calibrate", RC2Spectra, default=True,  auto_summary= False)
+        srm_spe = Input("SRM spectrum", RC2Spectra, default=False,  auto_summary= False)
 
 
     @Inputs.in_spe
@@ -85,11 +80,11 @@ class YAxisCalibrationWidget(BaseWidget):
         self.certificate_combo = gui.comboBox(
             box, self, "selected_certificate",
             label="Select SRM Certificate:",
-            items=[],sendSelectedValue=True,
+            items=[], sendSelectedValue=True,
             callback=self.auto_process
         )
-        self.update_certificate_options()                
-        
+        self.update_certificate_options()
+
     def update_certificate_options(self):
         # Get the selected wavelength
         self.should_auto_proc = False
@@ -98,28 +93,28 @@ class YAxisCalibrationWidget(BaseWidget):
         self.certificate_combo.clear()
         self.certificate_combo.addItems(certs.keys())
         self.certificate_combo.setCurrentIndex(0)
-        #print(self.certificate_combo.currentIndex(),self.certificate_combo.currentText())
+        # print(self.certificate_combo.currentIndex(),self.certificate_combo.currentText())
         self.should_auto_proc = True
 
     def get_certificate(self):
         selected_wavelength = self.wavelength_options[self.selected_wavelength]
-        return self.certificates.get(selected_wavelength,self.certificate_combo.currentText())
+        return self.certificates.get(selected_wavelength, self.certificate_combo.currentText())
 
-    def ycalibrate(self,spe,ycal):
+    def ycalibrate(self, spe, ycal):
         return ycal.process(spe)
 
     def process(self):
         selected_wavelength = self.wavelength_options[self.selected_wavelength]
         cert = self.get_certificate()
-        ycal = YCalibrationComponent(selected_wavelength, reference_spe_xcalibrated=self.srm_spe[0],certificate=cert)
+        ycal = YCalibrationComponent(selected_wavelength, reference_spe_xcalibrated=self.srm_spe[0], certificate=cert)
         print("Processing Y-axis calibration with SRM: {}".format(cert.id))
 
         self.out_spe = list()
         for spe in self.in_spe:
             self.out_spe.append(
-                    self.ycalibrate(spe,ycal)
+                    self.ycalibrate(spe, ycal)
                 )
-        self.is_processed = True            
+        self.is_processed = True          
         self.send_outputs()
 
     def custom_plot(self, ax):
@@ -130,14 +125,12 @@ class YAxisCalibrationWidget(BaseWidget):
             spe.plot(ax=self.axes[0])
         for spe in self.srm_spe:
             try:
-                spe.plot(ax=self.axes[0],color="magenta",label=spe.meta["Original file"])
-            except:
+                spe.plot(ax=self.axes[0], color="magenta", label=spe.meta["Original file"])
+            except Exception as err:
                 pass
         cert = self.get_certificate()
-        if cert != None:
+        if cert is not None:
             cert.plot(ax=self.axes[0].twinx(),color="pink")
-
-    
 
     def plot_create_axes(self):
         self.axes = self.figure.subplots(nrows=2, sharex=True)
@@ -145,7 +138,6 @@ class YAxisCalibrationWidget(BaseWidget):
 
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview
-    import os
     try:
         WidgetPreview(YAxisCalibrationWidget).run()
     except Exception as err:

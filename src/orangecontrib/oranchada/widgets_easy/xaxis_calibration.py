@@ -1,16 +1,17 @@
 
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
-from Orange.widgets.widget import  Input,Output, Msg, OWWidget
-from ..base_widget import BaseWidget , FilterWidget, RC2Spectra
+from Orange.widgets.widget import Input, Output, Msg, OWWidget
+from ..base_widget import BaseWidget, FilterWidget, RC2Spectra
 import ramanchada2 as rc2
 import ramanchada2.misc.constants as rc2const
 from Orange.data import Table
 import pickle
 from AnyQt.QtWidgets import QFileDialog
 
-from ramanchada2.protocols.calibration import CalibrationModel
+from ramanchada2.protocols.calibration.calibration_model import CalibrationModel
 available_models = ['Gaussian', 'Lorentzian', 'Moffat', 'Voigt', 'PseudoVoigt', 'Pearson4', 'Pearson7']
+
 
 class XAxisCalibrationWidget(FilterWidget):
     name = "CHARISMA X axis calibration"
@@ -21,7 +22,7 @@ class XAxisCalibrationWidget(FilterWidget):
     kw_findpeak_prominence = Setting(3)
     kw_findpeak_wlen = Setting(200)
     kw_findpeak_width = Setting(1)
-    
+
     ne_peak_profile = Setting(available_models[0])
     si_peak_profile = Setting(available_models[5])
 
@@ -30,7 +31,6 @@ class XAxisCalibrationWidget(FilterWidget):
 
     ne_should_fit = Setting(False)
     si_should_fit = Setting(True)
-
 
     def input_hook(self):
         pass
@@ -45,11 +45,11 @@ class XAxisCalibrationWidget(FilterWidget):
         processing_error = Msg("Workflow error")
 
     class Inputs(FilterWidget.Inputs):
-        spe_neon = Input("Neon spectrum", RC2Spectra, default=True, auto_summary = False)
-        spe_si = Input("Si spectrum", RC2Spectra, default=False, auto_summary = False)
+        spe_neon = Input("Neon spectrum", RC2Spectra, default=True, auto_summary= False)
+        spe_si = Input("Si spectrum", RC2Spectra, default=False, auto_summary= False)
 
     class Outputs(FilterWidget.Outputs):
-        out_model = Output("Calibration model", CalibrationModel, auto_summary = False)
+        out_model = Output("Calibration model", CalibrationModel, auto_summary= False)
 
     @Inputs.in_spe
     def set_in_spe(self, spe):
@@ -73,16 +73,15 @@ class XAxisCalibrationWidget(FilterWidget):
             self.spe_si = spe
         else:
             self.spe_si = RC2Spectra()
-        self.update_inputs_info()        
+        self.update_inputs_info()
 
     def update_inputs_info(self):
         self.Warning.clear()
-        self.should_auto_plot = False        
+        self.should_auto_plot = False
         len00 = len(self.in_spe) if self.in_spe else None
         len11 = len(self.spe_neon) if self.spe_neon else None
         len12 = len(self.spe_si) if self.spe_si else None
-       
-        self.info.set_input_summary(f' {len00} RC2Spectra + Neon {len11} RC2Spectra + {len12} Si RC2Spectra')        
+        self.info.set_input_summary(f' {len00} RC2Spectra + Neon {len11} RC2Spectra + {len12} Si RC2Spectra')
 
     def __init__(self):
         super().__init__()
@@ -91,12 +90,12 @@ class XAxisCalibrationWidget(FilterWidget):
 
         self.calibration_model = None
         box = gui.widgetBox(self.controlArea, self.name)
-        gui.doubleSpin(box, self, 'laser_wl', 0, 5000, decimals=0, step=1, 
+        gui.doubleSpin(box, self, 'laser_wl', 0, 5000, decimals=0, step=1,
                        #callback=self.auto_process,
                        label='Laser Wavelength [nm]')    
         curve_box = gui.widgetBox(self.controlArea, "Calibration curve")     
         gui.comboBox(curve_box, self, 'ne_peak_profile', sendSelectedValue=True, items=available_models,
-                     callback=self.auto_process,label="Peak profile")        
+                     callback=self.auto_process, label="Peak profile")        
         gui.checkBox(curve_box, self, "ne_should_fit", "Should fit", callback=self.auto_process)
 
         lazerzero_box = gui.widgetBox(self.controlArea, "Lazer zeroing")   
@@ -105,28 +104,28 @@ class XAxisCalibrationWidget(FilterWidget):
         gui.checkBox(lazerzero_box, self, "si_should_fit", "Should fit", callback=self.auto_process)
 
         self.peakbox = gui.widgetBox(self.controlArea, "Peak finding options")     
-        gui.doubleSpin(self.peakbox, self, 'kw_findpeak_prominence', 1, 10, decimals=1, step=1, callback=self.auto_process,
-                       label='prominence')
+        gui.doubleSpin(self.peakbox, self, 'kw_findpeak_prominence', 1, 10, decimals=1, step=1, 
+                       callback=self.auto_process, label='prominence')
         gui.doubleSpin(self.peakbox, self, 'kw_findpeak_wlen', 1, 1000, decimals=0, step=10, callback=self.auto_process,
-                       label='wlen') 
+                       label='wlen')
         gui.doubleSpin(self.peakbox, self, 'kw_findpeak_width', 1, 10, decimals=1, step=1, callback=self.auto_process,
-                       label='width')            
+                       label='width')
 
         self.save_button = gui.button(self.controlArea, self, "Save calibration model", callback=self.save_to_pickle)
 
-    def derive_model(self,laser_wl,spe_neon,spe_sil):
+    def derive_model(self, laser_wl, spe_neon, spe_sil):
         calmodel = CalibrationModel.calibration_model_factory(
                 laser_wl,
                 spe_neon,
                 spe_sil,
-                neon_wl= rc2const.NEON_WL[laser_wl],
-                find_kw={"wlen": self.kw_findpeak_wlen, "width": self.kw_findpeak_width },
+                neon_wl=rc2const.NEON_WL[laser_wl],
+                find_kw={"wlen": self.kw_findpeak_wlen, "width": self.kw_findpeak_width},
                 fit_peaks_kw={},
                 should_fit=self.si_should_fit,
-                prominence_coeff = self.kw_findpeak_prominence
+                prominence_coeff=self.kw_findpeak_prominence
             )
-        return calmodel        
-    
+        return calmodel
+
     def apply_calibration_x(self, old_spe: rc2.spectrum.Spectrum, spe_units="cm-1"):
         new_spe = old_spe
         model_units = spe_units
@@ -134,47 +133,46 @@ class XAxisCalibrationWidget(FilterWidget):
             if model.enabled:
                 new_spe = model.process(new_spe, model_units, convert_back=False)
                 model_units = model.model_units
-        return new_spe    
-    
+        return new_spe
+
     def process(self):
-        #these should be done in previous widgets
-        #self.spe_si[0] = self.spe_si[0].trim_axes(method='x-axis',boundaries=(520.45-200,520.45+200))
-        #self.spe_neon[0] = self.spe_neon[0].trim_axes(method='x-axis',boundaries=(100,max(self.spe_neon[0].x)))
+        # these should be done in previous widgets
+        # self.spe_si[0] = self.spe_si[0].trim_axes(method='x-axis',boundaries=(520.45-200,520.45+200))
+        # self.spe_neon[0] = self.spe_neon[0].trim_axes(method='x-axis',boundaries=(100,max(self.spe_neon[0].x)))
 
         ## baseline  SNIP
-        #kwargs = {"niter" : 40 }
-        #self.spe_neon[0] = self.spe_neon[0].subtract_baseline_rc1_snip(**kwargs)  
-        #self.spe_si[0] = self.spe_si[0].subtract_baseline_rc1_snip(**kwargs)          
-        self.calibration_model = self.derive_model(self.laser_wl,self.spe_neon[0],self.spe_si[0])
+        # kwargs = {"niter" : 40 }
+        # self.spe_neon[0] = self.spe_neon[0].subtract_baseline_rc1_snip(**kwargs)  
+        # self.spe_si[0] = self.spe_si[0].subtract_baseline_rc1_snip(**kwargs)          
+        self.calibration_model = self.derive_model(self.laser_wl, self.spe_neon[0], self.spe_si[0])
 
         self.out_spe = list()
         for spe in self.in_spe:
             self.out_spe.append(
                     self.apply_calibration_x(spe)
                 )
-        self.is_processed = True            
-        self.send_outputs()    
-    
+        self.is_processed = True
+        self.send_outputs()
+
     def custom_plot(self, ax):
         self.calibration_model.plot(ax=self.axes[0])            
         self.axes[0].legend()
         for spe in self.spe_si:
-            spe.plot(ax=self.axes[1]) 
+            spe.plot(ax=self.axes[1])
             _tmp = self.apply_calibration_x(spe)
-            _tmp.plot(ax=self.axes[1],color='orange', label='calibrated')
+            _tmp.plot(ax=self.axes[1], color='orange', label='calibrated')
         self.axes[1].legend()
         ax.set_xlabel("cm-1")
 
-        self.axes[1].set_xlim(520.45-50,520.45+50)        
+        self.axes[1].set_xlim(520.45-50, 520.45+50)        
         if self.in_spe:
             for spe in self.in_spe:
                 spe.plot(ax=self.axes[2],label="original")
-    
 
     def plot_create_axes(self):
         self.axes = self.figure.subplots(nrows=3, sharex=False)
         return self.axes[2]
-    
+
     def save_to_pickle(self):
         if self.calibration_model is not None:
             options = QFileDialog.Options()
@@ -182,11 +180,10 @@ class XAxisCalibrationWidget(FilterWidget):
                                                       "Calibration model (*.calmodel)", options=options)
             if filename:
                 with open(filename, 'wb') as file:
-                    pickle.dump(self.calibration_model, file)    
-        
+                    pickle.dump(self.calibration_model, file)
+
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview
-    import os
     try:
         WidgetPreview(XAxisCalibrationWidget).run()
     except Exception as err:

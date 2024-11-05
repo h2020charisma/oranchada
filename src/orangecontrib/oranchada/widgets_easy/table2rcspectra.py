@@ -5,8 +5,8 @@ from Orange.widgets.widget import Msg, Input
 import numpy as np
 
 from ..base_widget import BaseWidget
-
 from ramanchada2.spectrum import Spectrum
+
 
 class Table2RCSpectra(BaseWidget):
     name = "Table to RCSpectra"
@@ -36,7 +36,6 @@ class Table2RCSpectra(BaseWidget):
         if self.data is None:
             self.error("No data input.")
             return
-          
         self.out_spe = list()
 
         # Filter attributes with names that parse to numbers
@@ -72,4 +71,3 @@ class Table2RCSpectra(BaseWidget):
             y_filtered = np.array([val for val in y if val is not None])
             self.out_spe.append(Spectrum(x_filtered, y_filtered, metadata=metadata))
         self.send_outputs()
-
