@@ -1,12 +1,9 @@
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
 from Orange.widgets.widget import Msg
-from scipy import signal
 import numpy as np
 from ramanchada2.spectrum import Spectrum
-import pandas as pd
-from Orange.data.pandas_compat import table_from_frame
-from Orange.data import Domain, ContinuousVariable, Table,StringVariable,DiscreteVariable
+from Orange.data import Domain, ContinuousVariable, Table, StringVariable
 
 
 from ..base_widget import FilterWidget
@@ -44,50 +41,18 @@ class Resample_density(FilterWidget):
             else:
                 dist = spe.spe_distribution(trim_range=(self.xmin, self.xmax))
 
-                #resample using probability density function
+                # resample using probability density function
                 y_values = dist.pdf(x_values)
                 scale = np.max(spe.y) / np.max(y_values)
-                 # pdf sampling is normalized to area unity, scaling back
-                _tmp = y_values *  scale
+                # pdf sampling is normalized to area unity, scaling back
+                _tmp = y_values * scale
                 self.out_spe.append(
-                    Spectrum(x_values,_tmp,metadata=spe.meta)
+                    Spectrum(x_values, _tmp, metadata=spe.meta)
                     )
         self.send_outputs()
-
 
     def custom_plot(self, ax):
         if self.show_original:
             for spe in self.in_spe:
-                spe.trim_axes(method="x-axis",boundaries=(self.xmin, self.xmax)).plot(ax=ax,label='original') 
+                spe.trim_axes(method="x-axis", boundaries=(self.xmin, self.xmax)).plot(ax=ax, label='original')
         ax.legend()
-
-    def old_send_output_table(self):
-        if self.should_pass_datatable:
-            # Extract unique x values from all spectra
-            unique_x_values = sorted(set(x for spe in self.out_spe for x, _ in zip(spe.x, spe.y)))
-            file_ids = []
-            for spe in self.out_spe:
-                try:
-                    meta_info = spe.meta["Original file"]
-                except  KeyError:
-                    meta_info = str(id(spe))
-                file_ids.append(meta_info)
-
-              # Create Orange Table
-            domain = Domain([ContinuousVariable(str(x)) for x in unique_x_values] 
-                            # + [DiscreteVariable("ID", values=set(file_ids))]
-                            , metas=[StringVariable("ID")]
-                            #,class_vars=[DiscreteVariable("ID", values=set(file_ids))]
-                            )
-            data = []
-
-            # Iterate through each spectrum to populate the data
-            for spe, file_id in zip(self.out_spe, file_ids):
-                row_data = [0] * len(unique_x_values)  # Initialize row data with zeros
-                for x, y in zip(spe.x, spe.y):
-                    column_index = unique_x_values.index(x)
-                    row_data[column_index] = y
-                data.append(row_data + [file_id])
-
-            table = Table(domain, data)
-            self.Outputs.data.send(table)
