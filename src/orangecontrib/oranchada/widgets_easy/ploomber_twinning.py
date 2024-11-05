@@ -1,23 +1,16 @@
-from Orange.data import Table, Domain, StringVariable
+from Orange.data import Table
 from Orange.widgets import gui
 from Orange.widgets.settings import Setting
 from AnyQt.QtWidgets import QFileDialog
 from Orange.widgets.widget import OWWidget, Input, Output, Msg
 from Orange.data.pandas_compat import table_from_frame
-import numpy as np
 import logging
-from itertools import cycle
 import pandas as pd
-import ploomber
-from ploomber.executors import Serial
 from ploomber.spec import DAGSpec
-from ploomber import DAG
 import os
 import yaml
-from ..base_widget import FilterWidget
 from ..base_widget import BaseWidget, RC2Spectra
 import tempfile
-#from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 
 for handler in logging.root.handlers[:]:
     logging.root.removeHandler(handler)
@@ -152,7 +145,7 @@ class PloomberTwinningWidget(BaseWidget):
         # self.optionsBox.setDisabled(False)
         cbox = gui.widgetBox(box, "Baseline removal")
         gui.spin(box, self, 'wlen', 1, 5000, step=20, callback=self.auto_process, label='Window length')
-        cbox = gui.widgetBox(box, "Peak fitting")   
+        cbox = gui.widgetBox(box, "Peak fitting")
 
     def load_file_env(self):
         filenames, filt = QFileDialog.getOpenFileNames(

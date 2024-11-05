@@ -25,7 +25,6 @@ class YAxisCalibrationWidget(BaseWidget):
         in_spe = Input("Spectra to calibrate", RC2Spectra, default=True,  auto_summary= False)
         srm_spe = Input("SRM spectrum", RC2Spectra, default=False,  auto_summary= False)
 
-
     @Inputs.in_spe
     def set_in_spe(self, spe):
         if spe:
@@ -56,7 +55,6 @@ class YAxisCalibrationWidget(BaseWidget):
         self.Warning.clear()
         len11 = len(self.in_spe) if self.in_spe else None
         len12 = len(self.srm_spe) if self.srm_spe else None
-       
         self.info.set_input_summary(f' (Input {len11} RC2Spectra + {len12} SRM RC2Spectra)')
 
     def __init__(self):
@@ -114,7 +112,7 @@ class YAxisCalibrationWidget(BaseWidget):
             self.out_spe.append(
                     self.ycalibrate(spe, ycal)
                 )
-        self.is_processed = True          
+        self.is_processed = True
         self.send_outputs()
 
     def custom_plot(self, ax):
@@ -130,11 +128,12 @@ class YAxisCalibrationWidget(BaseWidget):
                 pass
         cert = self.get_certificate()
         if cert is not None:
-            cert.plot(ax=self.axes[0].twinx(),color="pink")
+            cert.plot(ax=self.axes[0].twinx(), color="pink")
 
     def plot_create_axes(self):
         self.axes = self.figure.subplots(nrows=2, sharex=True)
         return self.axes[1]
+
 
 if __name__ == "__main__":
     from Orange.widgets.utils.widgetpreview import WidgetPreview

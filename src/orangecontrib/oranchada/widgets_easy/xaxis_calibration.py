@@ -85,7 +85,7 @@ class XAxisCalibrationWidget(FilterWidget):
 
     def __init__(self):
         super().__init__()
-        self.spe_neon = RC2Spectra()        
+        self.spe_neon = RC2Spectra()
         self.spe_si = RC2Spectra()
 
         self.calibration_model = None
