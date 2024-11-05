@@ -1,21 +1,17 @@
 <?xml version='1.0' encoding='utf-8'?>
 <scheme version="2.0" title="" description="">
 	<nodes>
-		<node id="0" name="Load Test Spectra" qualified_name="orangecontrib.oranchada.widgets_pro.load_test_spectra.TestSpectra" project_name="oranchada" version="" title="Load Test Spectra" position="(252.0, 222.0)" />
-		<node id="1" name="Moving minimum" qualified_name="orangecontrib.oranchada.widgets_pro.moving_minimum.MovingMinimum" project_name="oranchada" version="" title="Moving minimum" position="(371.0, 256.0)" />
-		<node id="2" name="Subtract" qualified_name="orangecontrib.oranchada.widgets_pro.arithmetics_subtract.Subtract" project_name="oranchada" version="" title="Subtract" position="(538.0, 171.0)" />
+		<node id="0" name="Load Test Spectra" qualified_name="orangecontrib.oranchada.widgets_pro.load_test_spectra.TestSpectra" project_name="oranchada" version="" title="Load Test Spectra" position="(184.0, 210.0)" />
+		<node id="1" name="Baseline remove" qualified_name="orangecontrib.oranchada.widgets_pro.baseline_remove.BaselineRemove" project_name="oranchada" version="" title="Baseline remove" position="(441.0, 219.0)" />
 	</nodes>
 	<links>
 		<link id="0" source_node_id="0" sink_node_id="1" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" source_channel_id="out_spe" sink_channel_id="in_spe" />
-		<link id="1" source_node_id="0" sink_node_id="2" source_channel="RC2Spectra" sink_channel="Minuend (RC2Spectra)" enabled="true" source_channel_id="out_spe" sink_channel_id="minuend" />
-		<link id="2" source_node_id="1" sink_node_id="2" source_channel="RC2Spectra" sink_channel="Subtrahend (RC2Spectra)" enabled="true" source_channel_id="out_spe" sink_channel_id="subtrahend" />
 	</links>
 	<annotations />
 	<thumbnail />
 	<node_properties>
-		<properties node_id="0" format="literal">{'controlAreaVisible': True, 'filters': {'OP': [], 'device': [], 'laser_wl': ['785'], 'provider': [], 'sample': ['sCAL']}, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\xff\x00\x00\x00^\x00\x00\x05\x00\x00\x00\x02\xbc\x00\x00\x01\x00\x00\x00\x00|\x00\x00\x04\xff\x00\x00\x02\xbb\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x01\x00\x00\x00\x00|\x00\x00\x04\xff\x00\x00\x02\xbb', 'selected_filenames': ['./FMNT-M_Ho785/sCAL10_iR785_OP01_4000msx4.txt'], 'should_auto_plot': False, 'should_auto_proc': True, 'should_pass_datatable': True, 'should_plot_legend': True, '__version__': 1}</properties>
-		<properties node_id="1" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x01\xaa\x00\x00\x00\x84\x00\x00\x04V\x00\x00\x02\x96\x00\x00\x01\xab\x00\x00\x00\xa2\x00\x00\x04U\x00\x00\x02\x95\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x01\xab\x00\x00\x00\xa2\x00\x00\x04U\x00\x00\x02\x95', 'should_auto_plot': False, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, 'window_size': 10, '__version__': 1}</properties>
-		<properties node_id="2" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x01\xaa\x00\x00\x00\x84\x00\x00\x04V\x00\x00\x02\x96\x00\x00\x01\xab\x00\x00\x00\xa2\x00\x00\x04U\x00\x00\x02\x95\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x01\xab\x00\x00\x00\xa2\x00\x00\x04U\x00\x00\x02\x95', 'should_auto_plot': True, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+		<properties node_id="0" format="literal">{'controlAreaVisible': True, 'filters': {'OP': [], 'device': ['Horiba'], 'laser_wl': [], 'provider': ['FNMT'], 'sample': ['sCAL']}, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x00\xff\x00\x00\x00^\x00\x00\x05\x00\x00\x00\x02\xbc\x00\x00\x01\x00\x00\x00\x00|\x00\x00\x04\xff\x00\x00\x02\xbb\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x01\x00\x00\x00\x00|\x00\x00\x04\xff\x00\x00\x02\xbb', 'selected_filenames': ['./FMNT-M_Ho785/sCAL10_iR785_OP01_4000msx4.txt'], 'should_auto_plot': True, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+		<properties node_id="1" format="literal">{'als_lam': 100000.0, 'als_p': 0.001, 'als_smooth': 6.0, 'controlAreaVisible': True, 'method': 'SNIP', 'niter': 40, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x03\x01\x00\x00\x00[\x00\x00\x05\xad\x00\x00\x02m\x00\x00\x03\x02\x00\x00\x00y\x00\x00\x05\xac\x00\x00\x02l\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x03\x02\x00\x00\x00y\x00\x00\x05\xac\x00\x00\x02l', 'should_auto_plot': True, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, 'window_size': 10, '__version__': 1}</properties>
 	</node_properties>
 	<session_state>
 		<window_groups />
