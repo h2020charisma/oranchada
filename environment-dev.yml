@@ -1,0 +1,13 @@
+---
+name: oranchada-dev
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - orange3
+  - pyqt
+  - pip
+  - pip:
+    - git+https://github.com/h2020charisma/ramanchada2.git
+    - -e .
