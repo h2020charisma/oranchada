@@ -164,6 +164,11 @@ conda activate oranchada
 pip install -e .
 ```
 
+To develop or test with the latest [ramanchada2](https://github.com/h2020charisma/ramanchada2) from Git, an alternative conda environment is also provided for convenience:
+
+```
+conda env create -f environment-dev.yml
+```
 
 ### Python venv
 
