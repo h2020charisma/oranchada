@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scheme version="2.0" title="" description="">
+	<nodes>
+		<node id="0" name="x-calibration Load" qualified_name="orangecontrib.oranchada.widgets_easy.calibration_load.LoadCalibrationModel" project_name="oranchada" version="" title="x-calibration Load" position="(179.0, 281.0)" />
+		<node id="1" name="x-calibration - Apply" qualified_name="orangecontrib.oranchada.widgets_easy.calibration_apply.ApplyCalibrationModel" project_name="oranchada" version="" title="x-calibration - Apply" position="(407.0, 210.0)" />
+		<node id="2" name="Load Test Spectra" qualified_name="orangecontrib.oranchada.widgets_pro.load_test_spectra.TestSpectra" project_name="oranchada" version="" title="Load Test Spectra" position="(188.0, 101.0)" />
+	</nodes>
+	<links>
+		<link id="0" source_node_id="0" sink_node_id="1" source_channel="Calibration Model" sink_channel="Calibration Model" enabled="true" source_channel_id="calmodel" sink_channel_id="calibration_model" />
+		<link id="1" source_node_id="2" sink_node_id="1" source_channel="RC2Spectra" sink_channel="RC2Spectra" enabled="true" source_channel_id="out_spe" sink_channel_id="in_spe" />
+	</links>
+	<annotations />
+	<thumbnail />
+	<node_properties>
+		<properties node_id="0" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x01\xba\x00\x00\x00H\x00\x00\x04o\x00\x00\x01\xf2\x00\x00\x01\xbb\x00\x00\x00f\x00\x00\x04n\x00\x00\x01\xf1\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x01\xbb\x00\x00\x00f\x00\x00\x04n\x00\x00\x01\xf1', '__version__': 1}</properties>
+		<properties node_id="1" format="literal">{'controlAreaVisible': True, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x02\xe4\x00\x00\x008\x00\x00\x05\xd8\x00\x00\x02\xa8\x00\x00\x02\xe5\x00\x00\x00V\x00\x00\x05\xd7\x00\x00\x02\xa7\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x02\xe5\x00\x00\x00V\x00\x00\x05\xd7\x00\x00\x02\xa7', 'should_auto_plot': False, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+		<properties node_id="2" format="literal">{'controlAreaVisible': True, 'filters': {'OP': [], 'device': ['BWtek'], 'laser_wl': ['785'], 'provider': ['ICV'], 'sample': ['PST']}, 'savedWidgetGeometry': b'\x01\xd9\xd0\xcb\x00\x03\x00\x00\x00\x00\x01\xc0\x00\x00\x00\xac\x00\x00\x04A\x00\x00\x02\xaa\x00\x00\x01\xc1\x00\x00\x00\xca\x00\x00\x04@\x00\x00\x02\xa9\x00\x00\x00\x00\x00\x00\x00\x00\x06\x00\x00\x00\x01\xc1\x00\x00\x00\xca\x00\x00\x04@\x00\x00\x02\xa9', 'selected_filenames': ['./ICV_BW785/PST02_iRPlus785_Z020_100_1300ms.txt'], 'should_auto_plot': True, 'should_auto_proc': True, 'should_pass_datatable': False, 'should_plot_legend': True, '__version__': 1}</properties>
+	</node_properties>
+	<session_state>
+		<window_groups />
+	</session_state>
+</scheme>
