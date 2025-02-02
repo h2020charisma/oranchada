@@ -8,6 +8,7 @@ import ramanchada2.misc.constants as rc2const
 from Orange.data import Table
 import pickle
 from AnyQt.QtWidgets import QFileDialog
+import matplotlib.pyplot as plt
 
 from ramanchada2.protocols.calibration.calibration_model import CalibrationModel
 available_models = ['Gaussian', 'Lorentzian', 'Moffat', 'Voigt', 'PseudoVoigt', 'Pearson4', 'Pearson7']
@@ -182,8 +183,15 @@ class XAxisCalibrationWidget(FilterWidget):
         self.send_outputs()
 
     def custom_plot(self, ax):
-        self.calibration_model.plot(ax=self.axes[0])
-        self.axes[0].set_xlabel("Wavelength/nm")
+        model_neon = self.calibration_model.components[0]
+        model_neon.model.plot(ax=self.axes[0])
+        model_si = self.calibration_model.components[1]
+        self.axes[0].axvline(x=model_si.model, color='black', linestyle='--', linewidth=2, label="Si Peak found {:.2f} nm".format(model_si.model))
+
+        # twax = self.axes[0].twinx()
+        # self.calibration_model.plot(ax=twax)
+        self.axes[0].set_xlabel("Ne peaks Wavelength/nm")
+        self.axes[0].set_ylabel("Reference peaks/nm")
         self.axes[0].legend()
         for spe in self.spe_si:
             spe.plot(ax=self.axes[1])
@@ -196,12 +204,11 @@ class XAxisCalibrationWidget(FilterWidget):
         self.axes[1].set_xlim(520.45-50, 520.45+50)
         self.axes[1].set_xlabel("Wavenumber/cm¯¹")
         self.axes[1].set_ylabel("Raman intensity")
+        self.axes[1].grid()
         if self.in_spe:
             for spe in self.in_spe:
                 spe.plot(ax=self.axes[2], label="original")
-        
-        # model_si = self.calibration_model.components[1]
-        # self.axes[0].axvline(x=model_si.model, color='black', linestyle='--', linewidth=2, label="Peak found {:.3f} nm".format(model_si.model))
+        self.axes[2].grid()
 
     def plot_create_axes(self):
         self.axes = self.figure.subplots(nrows=3, sharex=False)
