@@ -114,21 +114,44 @@ class XAxisCalibrationWidget(FilterWidget):
         self.save_button = gui.button(self.controlArea, self, "Save calibration model", callback=self.save_to_pickle)
 
     def derive_model(self, laser_wl, spe_neon, spe_sil):
-        calmodel = CalibrationModel.calibration_model_factory(
-                laser_wl,
-                spe_neon,
-                spe_sil,
-                neon_wl=rc2const.NEON_WL[laser_wl],
-                find_kw={"wlen": self.kw_findpeak_wlen, "width": self.kw_findpeak_width},
-                fit_peaks_kw={},
-                should_fit=self.si_should_fit,
-                match_method="argmin2d",
-                interpolator_method="pchip",
-                extrapolate=True,
-                prominence_coeff=self.kw_findpeak_prominence
-            )
-     
-        return calmodel
+        calmodel1 = CalibrationModel(laser_wl)
+        calmodel1.nonmonotonic = "drop"
+        # create CalibrationModel class. it does not derive a curve at this moment!
+        calmodel1.prominence_coeff = self.kw_findpeak_prominence
+        find_kw = {"wlen": self.kw_findpeak_wlen, "width": self.kw_findpeak_width}
+        find_kw["prominence"] = spe_neon.y_noise_MAD() * calmodel1.prominence_coeff
+        model_neon1 = calmodel1.derive_model_curve(
+            spe=spe_neon,
+            ref=rc2const.NEON_WL[laser_wl],
+            spe_units="cm-1",
+            ref_units="nm",
+            find_kw=find_kw,
+            fit_peaks_kw={},
+            should_fit=self.ne_should_fit,
+            name="Neon calibration",
+            match_method="argmin2d",
+            interpolator_method="pchip",
+            extrapolate=True
+        )
+        # model_neon1.model.plot(ax=ax3)
+        spe_sil_ne_calib = model_neon1.process(
+            spe_sil, spe_units="cm-1", convert_back=False
+        )
+        find_kw["prominence"] = (
+            spe_sil_ne_calib.y_noise_MAD() * calmodel1.prominence_coeff
+        )
+        calmodel1.derive_model_zero(
+            spe=spe_sil_ne_calib,
+            ref={520.45: 1},
+            spe_units=model_neon1.model_units,
+            ref_units="cm-1",
+            find_kw=find_kw,
+            fit_peaks_kw={},
+            should_fit=self.si_should_fit,
+            name="Si calibration",
+            profile=self.si_peak_profile
+        )
+        return calmodel1
 
     def apply_calibration_x(self, old_spe: rc2.spectrum.Spectrum, spe_units="cm-1"):
         new_spe = old_spe
@@ -168,12 +191,17 @@ class XAxisCalibrationWidget(FilterWidget):
             _tmp.plot(ax=self.axes[1], color='orange', label='calibrated')
         self.axes[1].legend()
         ax.set_xlabel("Wavenumber/cm¯¹")
+        ax.set_ylabel("Raman intensity")
 
         self.axes[1].set_xlim(520.45-50, 520.45+50)
         self.axes[1].set_xlabel("Wavenumber/cm¯¹")
+        self.axes[1].set_ylabel("Raman intensity")
         if self.in_spe:
             for spe in self.in_spe:
                 spe.plot(ax=self.axes[2], label="original")
+        
+        # model_si = self.calibration_model.components[1]
+        # self.axes[0].axvline(x=model_si.model, color='black', linestyle='--', linewidth=2, label="Peak found {:.3f} nm".format(model_si.model))
 
     def plot_create_axes(self):
         self.axes = self.figure.subplots(nrows=3, sharex=False)
