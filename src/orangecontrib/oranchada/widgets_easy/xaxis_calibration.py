@@ -92,18 +92,18 @@ class XAxisCalibrationWidget(FilterWidget):
         box = gui.widgetBox(self.controlArea, self.name)
         gui.doubleSpin(box, self, 'laser_wl', 0, 5000, decimals=0, step=1,
                        #callback=self.auto_process,
-                       label='Laser Wavelength [nm]')    
-        curve_box = gui.widgetBox(self.controlArea, "Calibration curve")     
+                       label='Laser Wavelength/nm')    
+        curve_box = gui.widgetBox(self.controlArea, "Calibration curve")
         gui.comboBox(curve_box, self, 'ne_peak_profile', sendSelectedValue=True, items=available_models,
-                     callback=self.auto_process, label="Peak profile")        
+                     callback=self.auto_process, label="Peak profile")
         gui.checkBox(curve_box, self, "ne_should_fit", "Should fit", callback=self.auto_process)
 
-        lazerzero_box = gui.widgetBox(self.controlArea, "Lazer zeroing")   
+        lazerzero_box = gui.widgetBox(self.controlArea, "Lazer zeroing")
         gui.comboBox(lazerzero_box, self, 'si_peak_profile', sendSelectedValue=True, items=available_models,
                      callback=self.auto_process)
         gui.checkBox(lazerzero_box, self, "si_should_fit", "Should fit", callback=self.auto_process)
 
-        self.peakbox = gui.widgetBox(self.controlArea, "Peak finding options")     
+        self.peakbox = gui.widgetBox(self.controlArea, "Peak finding options")
         gui.doubleSpin(self.peakbox, self, 'kw_findpeak_prominence', 1, 10, decimals=1, step=1, 
                        callback=self.auto_process, label='prominence')
         gui.doubleSpin(self.peakbox, self, 'kw_findpeak_wlen', 1, 1000, decimals=0, step=10, callback=self.auto_process,
@@ -122,8 +122,12 @@ class XAxisCalibrationWidget(FilterWidget):
                 find_kw={"wlen": self.kw_findpeak_wlen, "width": self.kw_findpeak_width},
                 fit_peaks_kw={},
                 should_fit=self.si_should_fit,
+                match_method="argmin2d",
+                interpolator_method="pchip",
+                extrapolate=True,
                 prominence_coeff=self.kw_findpeak_prominence
             )
+     
         return calmodel
 
     def apply_calibration_x(self, old_spe: rc2.spectrum.Spectrum, spe_units="cm-1"):
@@ -142,8 +146,8 @@ class XAxisCalibrationWidget(FilterWidget):
 
         ## baseline  SNIP
         # kwargs = {"niter" : 40 }
-        # self.spe_neon[0] = self.spe_neon[0].subtract_baseline_rc1_snip(**kwargs)  
-        # self.spe_si[0] = self.spe_si[0].subtract_baseline_rc1_snip(**kwargs)          
+        # self.spe_neon[0] = self.spe_neon[0].subtract_baseline_rc1_snip(**kwargs)
+        # self.spe_si[0] = self.spe_si[0].subtract_baseline_rc1_snip(**kwargs)         
         self.calibration_model = self.derive_model(self.laser_wl, self.spe_neon[0], self.spe_si[0])
 
         self.out_spe = list()
@@ -155,19 +159,21 @@ class XAxisCalibrationWidget(FilterWidget):
         self.send_outputs()
 
     def custom_plot(self, ax):
-        self.calibration_model.plot(ax=self.axes[0])            
+        self.calibration_model.plot(ax=self.axes[0])
+        self.axes[0].set_xlabel("Wavelength/nm")
         self.axes[0].legend()
         for spe in self.spe_si:
             spe.plot(ax=self.axes[1])
             _tmp = self.apply_calibration_x(spe)
             _tmp.plot(ax=self.axes[1], color='orange', label='calibrated')
         self.axes[1].legend()
-        ax.set_xlabel("cm-1")
+        ax.set_xlabel("Wavenumber/cm¯¹")
 
-        self.axes[1].set_xlim(520.45-50, 520.45+50)        
+        self.axes[1].set_xlim(520.45-50, 520.45+50)
+        self.axes[1].set_xlabel("Wavenumber/cm¯¹")
         if self.in_spe:
             for spe in self.in_spe:
-                spe.plot(ax=self.axes[2],label="original")
+                spe.plot(ax=self.axes[2], label="original")
 
     def plot_create_axes(self):
         self.axes = self.figure.subplots(nrows=3, sharex=False)

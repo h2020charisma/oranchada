@@ -35,20 +35,20 @@ class EditYCalibrationCertificateWidget(CreatorWidget):
         super().__init__()
 
         mbox = gui.widgetBox(self.controlArea, "Mandatory")
-        gui.doubleSpin(mbox, self, 'wavelength', 0, 5000, decimals=0, step=1, 
+        gui.doubleSpin(mbox, self, 'wavelength', 0, 5000, decimals=0, step=1,
                        callback=self.auto_process,
-                       label='Laser Wavelength [nm]')   
+                       label='Laser Wavelength [nm]')
         gui.lineEdit(mbox, self, "id", label="ID:")
         #gui.lineEdit(box, self, "description", label="Description:")
         #gui.lineEdit(mbox, self, "url", label="URL:")
-        gui.lineEdit(mbox, self, "params", label="Params:",callback=self.auto_process)
-        gui.lineEdit(mbox, self, "equation", label="Equation:",callback=self.auto_process)
+        gui.lineEdit(mbox, self, "params", label="Params:", callback=self.auto_process)
+        gui.lineEdit(mbox, self, "equation", label="Equation:", callback=self.auto_process)
      
         obox = gui.widgetBox(self.controlArea, "Optional")
-        gui.spin(obox, self, "raman_shift_min", 0, 200, label="Raman Shift Min:",callback=self.auto_process)
-        gui.spin(obox, self, "raman_shift_max", 50, 4500, label="Raman Shift Max:",callback=self.auto_process)     
-        gui.spin(obox, self, "temperature_c_min", -100, 100, label="Temperature Min (C):",callback=self.auto_process)
-        gui.spin(obox, self, "temperature_c_max", -100, 100, label="Temperature Max (C):",callback=self.auto_process)
+        gui.spin(obox, self, "raman_shift_min", 0, 200, label="Wavenumber Min:", callback=self.auto_process)
+        gui.spin(obox, self, "raman_shift_max", 50, 4500, label="Wavenumber Max:", callback=self.auto_process)     
+        gui.spin(obox, self, "temperature_c_min", -100, 100, label="Temperature Min (C):", callback=self.auto_process)
+        gui.spin(obox, self, "temperature_c_max", -100, 100, label="Temperature Max (C):", callback=self.auto_process)
         self.auto_process()
     
     def process(self):
@@ -79,8 +79,8 @@ class EditYCalibrationCertificateWidget(CreatorWidget):
             "Equation",
             "Temperature Min",
             "Temperature Max",
-            "Raman Shift Min",
-            "Raman Shift Max"
+            "Wavenumber Min",
+            "Wavenumber Max"
         ]
 
         data = [[

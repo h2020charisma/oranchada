@@ -28,7 +28,7 @@ class WL2RS(FilterWidget):
                 if spe.meta['xlabel'] != 'Wavelength [nm]':
                     self.Warning.x_label_not_wavelength()
                 meta_dct = spe.meta.model_dump()
-                meta_dct['xlabel'] = 'Raman shift [cm¯¹]'
+                meta_dct['xlabel'] = 'Wavenumber/cm¯¹'
                 spe.meta = meta_dct
             self.out_spe.append(
                 spe.abs_nm_to_shift_cm_1_filter(laser_wave_length_nm=self.laser_wl)

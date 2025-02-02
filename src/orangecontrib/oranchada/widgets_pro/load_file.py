@@ -67,7 +67,7 @@ class LoadFile(CreatorWidget):
                                                    filetype=(self.fileformat if self.fileformat != 'Auto' else None),
                                                    )
             meta_dct = spe.meta.model_dump()
-            meta_dct['xlabel'] = 'Raman shift [cm¯¹]'
+            meta_dct['xlabel'] = 'Wavenumber/cm¯¹'
             spe.meta = meta_dct
             self.out_spe.append(spe)
         self.send_outputs()

@@ -26,10 +26,10 @@ class RS2WL(FilterWidget):
         for inspe in self.in_spe:
             spe = inspe.shift_cm_1_to_abs_nm_filter(laser_wave_length_nm=self.laser_wl)
             if 'xlabel' in spe.meta.root:
-                if spe.meta['xlabel'] != 'Raman shift [cm¯¹]':
+                if spe.meta['xlabel'] != 'Wavenumber/cm¯¹':
                     self.Warning.x_label_not_ramanshift()
                 meta_dct = spe.meta.model_dump()
-                meta_dct['xlabel'] = 'Wavelength [nm]'
+                meta_dct['xlabel'] = 'Wavelength/nm'
                 spe.meta = meta_dct
             self.out_spe.append(spe)
         self.send_outputs()
