@@ -9,8 +9,11 @@ from Orange.data import Table
 import pickle
 from AnyQt.QtWidgets import QFileDialog
 import matplotlib.pyplot as plt
-
+from matplotlib.backends.backend_qt5agg import \
+    NavigationToolbar2QT as NavigationToolbar
 from ramanchada2.protocols.calibration.calibration_model import CalibrationModel
+from matplotlib.backends.backend_qt5agg import \
+    FigureCanvasQTAgg as FigureCanvas
 available_models = ['Gaussian', 'Lorentzian', 'Moffat', 'Voigt', 'PseudoVoigt', 'Pearson4', 'Pearson7']
 
 
@@ -93,7 +96,7 @@ class XAxisCalibrationWidget(FilterWidget):
         box = gui.widgetBox(self.controlArea, self.name)
         gui.doubleSpin(box, self, 'laser_wl', 0, 5000, decimals=0, step=1,
                        #callback=self.auto_process,
-                       label='Laser Wavelength/nm')    
+                       label='Laser Wavelength/nm')
         curve_box = gui.widgetBox(self.controlArea, "Calibration curve")
         gui.comboBox(curve_box, self, 'ne_peak_profile', sendSelectedValue=True, items=available_models,
                      callback=self.auto_process, label="Peak profile")
@@ -130,7 +133,7 @@ class XAxisCalibrationWidget(FilterWidget):
             fit_peaks_kw={},
             should_fit=self.ne_should_fit,
             name="Neon calibration",
-            match_method="argmin2d",
+            match_method="cluster",
             interpolator_method="pchip",
             extrapolate=True
         )
@@ -182,32 +185,39 @@ class XAxisCalibrationWidget(FilterWidget):
         self.is_processed = True
         self.send_outputs()
 
+    def plot_output(self, ax):
+        pass
+
     def custom_plot(self, ax):
         model_neon = self.calibration_model.components[0]
         model_neon.model.plot(ax=self.axes[0])
         model_si = self.calibration_model.components[1]
-        self.axes[0].axvline(x=model_si.model, color='black', linestyle='--', linewidth=2, label="Si Peak found {:.2f} nm".format(model_si.model))
+        self.axes[0].axvline(x=model_si.model, color='black', linestyle='--', linewidth=2, label="Si Peak original")
+        #{:.2f}nm".format(model_si.model))
 
         # twax = self.axes[0].twinx()
         # self.calibration_model.plot(ax=twax)
-        self.axes[0].set_xlabel("Ne peaks Wavelength/nm")
-        self.axes[0].set_ylabel("Reference peaks/nm")
+        self.axes[0].set_xlabel("Ne peak original/nm")
+        self.axes[0].set_ylabel("Ne peak NIST/nm")
         self.axes[0].legend()
         for spe in self.spe_si:
-            spe.plot(ax=self.axes[1])
+            spe.plot(ax=self.axes[1], label='Si original', color='blue')
             _tmp = self.apply_calibration_x(spe)
-            _tmp.plot(ax=self.axes[1], color='orange', label='calibrated')
+            _tmp.plot(ax=self.axes[1], color='orange', fmt='--', label='Si calibrated')
         self.axes[1].legend()
         ax.set_xlabel("Wavenumber/cm¯¹")
-        ax.set_ylabel("Raman intensity")
+        ax.set_ylabel("Raman intensity/\nArbitr.units")
 
         self.axes[1].set_xlim(520.45-50, 520.45+50)
         self.axes[1].set_xlabel("Wavenumber/cm¯¹")
-        self.axes[1].set_ylabel("Raman intensity")
+        self.axes[1].set_ylabel("Raman intensity/\nArbitr.units")
         self.axes[1].grid()
         if self.in_spe:
             for spe in self.in_spe:
-                spe.plot(ax=self.axes[2], label="original")
+                spe.plot(ax=self.axes[2], label="original", color="blue")
+        if self.out_spe:
+            for spe in self.out_spe:
+                spe.plot(ax=self.axes[2], label='calibrated', fmt='--', color='orange')
         self.axes[2].grid()
 
     def plot_create_axes(self):

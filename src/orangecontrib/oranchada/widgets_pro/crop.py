@@ -42,3 +42,8 @@ class Crop(FilterWidget):
         self.left_spin.setValue(self.left)
 
         self.auto_process(self)        
+
+    #def plot_output(self, ax):
+    #    for spe in self.out_spe:
+    #        spe.plot(ax=ax, label=f'original')        
+    #    ax.set_ylabel("Raman intensity/\nArbitr.units")

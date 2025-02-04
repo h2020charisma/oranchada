@@ -69,8 +69,7 @@ class BaseWidget(OWBaseWidget, openclass=True):
         for a in self.figure.axes:
             self.figure.delaxes(a)
         ax = self.plot_create_axes()
-        for spe in self.out_spe:
-            spe.plot(ax=ax, label=f'id(spe)={id(spe)}')
+        self.plot_output(ax)
         self.set_x_title(ax)
         self.custom_plot(ax)
         if self.should_plot_legend:
@@ -84,6 +83,10 @@ class BaseWidget(OWBaseWidget, openclass=True):
         self.mainArea.layout().insertWidget(0, self.toolbar)
         self.figure.set_tight_layout(True)
         self.canvas.draw()
+
+    def plot_output(self, ax):
+        for spe in self.out_spe:
+            spe.plot(ax=ax, label=f'id(spe)={id(spe)}')
 
     def custom_plot(self, ax):
         pass
