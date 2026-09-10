@@ -8,8 +8,9 @@ from Orange.data import Table
 import pickle
 from AnyQt.QtWidgets import QFileDialog
 
-from ramanchada2.protocols.calibration import CalibrationModel
-available_models = ['Gaussian', 'Lorentzian', 'Moffat', 'Voigt', 'PseudoVoigt', 'Pearson4', 'Pearson7']
+from ramanchada2.protocols.calibration.calibration_model import CalibrationModel
+from ramanchada2.spectrum.peaks.fit_peaks import available_models
+import ramanchada2.misc.constants as rc2const
 
 class XAxisCalibrationWidget(FilterWidget):
     name = "CHARISMA X axis calibration"
@@ -22,7 +23,7 @@ class XAxisCalibrationWidget(FilterWidget):
     kw_findpeak_width = Setting(1)
     
     ne_peak_profile = Setting(available_models[0])
-    si_peak_profile = Setting(available_models[5])
+    si_peak_profile = Setting('Pearson4')
 
     should_auto_proc = Setting(False)
     should_auto_plot = Setting(False)
@@ -114,11 +115,12 @@ class XAxisCalibrationWidget(FilterWidget):
         self.save_button = gui.button(self.controlArea, self, "Save calibration model", callback=self.save_to_pickle)
 
     def derive_model(self,laser_wl,spe_neon,spe_sil):
+        laser_wl = int(laser_wl)  # NEON_WL / CalibrationModel expect int nm (spectrastream pattern)
         calmodel = CalibrationModel(laser_wl)
         calmodel.prominence_coeff = self.kw_findpeak_prominence
         print("derive_model_curve")
         find_kw = {"prominence" :spe_neon.y_noise * calmodel.prominence_coeff , "wlen" : self.kw_findpeak_wlen, "width" :  self.kw_findpeak_width }
-        model_neon = calmodel.derive_model_curve(spe_neon,calmodel.neon_wl[laser_wl],spe_units="cm-1",ref_units="nm",find_kw=find_kw,fit_peaks_kw={},should_fit = self.ne_should_fit,name="Neon calibration")
+        model_neon = calmodel.derive_model_curve(spe_neon,rc2const.NEON_WL[laser_wl],spe_units="cm-1",ref_units="nm",find_kw=find_kw,fit_peaks_kw={},should_fit = self.ne_should_fit,name="Neon calibration",match_method="qargmin2d",interpolator_method="poly")
         spe_sil_ne_calib = model_neon.process(spe_sil,spe_units="cm-1",convert_back=False)
         find_kw = {"prominence" :spe_sil_ne_calib.y_noise * calmodel.prominence_coeff , "wlen" : self.kw_findpeak_wlen, "width" :  self.kw_findpeak_width }
         print("derive_model_zero")
