@@ -8,7 +8,7 @@ from ..base_widget import BaseWidget , RC2Spectra
 import logging
 import ramanchada2 as rc2
 
-from ramanchada2.protocols.calibration import YCalibrationComponent, YCalibrationCertificate, CertificatesDict
+from ramanchada2.protocols.calibration.ycalibration import YCalibrationComponent, YCalibrationCertificate, CertificatesDict
 
 
 

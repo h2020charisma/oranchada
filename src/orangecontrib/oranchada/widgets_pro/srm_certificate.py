@@ -6,7 +6,7 @@ from Orange.widgets.widget import  Output
 from Orange.data import Table
 
 from ..base_widget import CreatorWidget
-from ramanchada2.protocols.calibration import  YCalibrationCertificate
+from ramanchada2.protocols.calibration.ycalibration import YCalibrationCertificate
 from ramanchada2.spectrum import Spectrum
 
 from Orange.data.pandas_compat import table_from_frame
