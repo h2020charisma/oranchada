@@ -6,7 +6,7 @@ from setuptools import find_namespace_packages, setup
 
 NAME = 'oranchada'
 
-VERSION = '1.0.1'
+VERSION = '1.1.0'
 
 DESCRIPTION = 'Orange add-on for Raman spectroscopy'
 README_FILE = path.join(path.dirname(__file__), 'README.pypi')
@@ -46,7 +46,7 @@ INSTALL_REQUIRES = [
     'orange-widget-base>=4.16.1',
     'pip>=9.0',  # same as for Orange 3.28
     'ploomber~=0.23.0',
-    'ramanchada2==1.2.0',
+    'ramanchada2~=1.4.0',
     'setuptools>=36.3',  # same as for Orange 3.28
     'tables~=3.9.1',
     # 'AnyQt>=0.0.6',
